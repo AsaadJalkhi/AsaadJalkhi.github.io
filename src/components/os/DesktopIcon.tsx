@@ -24,6 +24,10 @@
  * `pointer-events: none`, so a press in the middle of the artwork reaches this
  * element rather than starting a native browser image drag. See the note on the
  * image below, and `useDesktopLayout` for the drag itself.
+ *
+ * `data-layout-id` is how `useDesktopLayout` finds this element to measure the
+ * protected area around it. Without it the icon falls back to a nominal
+ * footprint and collision gets less precise, so it stays on the root.
  */
 import { useState, type PointerEvent } from 'react';
 import { Film, FileText, Folder, Image, Layers, LayoutGrid, Link2, StickyNote } from 'lucide-react';
@@ -98,6 +102,7 @@ export function DesktopIcon({
       )}
       data-kind={item.kind}
       data-discipline={item.accent}
+      data-layout-id={item.id}
       style={{
         left: `${point.x}%`,
         top: `${point.y}%`,

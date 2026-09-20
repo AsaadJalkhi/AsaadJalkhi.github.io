@@ -76,36 +76,6 @@
   color: var(--c-text);
 }
 
-.qv__stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: var(--s-5);
-  margin: var(--s-8) 0 0;
-}
-
-.qv-stat {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: var(--s-1);
-}
-
-.qv-stat__value {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--fs-2xl);
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--c-bone);
-}
-
-.qv-stat__label {
-  font-size: var(--fs-3xs);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--c-faint);
-}
-
 /* ── Sections ────────────────────────────────────────────────────────── */
 
 .qv__section {

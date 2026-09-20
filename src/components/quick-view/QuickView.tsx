@@ -14,7 +14,7 @@ import { usePortfolio } from '@/state/portfolio';
 import { useOs } from '@/state/os';
 import { asset } from '@/lib/paths';
 import { copyText } from '@/lib/utils';
-import { countByDiscipline, featuredProjects, primaryDiscipline, projectThumb } from '@/lib/contentStore';
+import { featuredProjects, primaryDiscipline, projectThumb } from '@/lib/contentStore';
 import { usePrefersReducedMotion } from '@/hooks/useEnvironment';
 import { SmartImage } from '@/components/ui/SmartImage';
 import { Btn, DemoBadge, SectionTitle, Tag } from '@/components/ui/Ui';
@@ -28,9 +28,8 @@ export function QuickView() {
   const root = useRef<HTMLDivElement>(null);
   const [reading, setReading] = useState<Project | null>(null);
 
-  const { profile, experience, skills, projects } = portfolio;
+  const { profile, experience, skills } = portfolio;
   const featured = useMemo(() => featuredProjects(portfolio), [portfolio]);
-  const counts = useMemo(() => countByDiscipline(portfolio), [portfolio]);
   const cvHref = asset(profile.cv.file);
 
   // The "organising" entrance: blocks settle into place in document order.
@@ -81,13 +80,6 @@ export function QuickView() {
           <h1 className="qv__name">{profile.name}</h1>
           <p className="qv__headline">{profile.headline}</p>
           <p className="qv__lede">{profile.about[0]}</p>
-
-          <dl className="qv__stats">
-            <Stat value={String(projects.length)} label="Projects" />
-            <Stat value={String(counts.marketing)} label="Marketing" />
-            <Stat value={String(counts.creative)} label="Creative" />
-            <Stat value={String(counts.digital)} label="Digital" />
-          </dl>
         </section>
 
         {/* ── Selected work ── */}
@@ -223,15 +215,6 @@ export function QuickView() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="qv-stat">
-      <dt className="mono qv-stat__label">{label}</dt>
-      <dd className="qv-stat__value">{value}</dd>
     </div>
   );
 }

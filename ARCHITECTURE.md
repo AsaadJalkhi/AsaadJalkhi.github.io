@@ -43,6 +43,7 @@ src/
     useTheme.ts            Resolves light/dark from content + choice; writes <html data-theme>
     useTypography.ts       Loads the shared + per-role font files; writes the role tokens
     useDesktopLayout.ts    Owns every desktop position: scatter, drag, wrap, persist
+    desktopPlacement.ts    Pure collision geometry: protected space, nearest free spot
 
   components/
     os/                    Boot, Desktop, DesktopIcon, DesktopWidget, Dock, MenuBar,
@@ -392,10 +393,10 @@ media row is deleted.
 
 `hooks/useDesktopLayout.ts` owns the position of **every** icon and widget, because they
 share a surface and therefore have to share collision rules. Three sources of truth, in
-priority order:
+priority order — and they differ in more than precedence, see *Protected space* below:
 
-1. a position the visitor dragged — localStorage, wins over everything;
-2. an explicit `x`/`y` in `portfolio.json` — an advanced override;
+1. a position the visitor dragged — localStorage, wins over everything and is never rewritten;
+2. an explicit `x`/`y` in `portfolio.json` — an advanced override, and a *preference*;
 3. the generated scatter.
 
 The scatter is **seeded, not random-per-load** (`seededRandom(id)`), so the desktop looks the
@@ -411,6 +412,53 @@ less than `DRAG_THRESHOLD_PX` counts as a click, which is why `onClick` calls
 
 The Studio therefore never asks anyone to type a coordinate — x/y live behind an `Advanced`
 drawer.
+
+### Protected space — free positioning, no grid
+
+`hooks/desktopPlacement.ts` is the collision geometry, and it is **pure**: no DOM, no React, no
+storage, so the rules are asserted with numbers in `scripts/check-ui.mjs` (checks 16–18) rather
+than by hand in a browser. Every item carries a `SAFE_PAD` of 10px around its box, so "not
+overlapping" also means "not touching" — two labels sharing a pixel row reads as broken.
+
+**There is no grid, and adding one would be a regression.** A position that is legal is kept
+*exactly*: dropped at 733.4, stored at 733.4. Nothing is rounded to a step or snapped to a cell.
+Only a position that lands inside somebody else's protected area is changed, and then only as far
+as it has to be.
+
+`resolveSpot()` is an outward ring search: rings of growing radius (12px apart) around the
+requested point, 16 candidates each, the ring rotated half a step each time so successive rings do
+not retry the same directions. The first free candidate wins, which makes it the nearest free spot
+to within one ring — and reads as *the neighbour made room*, which is what a drop landing on
+somebody should feel like. Candidates are clamped to sit wholly on the surface so a nudge never
+parks an icon half off the desktop; the requested point itself is not, because a drop the visitor
+asked for is honoured as-is. If a desktop is so full that nothing is free within 80 rings, the
+requested point is returned unchanged: an overlapping icon beats a vanished one.
+
+**Pixels, not percentages.** Percentages are what gets stored, but a percentage is a different
+distance horizontally than vertically, and "the nearest free spot" has to mean nearest *on screen*.
+`useDesktopLayout` converts at the boundary and the geometry module only ever sees pixels.
+
+**Collision is consulted on drop, never during the drag.** `onMove` is untouched: the icon follows
+the pointer exactly, still wraps at the edges, and passes freely over its neighbours while the
+button is down. It is `onUp` that runs the requested point through `settle()` — which measures the
+dragged element's real box, treats every *other* item's current position as an obstacle, resolves,
+and persists the accepted point to the existing `storageKeys.layout`. Refreshing keeps icons where
+they were dropped, and the storage shape did not change.
+
+**Footprints are measured, not assumed.** `data-layout-id` on `.dicon` and `.widget` is how the
+hook finds each element; it reads their real boxes in a layout effect and on resize. A widget is
+roughly twice an icon's area and a `note` widget's height depends on its text, so a nominal box
+would have let icons settle on a widget's lower half. Measurement stands down while a drag is in
+flight — a drag re-renders every `pointermove`, and re-reading every box per frame is a forced
+reflow for numbers that cannot have changed.
+
+**Who decided matters more than precedence.** This is the part that is easy to get backwards:
+
+| Tier | Resolved? | Why |
+| --- | --- | --- |
+| `saved` | **Never.** Placed first, untouched at every viewport. | It is the visitor's own decision, and it is what makes a layout saved before collision existed load exactly as it was left — pre-existing overlaps included. |
+| `authored` | Yes, but with first refusal on its spot. | An `x`/`y` in the content file is a preference. No author can pick coordinates that clear their neighbours at *every* window size: the two shipped widgets are 21% apart, which genuinely overlapped at 1280×720 before this pass. |
+| `generated` | Yes, against both of the above and against each other. | So a newly added shortcut avoids everything already on the desktop, saved positions included. |
 
 ### Icons are marks; the wrapper owns the pointer
 

@@ -4,6 +4,11 @@
  * Searches projects, folders, media, notes, companies, skills and apps, and
  * also runs system commands. The index is built once per content load; matching
  * is a linear scan, which is instant at this size.
+ *
+ * A result is a title and a description, and nothing else. There is no type
+ * column: "App" beside every second row told the visitor nothing they could act
+ * on and made the list read as a table. `entry.kind` still drives matching and
+ * ranking in `lib/search.ts` — it is simply not printed.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CornerDownLeft } from 'lucide-react';
@@ -12,17 +17,6 @@ import { usePortfolio } from '@/state/portfolio';
 import { useViewport } from '@/hooks/useEnvironment';
 import { buildIndex, searchEntries, type SearchEntry } from '@/lib/search';
 import { cx } from '@/lib/utils';
-
-const KIND_LABEL: Record<SearchEntry['kind'], string> = {
-  app: 'App',
-  project: 'Project',
-  folder: 'Folder',
-  note: 'File',
-  media: 'Media',
-  skill: 'Skill',
-  company: 'Company',
-  action: 'Action',
-};
 
 export function CommandPalette() {
   const portfolio = usePortfolio();
@@ -145,7 +139,6 @@ export function CommandPalette() {
                   <span className="palette__item-title">{entry.title}</span>
                   {entry.subtitle && <span className="palette__item-sub">{entry.subtitle}</span>}
                 </span>
-                <span className="mono palette__item-kind">{KIND_LABEL[entry.kind]}</span>
                 {i === active && <CornerDownLeft className="palette__item-enter" strokeWidth={1.5} />}
               </button>
             </li>

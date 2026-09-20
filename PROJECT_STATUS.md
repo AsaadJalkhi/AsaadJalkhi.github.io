@@ -4,13 +4,115 @@
 > missing, and what was decided. It exists so a new session can pick up the work without
 > reading every file in the repo.
 >
-> **Last updated:** 2026-09-18 · **Session 9** (content-presentation / media / Studio UX pass)
+> **Last updated:** 2026-09-20 · **Session 12** (desktop collision / Quick View + search trims)
 
 ---
 
 <!-- CHECKPOINT:START -->
 
 ## CURRENT SESSION CHECKPOINT
+
+Session 12 · 2026-09-20 · **desktop icon collision · Quick View counters removed · search type
+labels removed.** Three small, scoped UI changes. Nothing unrelated was redesigned: the widgets,
+the dock, the window system and the drag architecture are untouched.
+
+**Requested:**
+
+- keep free-positioned desktop icons — explicitly **no grid**
+- give every icon a small protected bounding area, and place new icons around them
+- a random position that collides resolves to a nearby free spot
+- icons stay freely draggable; they may pass over each other *while* dragging
+- on drop: keep the exact position if valid, else move to the nearest valid spot
+- keep the existing desktop-boundary behaviour and the existing localStorage persistence
+- existing saved layouts must keep working
+- remove the Quick View statistics row (Projects / Marketing / Creative / Digital)
+- remove the "App" / type labels beside search results
+
+**Completed:**
+
+- **Free positioning plus protected space, and no grid anywhere.** New pure module
+  `src/hooks/desktopPlacement.ts`: `collides`, `isFreeSpot`, `resolveSpot`, and a `SAFE_PAD` of
+  10px. It works in **pixels**, not percentages, because a percentage is a different distance
+  horizontally than vertically and "the nearest free spot" has to mean nearest *on screen*.
+  `useDesktopLayout` converts at the boundary. There is no cell size, no snap and no rounding
+  step — asserted by check 18, which fails on `snapTo|GRID_|CELL_|gridSnap`.
+- **Resolution is an outward ring search.** If the requested spot is free it is returned
+  **unchanged, to the pixel**. Otherwise: rings of growing radius (12px apart) around the
+  requested point, 16 candidates each, rotated half a step per ring so successive rings do not
+  retry the same directions; the first free candidate wins, which makes it the nearest free spot
+  to within one ring. Candidates are clamped to sit wholly on the surface, so a nudge never parks
+  an icon half off the desktop. If nothing is free within 80 rings the requested spot is returned
+  as-is — an overlapping icon beats a vanished one.
+- **Collision is consulted on drop, never during the drag.** `onMove` is unchanged and still
+  wraps; the icon may pass freely over its neighbours while the pointer is down. `onUp` runs the
+  requested point through `settle()`, which measures the dragged element's real box, builds
+  obstacles from every *other* item's current position, resolves, and saves the accepted point to
+  the existing `storageKeys.layout`. A refresh keeps icons where they were dropped.
+- **Three tiers, and the difference is who decided.** `saved` (the visitor dragged it) is placed
+  first and **never** rewritten at any viewport — that is what keeps a layout saved before
+  collision existed loading exactly as it was left, pre-existing overlaps included. `authored`
+  (an `x`/`y` in `portfolio.json`) gets *first refusal* on its spot but is resolved like anything
+  else. `generated` (the seeded scatter) is fitted around both and around itself, so a newly added
+  shortcut avoids everything already on the desktop.
+- **The authored tier was changed on evidence, not taste.** A headless replay of the real
+  placement pass over the real content found `w-clock` × `w-reaction` overlapping at 1280×720:
+  they are authored 21% apart, which is 130px on a 618px-tall surface, and their combined
+  half-heights plus the margin is 137px. Pinning authored coordinates would have preserved that
+  bug forever, because no author can pick an x/y that clears its neighbours at *every* window
+  size. Resolving them fixes it, and the default 1440×900 composition is unchanged because there
+  they do not collide.
+- **Footprints are measured, not guessed.** `data-layout-id` on `.dicon` and `.widget`;
+  `useDesktopLayout` reads every real box in a layout effect and on resize. A widget is roughly
+  twice an icon's area and a note widget's height depends on its text, so a nominal box would have
+  let icons sit on a widget's lower half. `FALLBACK_SIZE` (one `.dicon`) covers only the first
+  paint, before anything has been laid out.
+- **Measurement stands down during a drag.** A drag re-renders on every `pointermove`, and
+  re-reading ~15 boxes per frame is a forced reflow per frame for measurements that cannot have
+  changed — moving an icon does not resize it. `syncGeometry` returns early while `dragState` is
+  set.
+- **Quick View counter row deleted.** The `<dl className="qv__stats">` block, the `Stat`
+  component, the `countByDiscipline` call and import, the now-unused `projects` destructure, and
+  the four `.qv__stats` / `.qv-stat*` rules. **Not replaced with anything.** `.qv__intro` already
+  owned its own `padding-bottom` and bottom border, so the intro flows straight into Selected
+  Work with no layout patch needed.
+- **Search type labels deleted.** The `KIND_LABEL` map, the `.palette__item-kind` span, its CSS
+  rule and its entry in the 560px media query. `entry.kind` still drives matching and ranking in
+  `lib/search.ts` — it is simply never printed. Titles, descriptions, ↑↓ navigation, Enter/open,
+  scrolling, matching and the system commands are all untouched and pinned by check 19.
+
+**In progress:** nothing.
+
+**Still to do:** the desktop collision behaviour has been verified by numbers, not by hand — a
+headless replay of the real placement pass at five viewport sizes plus four `check:ui` assertions.
+Nobody has yet dragged an icon onto another one in a real browser; browser automation is still
+unavailable in this environment. That is the one manual QA item this pass adds.
+
+**Last successful build:** `npm run build` clean (1873 modules, 3.31s); `npm run lint` (`tsc -b`)
+clean; `npm run check:content` 7/7; `npm run check:ui` **19/19**.
+
+**Files changed:**
+
+- `src/hooks/desktopPlacement.ts` — **new.** Pure collision geometry: `SAFE_PAD`, `collides`,
+  `isFreeSpot`, `resolveSpot`. No DOM, no React, no storage, so the rules are assertable.
+- `src/hooks/useDesktopLayout.ts` — measured footprints, the surface in pixels, the three-tier
+  placement pass, `settle()` on drop, drag-time measurement guard
+- `src/components/os/DesktopIcon.tsx` — `data-layout-id`, a docblock note on why it is load-bearing
+- `src/components/os/DesktopWidget.tsx` — `data-layout-id`
+- `src/components/quick-view/QuickView.tsx` — counter row, `Stat`, `countByDiscipline` removed
+- `src/components/quick-view/quick-view.css` — `.qv__stats`, `.qv-stat*` removed
+- `src/components/os/CommandPalette.tsx` — `KIND_LABEL` and the type span removed
+- `src/components/os/chrome.css` — `.palette__item-kind` and its media-query entry removed
+- `scripts/check-ui.mjs` — loads the placement module; checks 16–19
+- `PROJECT_STATUS.md`, `ARCHITECTURE.md`
+
+**Next exact step:** none. Drag one icon onto another in a real browser and confirm it steps
+aside rather than snapping to a grid.
+
+<!-- CHECKPOINT:END -->
+
+---
+
+## Previous checkpoint — Session 11
 
 Session 11 · 2026-09-19 · **Focus Mode finalisation · media titles · typography roles · Quick View
 routing.** A targeted refinement pass. No completed system was rebuilt.
@@ -97,8 +199,6 @@ font change.
 - `PROJECT_STATUS.md`, `ARCHITECTURE.md`, `CONTENT_GUIDE.md`, `README.md`
 
 **Next exact step:** none — run the manual QA in §6.
-
-<!-- CHECKPOINT:END -->
 
 ---
 
@@ -605,15 +705,15 @@ Companion docs: [`README.md`](README.md) (run/build/deploy) ·
 
 ## 2. Health check
 
-Last verified **2026-09-19, end of session 11**.
+Last verified **2026-09-20, end of session 12**.
 
 | Check | Command | Status |
 | --- | --- | --- |
 | Type check | `npm run lint` | ✅ clean |
-| Production build | `npm run build` | ✅ green — 1872 modules, 4.43s (clean) |
+| Production build | `npm run build` | ✅ green — 1873 modules, 3.31s |
 | Content validates against Zod | `npm run check:content` | ✅ 7/7 — 10 projects, 25 media items |
 | Studio export → import round trip | `npm run check:content` | ✅ byte-identical on no edit, stable under re-import |
-| Shell regressions | `npm run check:ui` | ✅ 15/15 — includes Focus portal, nav gutters, `media.title`, type-scale containment, Quick View routing |
+| Shell regressions | `npm run check:ui` | ✅ **19/19** — adds desktop collision (a free drop kept exactly, a colliding one nudged clear, no grid) and the Quick View / search trims |
 | Routes served | `npm run preview` → `/`, `/#/quick`, `/#/studio` | ✅ 200, Studio chunk emitted |
 | Backward compatibility | `npm run check:content` check 7 | ✅ both ways — content with no `media.title`/`typography` validates, and the new fields alongside legacy `secondary` validate |
 | Wallpapers ship | `ls dist/wallpapers/` | ✅ both `.jpg` files emitted |
@@ -622,6 +722,8 @@ Last verified **2026-09-19, end of session 11**.
 | Studio panels render | SSR smoke (§6, session 3) | ✅ 8/8 mount against real content |
 | Studio clicked in a browser | `npm run dev` → `#/studio` | ⚠️ **still not done** |
 | Redesign seen on screen | `npm run dev` → `http://localhost:5173/` | ⚠️ **still not done** — no browser automation in this environment |
+| Desktop collision | `npm run check:ui` 16–18 + a headless replay of the real placement pass | ✅ no overlapping pair at 1024×768, 1280×720, 1440×900, 1920×1080 or 2560×1400; a new shortcut still finds room against a fully clustered saved layout |
+| An icon dropped onto another icon | `npm run dev`, drag one onto another | ⚠️ **not done by hand** — verified by numbers only |
 
 Bundle, gzipped: `react` 69.1 kB · `index` 64.5 kB · `motion` 27.5 kB · `windowing` 12.5 kB ·
 CSS 13.8 kB · `StudioApp` 15.1 kB JS + 2.4 kB CSS (lazy — visitors never download it).
@@ -989,6 +1091,30 @@ Priority order. Update the status column as these are done.
 ---
 
 
+
+### The desktop has collision, and deliberately no grid
+
+Icons are **freely positioned**, and that is the whole point of the surface — it is meant to read
+as somebody's real desktop, hand-arranged, not as a launcher. Session 12 added a protected area
+around every item so two of them cannot sit on top of each other. It did **not** add a grid, and
+the next pass must not "finish the job" by adding one:
+
+- A drop that is legal is stored **exactly as dropped**, to the pixel. Nothing is rounded to a
+  step, snapped to a cell, or aligned to a neighbour. `check:ui` 16 asserts this with a
+  deliberately un-round coordinate, and 18 fails the build on the mere presence of
+  `snapTo|GRID_|CELL_|gridSnap` in the hook.
+- A drop that lands inside somebody else's protected area moves to the **nearest free spot
+  relative to the attempted drop** — not back to where it started, and not to a tidy slot. It
+  should feel like the neighbour made room.
+- Collision is checked **on drop only**. Dragging an icon across the desktop passes freely over
+  everything; forbidding that would make the gesture feel like it was fighting back.
+
+And one ordering rule that is easy to get backwards: a **saved** position (the visitor dragged it)
+is never rewritten, at any viewport, even when it overlaps — that is what makes a layout saved
+before this feature existed still load exactly as it was left. An **authored** position (`x`/`y` in
+`portfolio.json`) is only a preference and *is* resolved, because no author can pick coordinates
+that clear their neighbours at every window size. The two widgets shipped 21% apart genuinely
+overlapped at 1280×720 before this pass.
 
 ## 6. Session log
 

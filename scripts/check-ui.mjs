@@ -7,6 +7,13 @@
  *
  *   node scripts/check-ui.mjs
  *
+ * Checks 16–18 are session 12: desktop icons keep free positioning but gain a
+ * protected area, the Quick View counter row is gone, and a search result no
+ * longer prints its type. The first is the one with teeth — "add collision" is
+ * one keystroke away from "add a grid", and a grid is explicitly not wanted, so
+ * the checks assert both halves: a free drop is kept to the pixel, and a
+ * colliding one is resolved to somewhere near, not to a cell.
+ *
  * Checks 11–15 are session 11: Focus Mode above the whole OS, arrows in reserved
  * gutters rather than on top of the words, `media.title` with no project-title
  * fallback, typography-only type scaling, and Quick View handing the desktop
@@ -82,6 +89,22 @@ await build({
 });
 
 const { focusLayout, focusPlan } = await import(pathToFileURL(bundle).href);
+
+const placementBundle = join(outdir, 'desktop-placement.mjs');
+
+await build({
+  entryPoints: [join(root, 'src/hooks/desktopPlacement.ts')],
+  bundle: true,
+  format: 'esm',
+  platform: 'node',
+  outfile: placementBundle,
+  logLevel: 'silent',
+  alias: { '@': join(root, 'src') },
+});
+
+const { SAFE_PAD, collides, isFreeSpot, resolveSpot } = await import(
+  pathToFileURL(placementBundle).href
+);
 
 /* ------------------------------------------------------------- the checks */
 
@@ -489,6 +512,125 @@ check('15. Quick View hands the OS back without a page load', () => {
     }
   }
   return 'route applied once, view changes survive, no reload';
+});
+
+/* ------------------------------------------- 5. desktop collision + trims */
+
+check('16. a free drop is kept exactly; nothing snaps to a grid', () => {
+  const size = { width: 104, height: 120 };
+  const surface = { width: 1440, height: 780 };
+  const others = [{ x: 200, y: 200, width: 104, height: 120 }];
+
+  // An arbitrary, deliberately un-round point, far from everything.
+  const asked = { x: 733.4, y: 411.7 };
+  const kept = resolveSpot(asked, size, others, surface);
+  if (kept.x !== asked.x || kept.y !== asked.y) {
+    throw new Error(`a free drop was moved: ${JSON.stringify(kept)} — this is grid snapping`);
+  }
+
+  // Free even when it is only just free: touching the protected margin is the
+  // boundary, and one pixel outside it must still be honoured untouched.
+  const beside = { x: 200 + 104 + SAFE_PAD + 1, y: 200 };
+  const alsoKept = resolveSpot(beside, size, others, surface);
+  if (alsoKept.x !== beside.x || alsoKept.y !== beside.y) {
+    throw new Error('a drop just clear of the protected area was moved anyway');
+  }
+  return 'exact position preserved, including one pixel clear of the margin';
+});
+
+check('17. a colliding drop moves to the nearest free spot, not back and not far', () => {
+  const size = { width: 104, height: 120 };
+  const surface = { width: 1440, height: 780 };
+  const neighbour = { x: 600, y: 400, width: 104, height: 120 };
+
+  // Dropped almost on top of a neighbour.
+  const asked = { x: 610, y: 405 };
+  const out = resolveSpot(asked, size, [neighbour], surface);
+
+  if (!isFreeSpot(out, size, [neighbour])) {
+    throw new Error('the resolved spot still overlaps the protected area');
+  }
+  if (collides({ ...out, ...size }, neighbour)) {
+    throw new Error('collides() and resolveSpot() disagree about the same pair');
+  }
+  // Near the attempted drop, not back where it came from and not in a corner.
+  // The worst case is one full footprint plus the margin, plus a ring of slack.
+  const moved = Math.hypot(out.x - asked.x, out.y - asked.y);
+  const ceiling = Math.max(size.width, size.height) + SAFE_PAD + 24;
+  if (moved > ceiling) {
+    throw new Error(`resolved ${Math.round(moved)}px away, further than ${ceiling}px`);
+  }
+  // Inside the surface: a nudge may not park an icon half off the desktop.
+  if (
+    out.x < size.width / 2 ||
+    out.y < size.height / 2 ||
+    out.x > surface.width - size.width / 2 ||
+    out.y > surface.height - size.height / 2
+  ) {
+    throw new Error('the resolved spot hangs off the edge of the surface');
+  }
+  return `nudged ${Math.round(moved)}px, clear and on-surface`;
+});
+
+check('18. the desktop keeps free positioning and persistence', () => {
+  const hook = read('src/hooks/useDesktopLayout.ts');
+  // Percentages into storage, so a layout survives a resize; the existing key.
+  if (!/writeStore\(storageKeys\.layout/.test(hook)) {
+    throw new Error('drops no longer persist to the desktop layout key');
+  }
+  // A *saved* position is the visitor's own and is never rewritten — this is
+  // what keeps a layout saved before collision existed loading unchanged. It is
+  // placed before anything else and skips resolution entirely.
+  if (!/const decided = saved\[subject\.id\];/.test(hook)) {
+    throw new Error('saved positions are no longer honoured first');
+  }
+  const memo = hook.slice(hook.indexOf('const positions = useMemo'), hook.indexOf('positionsRef'));
+  const placeSaved = memo.indexOf('out[subject.id] = decided;');
+  const resolveLoose = memo.indexOf('resolveSpot(');
+  if (placeSaved < 0 || resolveLoose < 0 || placeSaved > resolveLoose) {
+    throw new Error('saved positions are resolved rather than placed untouched');
+  }
+  // Authored coordinates get first refusal but are still resolved: no author can
+  // pick an x/y that clears its neighbours at every window size.
+  if (!/\[\.\.\.authored, \.\.\.seeded\]/.test(hook)) {
+    throw new Error('authored positions no longer outrank the seeded scatter');
+  }
+  // Collision is consulted on drop, not on move: dragging over a neighbour is
+  // allowed, and the drop is what has to be legal.
+  const move = hook.slice(hook.indexOf('function onMove'), hook.indexOf('function onUp'));
+  if (/resolveSpot/.test(move)) throw new Error('the live drag resolves collisions mid-gesture');
+  if (!/const accepted = settle\(state\.id, requested, state\.element\)/.test(hook)) {
+    throw new Error('the drop no longer goes through collision resolution');
+  }
+  // No grid anywhere: no cell size, no snap, no round-to-step.
+  if (/snapTo|GRID_|CELL_|gridSnap/.test(hook)) throw new Error('a grid crept into the desktop');
+  return 'drop-time resolution, saved layouts untouched, no grid';
+});
+
+check('19. Quick View has no counter row and search prints no type', () => {
+  const qv = read('src/components/quick-view/QuickView.tsx');
+  for (const gone of ['qv__stats', 'qv-stat', 'countByDiscipline', 'function Stat(']) {
+    if (qv.includes(gone)) throw new Error(`Quick View still carries ${gone}`);
+  }
+  const css = read('src/components/quick-view/quick-view.css');
+  if (/qv-stat|qv__stats/.test(css)) throw new Error('the stat styles outlived the markup');
+  // The intro has to close itself off, or it runs into Selected Work.
+  if (!/padding-bottom/.test(rule(css, '.qv__intro'))) {
+    throw new Error('.qv__intro lost the padding that separates it from the next section');
+  }
+
+  const palette = read('src/components/os/CommandPalette.tsx');
+  for (const gone of ['KIND_LABEL', 'palette__item-kind']) {
+    if (palette.includes(gone)) throw new Error(`the palette still renders ${gone}`);
+  }
+  if (/palette__item-kind/.test(read('src/components/os/chrome.css'))) {
+    throw new Error('the type-column styles outlived the markup');
+  }
+  // Everything else about the palette stays.
+  for (const kept of ['palette__item-title', 'palette__item-sub', 'ArrowDown', 'onKeyDown']) {
+    if (!palette.includes(kept)) throw new Error(`removing the type column took ${kept} with it`);
+  }
+  return 'counters gone, type column gone, titles and keys intact';
 });
 
 /* ---------------------------------------------------------------- report */

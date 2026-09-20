@@ -59,6 +59,7 @@ export function DesktopWidget({
     <div
       className={cx('widget', `widget--${widget.type}`, dragging && 'widget--dragging')}
       style={{ left: `${point.x}%`, top: `${point.y}%` }}
+      data-layout-id={widget.id}
       onPointerDown={onPointerDown}
       role="note"
       aria-label={widget.title ?? LABELS[widget.type]}

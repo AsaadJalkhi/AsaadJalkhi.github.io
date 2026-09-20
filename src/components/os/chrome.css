@@ -483,12 +483,6 @@
   white-space: nowrap;
 }
 
-.palette__item-kind {
-  flex: none;
-  font-size: 10px;
-  color: var(--c-faint);
-}
-
 .palette__item-enter {
   width: 14px;
   height: 14px;
@@ -506,8 +500,7 @@
 }
 
 @media (max-width: 560px) {
-  .palette__footer,
-  .palette__item-kind {
+  .palette__footer {
     display: none;
   }
 }
