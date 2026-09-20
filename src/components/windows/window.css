@@ -1,0 +1,265 @@
+/**
+ * Window chrome.
+ *
+ * Aiming for "believable desktop window": an opaque body so text always sits on
+ * a solid surface, translucency only in the title bar, a hairline ring so the
+ * window reads as a physical panel, and layered shadows (tight contact + wide
+ * lift) that deepen when the window takes focus.
+ *
+ * CORNER CLIPPING — read before touching the radii.
+ * A `backdrop-filter` creates its own stacking/backdrop root, and browsers do
+ * not clip that root against a *rounded ancestor's* `overflow: hidden`. The
+ * title bar therefore used to paint square corners over the window's rounded
+ * ones, which is the hairline "box edge" artifact that showed on every window.
+ * The fix has three parts and all three are load-bearing:
+ *   1. `.window` gets `isolation: isolate`, giving the blur a root that is
+ *      itself rounded;
+ *   2. the bar and the body each carry their own matching `border-radius`, so
+ *      they never rely on the parent to round them;
+ *   3. `.window-rnd` (the wrapper react-rnd renders) is rounded too, because
+ *      the resize handles and drag layer live there.
+ */
+
+.window-rnd {
+  border-radius: var(--r-win);
+}
+
+.window {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--r-win);
+  background: var(--c-surface);
+  box-shadow: var(--sh-window);
+  transform-origin: center center;
+  animation: window-in var(--t-base) var(--e-out);
+  transition:
+    box-shadow var(--t-base) var(--e-out),
+    background-color var(--t-theme) var(--e-in-out);
+}
+
+/* Hairline highlight along the top edge — the detail that sells "panel". */
+.window::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  height: 1px;
+  border-radius: var(--r-win) var(--r-win) 0 0;
+  background: var(--c-edge-light);
+  pointer-events: none;
+}
+
+.window--focused {
+  box-shadow: var(--sh-focus-window);
+}
+
+.window--closing {
+  animation: window-out var(--t-fast) var(--e-in-out) forwards;
+  pointer-events: none;
+}
+
+@keyframes window-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes window-out {
+  to {
+    opacity: 0;
+    transform: scale(0.985) translateY(3px);
+  }
+}
+
+/* ------------------------------------------------------------- title bar */
+
+.window__bar {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  height: var(--win-header);
+  padding: 0 var(--s-2) 0 var(--s-4);
+  /* See the note at the top of this file — this radius is the corner fix. */
+  border-radius: var(--r-win) var(--r-win) 0 0;
+  border-bottom: 1px solid var(--c-hairline);
+  background: var(--c-glass);
+  backdrop-filter: var(--blur-chrome);
+  cursor: grab;
+  user-select: none;
+  transition:
+    background-color var(--t-theme) var(--e-in-out),
+    border-color var(--t-theme) var(--e-in-out);
+}
+
+.window__bar:active {
+  cursor: grabbing;
+}
+
+.window__identity {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+.window__title {
+  font-size: var(--fs-xs);
+  font-weight: 590;
+  letter-spacing: var(--tracking-tight);
+  color: var(--c-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--t-base) var(--e-out);
+}
+
+.window--focused .window__title {
+  color: var(--c-text);
+}
+
+.window__subtitle {
+  font-size: var(--fs-3xs);
+  font-family: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--c-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transition: opacity var(--t-base) var(--e-out);
+}
+
+.window--focused .window__subtitle {
+  opacity: 1;
+}
+
+/* -------------------------------------------------------------- controls */
+
+.window__controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
+.window__control {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-sm);
+  color: var(--c-faint);
+  opacity: 0;
+  transition:
+    background var(--t-instant) var(--e-out),
+    color var(--t-instant) var(--e-out),
+    opacity var(--t-fast) var(--e-out);
+}
+
+.window__control svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Controls fade in on focus or hover — quiet until you need them. */
+.window--focused .window__control,
+.window:hover .window__control,
+.window__control:focus-visible {
+  opacity: 1;
+}
+
+.window__control:hover {
+  background: var(--c-hover-strong);
+  color: var(--c-bone);
+}
+
+.window__control--close:hover {
+  background: var(--c-danger);
+  color: #fff;
+}
+
+/* ------------------------------------------------------------------ body */
+
+.window__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  /* Matches the shell so the bottom corners stay round under any content. */
+  border-radius: 0 0 var(--r-win) var(--r-win);
+  background: var(--c-surface);
+  overscroll-behavior: contain;
+  transition: background-color var(--t-theme) var(--e-in-out);
+}
+
+/* --------------------------------------------------------- resize handles */
+
+.window__handle {
+  z-index: 2;
+}
+
+.window__handle--br {
+  width: 16px !important;
+  height: 16px !important;
+  right: 1px !important;
+  bottom: 1px !important;
+}
+
+/* ------------------------------------------------- shared window content */
+
+.win-pad {
+  padding: var(--s-6) var(--s-8);
+}
+
+.win-scroll {
+  height: 100%;
+  overflow: auto;
+}
+
+.win-split {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+}
+
+.win-split__aside {
+  border-right: 1px solid var(--c-hairline);
+  overflow: auto;
+  padding: var(--s-4) var(--s-2);
+  background: var(--c-sunken);
+}
+
+.win-split__main {
+  min-width: 0;
+  overflow: auto;
+}
+
+@media (max-width: 720px) {
+  .win-pad {
+    padding: var(--s-5);
+  }
+}
+
+@media (max-width: 640px) {
+  .win-split {
+    grid-template-columns: 1fr;
+  }
+}

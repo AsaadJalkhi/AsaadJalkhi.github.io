@@ -1,0 +1,252 @@
+/**
+ * The Work window — a visual archive, not a file manager.
+ *
+ * Rules that keep it from turning back into a dashboard:
+ *   · media is the object; there are no cards, borders or panels around it
+ *   · text is small, quiet and sits under the image like a caption
+ *   · tiles vary in width and ratio, driven by `project.tile` in the content
+ *   · the only chrome is a thin filter row
+ *
+ * Sized with container queries so it reflows to the *window*, not the viewport.
+ */
+
+.work {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--c-surface);
+}
+
+/* ── Filter row ──────────────────────────────────────────────────────── */
+
+.work__bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-4) var(--s-6) var(--s-3);
+  border-bottom: 1px solid var(--c-hairline);
+}
+
+.work__filters {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-1) var(--s-4);
+}
+
+.work__filter {
+  position: relative;
+  padding: 2px 0;
+  color: var(--c-faint);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-tight);
+  white-space: nowrap;
+  transition: color var(--t-fast) var(--e-out);
+}
+
+.work__filter:hover {
+  color: var(--c-text);
+}
+
+.work__filter--active {
+  color: var(--c-bone);
+}
+
+/* A hairline instead of a pill: quieter, and it reads as a tab. */
+.work__filter--active::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+}
+
+.work__count {
+  flex: none;
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── The grid ────────────────────────────────────────────────────────── */
+
+.work__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.work__grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--s-8) var(--s-5);
+  padding: var(--s-6) var(--s-6) var(--s-16);
+  align-items: start;
+}
+
+/* ── One project ─────────────────────────────────────────────────────── */
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  grid-column: span var(--span, 4);
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tile__media {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: var(--ratio, 4 / 3);
+  border-radius: var(--r-sm);
+  background: var(--c-sunken);
+  box-shadow: var(--sh-media);
+}
+
+/* SmartImage renders a <span> wrapper, so it needs an explicit box here. */
+.tile__media .smart-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The image itself does the moving — the frame stays put. */
+.tile__media .smart-image__img,
+.tile__media .poster {
+  width: 100%;
+  height: 100%;
+  transition: transform var(--t-slow) var(--e-out);
+}
+
+.tile:hover .tile__media .smart-image__img,
+.tile:hover .tile__media .poster,
+.tile:focus-visible .tile__media .smart-image__img,
+.tile:focus-visible .tile__media .poster {
+  transform: scale(1.035);
+}
+
+/* Barely-there darkening on hover so the caption reads against any image. */
+.tile__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.3));
+  opacity: 0;
+  transition: opacity var(--t-base) var(--e-out);
+}
+
+.tile:hover .tile__media::after {
+  opacity: 1;
+}
+
+.tile__play {
+  position: absolute;
+  right: var(--s-3);
+  bottom: var(--s-3);
+  z-index: 1;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(10, 11, 12, 0.55);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  opacity: 0.9;
+  transition: transform var(--t-base) var(--e-spring);
+}
+
+.tile__play svg {
+  width: 13px;
+  height: 13px;
+}
+
+.tile:hover .tile__play {
+  transform: scale(1.08);
+}
+
+.tile__label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-right: var(--s-2);
+}
+
+.tile__title {
+  color: var(--c-bone);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.35;
+}
+
+.tile__meta {
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Discipline appears as one quiet word, only on hover. */
+.tile__kind {
+  color: var(--c-mute);
+  font-size: var(--fs-3xs);
+  opacity: 0;
+  transform: translateY(-2px);
+  transition:
+    opacity var(--t-base) var(--e-out),
+    transform var(--t-base) var(--e-out);
+}
+
+.tile:hover .tile__kind,
+.tile:focus-visible .tile__kind {
+  opacity: 1;
+  transform: none;
+}
+
+.tile__sample {
+  margin-left: var(--s-2);
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+  font-style: italic;
+}
+
+/* ── Responsive: reflows to the window, not the screen ───────────────── */
+
+@container (max-width: 900px) {
+  .work__grid {
+    gap: var(--s-6) var(--s-4);
+    padding: var(--s-5) var(--s-5) var(--s-12);
+  }
+  /* Collapse the fine-grained spans into halves and wholes. */
+  .tile {
+    grid-column: span min(12, max(6, var(--span, 4)));
+  }
+}
+
+@container (max-width: 560px) {
+  .tile {
+    grid-column: span 12;
+  }
+  .work__bar {
+    padding: var(--s-3) var(--s-4);
+  }
+  .work__grid {
+    padding: var(--s-4) var(--s-4) var(--s-10);
+  }
+}
+
+.work__empty {
+  padding: var(--s-16) var(--s-6);
+  text-align: center;
+}

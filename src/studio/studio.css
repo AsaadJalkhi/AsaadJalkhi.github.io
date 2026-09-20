@@ -1,0 +1,1282 @@
+/*
+ * Portfolio Studio.
+ *
+ * A working tool, not a showpiece: denser than the rest of ASAAD.OS, with
+ * quieter surfaces so the content being edited is what stands out. Everything
+ * still comes from the design tokens.
+ */
+
+/*
+ * The Studio is a full-screen route (`#/studio`), not a window: it replaces the
+ * desktop entirely rather than floating above it, so it owns the viewport and
+ * scrolls its own panes. `100dvh` keeps it honest on mobile browsers whose
+ * toolbars come and go.
+ */
+.studio {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 208px 1fr;
+  height: 100dvh;
+  min-height: 0;
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-size: var(--fs-sm);
+}
+
+/* ----------------------------------------------------------------- sidebar */
+
+.studio__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-4) var(--s-3);
+  border-right: 1px solid var(--c-line);
+  background: var(--c-ink);
+  overflow-y: auto;
+}
+
+.studio__nav-title {
+  margin: var(--s-3) var(--s-2) var(--s-1);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--c-faint);
+}
+
+.studio__group:first-child .studio__nav-title {
+  margin-top: 0;
+}
+
+/* Groups give the sidebar an order that matches how you actually work. */
+.studio__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.studio__tab {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--c-mute);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--t-fast) var(--e-out), background var(--t-fast) var(--e-out);
+}
+
+.studio__tab svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.studio__tab:hover {
+  background: var(--c-raised);
+  color: var(--c-text);
+}
+
+.studio__tab--active {
+  background: var(--c-raised-2);
+  border-color: var(--c-line);
+  color: var(--c-bone);
+}
+
+.studio__status {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: auto;
+  padding: var(--s-3) var(--s-2) 0;
+  border-top: 1px solid var(--c-line);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--c-danger);
+}
+
+.studio__status[data-ok] {
+  color: var(--c-ok);
+}
+
+.studio__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: currentColor;
+}
+
+/* -------------------------------------------------------------------- main */
+
+.studio__main {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--s-6);
+}
+
+.studio__issues {
+  margin-bottom: var(--s-5);
+  padding: var(--s-4);
+  border: 1px solid rgba(224, 82, 82, 0.35);
+  border-radius: var(--r-md);
+  background: rgba(224, 82, 82, 0.08);
+}
+
+.studio__issues-title {
+  margin: 0 0 var(--s-2);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--c-danger);
+}
+
+.studio__issues ul {
+  margin: 0;
+  padding-left: var(--s-4);
+  color: var(--c-text);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+}
+
+.studio__issues code {
+  color: var(--c-bone);
+  font-family: var(--font-mono);
+}
+
+/* ------------------------------------------------------------------- panel */
+
+.studio-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  max-width: 1100px;
+}
+
+.studio-panel__head {
+  border-bottom: 1px solid var(--c-line);
+  padding-bottom: var(--s-4);
+}
+
+.studio-panel__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+  color: var(--c-bone);
+}
+
+.studio-panel__lede {
+  margin: var(--s-2) 0 0;
+  max-width: 68ch;
+  color: var(--c-mute);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+}
+
+.studio-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.studio-section__title {
+  margin: 0;
+  font-size: var(--fs-3xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+
+.studio-section__hint,
+.studio-sub {
+  margin: 0;
+  color: var(--c-faint);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+}
+
+.studio-sub {
+  margin-top: var(--s-2);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--c-mute);
+}
+
+/* ------------------------------------------------------------------ fields */
+
+.studio-grid {
+  display: grid;
+  gap: var(--s-3) var(--s-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.studio-grid[data-cols='1'] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.studio-grid[data-cols='3'] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .studio-grid,
+  .studio-grid[data-cols='3'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.studio-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.studio-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-5);
+  padding: var(--s-3) 0;
+}
+
+.studio-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.studio-chip {
+  padding: var(--s-1) var(--s-3);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-pill);
+  background: none;
+  color: var(--c-mute);
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--t-fast) var(--e-out);
+}
+
+.studio-chip:hover {
+  color: var(--c-bone);
+  border-color: var(--c-bone);
+}
+
+.studio-chip--on[data-discipline='marketing'] {
+  background: var(--c-marketing);
+  border-color: var(--c-marketing);
+  color: var(--c-accent-ink);
+}
+
+.studio-chip--on[data-discipline='creative'] {
+  background: var(--c-creative);
+  border-color: var(--c-creative);
+  color: var(--c-accent-ink);
+}
+
+.studio-chip--on[data-discipline='digital'] {
+  background: var(--c-digital);
+  border-color: var(--c-digital);
+  color: var(--c-accent-ink);
+}
+
+/* ----------------------------------------------------------- icon buttons */
+
+.studio-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  background: var(--c-raised);
+  color: var(--c-mute);
+  cursor: pointer;
+  transition: all var(--t-fast) var(--e-out);
+}
+
+.studio-icon-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+.studio-icon-btn:hover:not(:disabled) {
+  border-color: var(--c-line-strong);
+  color: var(--c-bone);
+}
+
+.studio-icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.studio-icon-btn--danger:hover:not(:disabled) {
+  border-color: var(--c-danger);
+  color: var(--c-danger);
+}
+
+/* ---------------------------------------------------------------- repeater */
+
+.studio-rep {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  align-items: flex-start;
+}
+
+.studio-rep__empty {
+  margin: 0;
+  padding: var(--s-4);
+  width: 100%;
+  border: 1px dashed var(--c-line);
+  border-radius: var(--r-md);
+  color: var(--c-faint);
+  font-size: var(--fs-xs);
+}
+
+.studio-rep__item {
+  width: 100%;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-raised);
+  overflow: hidden;
+}
+
+.studio-rep__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-raised-2);
+}
+
+.studio-rep__index {
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+}
+
+.studio-rep__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--c-bone);
+  font-size: var(--fs-xs);
+}
+
+.studio-rep__tools {
+  display: flex;
+  gap: var(--s-1);
+}
+
+.studio-rep__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+}
+
+/* ------------------------------------------------------- master / detail */
+
+.studio-split {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  gap: var(--s-5);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .studio-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.studio-list {
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-ink);
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+}
+
+.studio-list__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--c-line);
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-wide);
+}
+
+.studio-list__scroll {
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.studio-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--s-2) var(--s-3);
+  border: none;
+  border-left: 2px solid transparent;
+  border-bottom: 1px solid var(--c-line);
+  background: none;
+  color: var(--c-mute);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--t-fast) var(--e-out);
+}
+
+.studio-list__item:hover {
+  background: var(--c-raised);
+  color: var(--c-text);
+}
+
+.studio-list__item--active {
+  border-left-color: var(--c-accent);
+  background: var(--c-raised-2);
+  color: var(--c-bone);
+}
+
+.studio-list__title {
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+}
+
+.studio-list__star {
+  margin-left: var(--s-1);
+  color: var(--c-marketing);
+}
+
+.studio-list__meta {
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+}
+
+.studio-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  min-width: 0;
+}
+
+.studio-detail__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.studio-detail__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  color: var(--c-bone);
+}
+
+.studio-detail__tools {
+  display: flex;
+  gap: var(--s-1);
+}
+
+/* ------------------------------------------------------------------ export */
+
+.studio-export__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.studio-export__blocked {
+  margin: 0;
+  padding: var(--s-3) var(--s-4);
+  border-left: 2px solid var(--c-danger);
+  background: rgba(224, 82, 82, 0.08);
+  color: var(--c-text);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+}
+
+.studio-export__message {
+  margin: 0;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+}
+
+.studio-export__message--ok {
+  background: rgba(116, 214, 189, 0.1);
+  color: var(--c-ok);
+}
+
+.studio-export__message--bad {
+  background: rgba(224, 82, 82, 0.1);
+  color: var(--c-danger);
+}
+
+.studio-export__steps-title {
+  margin: 0 0 var(--s-3);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+
+.studio-export__steps ol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.studio-export__steps li {
+  display: flex;
+  gap: var(--s-3);
+  align-items: baseline;
+  color: var(--c-text);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+}
+
+.studio-export__step-n {
+  flex-shrink: 0;
+  width: 20px;
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+}
+
+.studio-export__preview {
+  min-width: 0;
+}
+
+.studio-export__json {
+  max-height: 320px;
+  margin: 0;
+  padding: var(--s-4);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-void);
+  color: var(--c-mute);
+  font-family: var(--font-mono);
+  font-size: var(--fs-3xs);
+  line-height: 1.7;
+  overflow: auto;
+  white-space: pre;
+}
+
+.studio-export__truncated {
+  margin: var(--s-2) 0 0;
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+}
+
+/* --------------------------------------------------------------- advanced */
+
+/*
+ * Ids, coordinates and other fields that have to exist but should never be the
+ * first thing you see. Collapsed by default, quiet when open.
+ */
+.studio-advanced {
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px dashed var(--c-line);
+}
+
+.studio-advanced__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--c-faint);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.studio-advanced__summary::-webkit-details-marker {
+  display: none;
+}
+
+.studio-advanced__summary::before {
+  content: '›';
+  display: inline-block;
+  font-size: var(--fs-sm);
+  line-height: 1;
+  transition: transform var(--t-fast) var(--e-out);
+}
+
+.studio-advanced[open] .studio-advanced__summary::before {
+  transform: rotate(90deg);
+}
+
+.studio-advanced__summary:hover {
+  color: var(--c-text);
+}
+
+.studio-advanced__hint {
+  margin: var(--s-2) 0 0;
+  font-size: var(--fs-3xs);
+  line-height: var(--lh-body);
+  color: var(--c-faint);
+}
+
+.studio-advanced__body {
+  margin-top: var(--s-3);
+}
+
+.studio-note {
+  margin: var(--s-3) 0 0;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-body);
+  color: var(--c-faint);
+}
+
+/* ------------------------------------------------------------- PIN gate */
+
+/*
+ * Deliberately calm and Apple-ish: a single centred panel, one field, no
+ * chrome. It is a privacy gate (see PinGate.tsx), so it should feel like a
+ * closed door rather than a security checkpoint.
+ */
+.pin {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  height: 100dvh;
+  place-items: center;
+  padding: var(--s-8);
+  background: var(--c-surface);
+}
+
+.pin__panel {
+  display: flex;
+  width: min(320px, 100%);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  text-align: center;
+}
+
+.pin__panel[data-wrong] {
+  animation: pin-shake 480ms var(--e-out);
+}
+
+@keyframes pin-shake {
+  10%,
+  90% {
+    transform: translateX(-3px);
+  }
+  30%,
+  70% {
+    transform: translateX(5px);
+  }
+  50% {
+    transform: translateX(-5px);
+  }
+}
+
+.pin__icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+}
+
+.pin__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pin__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  color: var(--c-bone);
+}
+
+.pin__lede {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-mute);
+}
+
+.pin__input {
+  width: 160px;
+  margin-top: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-md);
+  background: var(--c-raised);
+  color: var(--c-bone);
+  font-family: var(--font-mono);
+  font-size: var(--fs-lg);
+  letter-spacing: 0.45em;
+  text-align: center;
+  outline: none;
+  transition:
+    border-color var(--t-fast) var(--e-out),
+    box-shadow var(--t-fast) var(--e-out);
+}
+
+.pin__input:focus {
+  border-color: var(--c-accent-line);
+  box-shadow: 0 0 0 3px var(--c-accent-soft);
+}
+
+.pin__submit {
+  width: 160px;
+  padding: var(--s-2) var(--s-4);
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+  font-size: var(--fs-sm);
+  font-weight: 560;
+  cursor: pointer;
+  transition:
+    background var(--t-fast) var(--e-out),
+    opacity var(--t-fast) var(--e-out);
+}
+
+.pin__submit:hover:not(:disabled) {
+  background: var(--c-accent-hi);
+}
+
+.pin__submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pin__note {
+  margin: var(--s-3) 0 0;
+  max-width: 34ch;
+  font-size: var(--fs-3xs);
+  line-height: var(--lh-body);
+  color: var(--c-faint);
+}
+
+/* ------------------------------------------------- lazy-loading placeholder */
+
+/*
+ * Shown for the moment between hitting `#/studio` and the Studio chunk landing.
+ * Deliberately plain: a spinner here would be longer than the wait.
+ */
+.studio-loading {
+  display: grid;
+  place-items: center;
+  height: 100dvh;
+  background: var(--c-surface);
+  color: var(--c-faint);
+  font-size: var(--fs-sm);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ------------------------------------------------------- icon editing */
+/*
+ * Icon path + live preview. The preview deliberately mirrors what the desktop
+ * does with a missing file — fall back to the monogram — so the Studio never
+ * promises artwork that will not appear on the site.
+ */
+.studio-icon-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4);
+}
+
+.studio-icon-row > .studio-grid {
+  flex: 1;
+  min-width: 0;
+}
+
+.studio-icon-preview {
+  position: relative;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  margin-top: 22px; /* aligns with the input, past the field label */
+  border-radius: var(--r-sm);
+  border: 1px solid var(--c-line);
+  background: var(--c-raised);
+  overflow: hidden;
+}
+
+.studio-icon-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Letters on the swatch background, matching the unplated desktop fallback. */
+.studio-icon-preview__mono {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--c-text);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.studio-icon-preview__missing {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: var(--c-surface);
+  color: var(--c-faint);
+}
+
+.studio-icon-preview__missing svg {
+  width: 11px;
+  height: 11px;
+}
+
+/*
+ * Both modes, side by side, each on its own background.
+ *
+ * A logo is only ever half-checked against one theme. Showing light and dark
+ * together is the difference between "my PNG is fine" and "my PNG is fine and
+ * my black mark disappears at night", and it is the whole reason the icon
+ * editor takes two files.
+ */
+.studio-icon-previews {
+  display: flex;
+  flex: none;
+  gap: var(--s-2);
+}
+
+/* Each preview paints the desktop background it is simulating, and the artwork
+   sits on it bare — no plate, no tint — exactly as DesktopIcon draws it. */
+.studio-icon-preview[data-preview-theme='light'] {
+  background: #f2f1ee;
+  color: #1a1a1a;
+}
+
+.studio-icon-preview[data-preview-theme='dark'] {
+  background: #17171a;
+  color: #f2f1ee;
+}
+
+.studio-icon-preview img {
+  padding: 6px;
+}
+
+.studio-icon-preview__label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1px 0;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 8px;
+  text-align: center;
+  letter-spacing: 0.06em;
+}
+
+/* --------------------------------------------------------- typography */
+
+.studio-font + .studio-font {
+  margin-top: var(--s-5);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--c-line);
+}
+
+.studio-font__role {
+  margin: 0;
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--c-bone);
+}
+
+.studio-font__lede {
+  margin: var(--s-1) 0 var(--s-4);
+  max-width: 62ch;
+  font-size: var(--fs-xs);
+  color: var(--c-mute);
+}
+
+/*
+ * The sample reads through the same CSS variables the site uses, so a font that
+ * failed to load shows its fallback here too — and a role you have just retuned
+ * is previewed with the real thing rather than an approximation of it.
+ */
+.studio-font__sample {
+  margin: var(--s-3) 0 0;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-sm);
+  background: var(--c-sunken);
+  color: var(--c-text);
+  overflow-wrap: anywhere;
+}
+
+.studio-font__sample[data-role='display'] {
+  font-family: var(--font-display);
+  /* Capped, because the real Display size would not fit a panel column. */
+  font-size: min(var(--size-display), 34px);
+  font-weight: var(--weight-display);
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-display);
+  color: var(--c-bone);
+}
+
+.studio-font__sample[data-role='heading'] {
+  font-family: var(--font-heading);
+  font-size: var(--size-heading);
+  font-weight: var(--weight-heading);
+  letter-spacing: var(--tracking-heading);
+  line-height: var(--leading-heading);
+  color: var(--c-bone);
+}
+
+.studio-font__sample[data-role='body'] {
+  font-family: var(--font-body);
+  font-size: var(--size-body);
+  font-weight: var(--weight-body);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-body);
+}
+
+/* ------------------------------------------------- media & hero editing */
+
+/* Names a nested list (gallery images, website screenshots) inside a form. */
+.studio-rep__title {
+  display: block;
+  margin-bottom: var(--s-2);
+  color: var(--c-mute);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* "Add another image", with its explanation beside it rather than beneath. */
+.studio-inline-action {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin-top: var(--s-2);
+}
+
+.studio-hint {
+  color: var(--c-faint);
+  font-size: var(--fs-2xs);
+  line-height: 1.4;
+}
+
+/* A small, honest look at what the chosen hero actually is. */
+/*
+ * MUST stay `position: relative`. This is the whole of the session-10 `#/studio`
+ * regression, and it is a one-line fix to a one-word omission.
+ *
+ * The preview renders `<MediaRenderer mode="card">`, and card mode hands back a
+ * BARE adapter — for a still that is `<SmartImage class="media-fill">`, which is
+ * `position: absolute; inset: 0`. With no positioned ancestor here, its
+ * containing block resolved all the way up to `.studio` (`position: fixed;
+ * inset: 0`) and the picture covered the entire editor. `overflow: hidden`
+ * below does NOT rescue it: a clipper only clips descendants whose containing
+ * block is inside it, and an absolute child that skipped past this element is
+ * not one of them.
+ *
+ * Any future container that renders media in `card` or `focus` mode owes it the
+ * same thing — the mode contract is "the container supplies the box".
+ */
+.studio-hero-preview {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  background: var(--c-sunken);
+}
+
+.studio-hero-preview > * {
+  width: 100%;
+  height: 100%;
+}
+
+.studio-hero-preview__none {
+  color: var(--c-faint);
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.08em;
+}
+
+/* ------------------------------------------------------- render failure */
+/*
+ * Shown by StudioBoundary in place of a section or panel that threw. It is
+ * deliberately calm rather than alarming: the draft is intact, and the only
+ * thing that has gone wrong is that one part of the form cannot be drawn.
+ */
+.studio-broken {
+  padding: var(--s-4);
+  border: 1px solid rgba(224, 82, 82, 0.35);
+  border-radius: var(--r-md);
+  background: rgba(224, 82, 82, 0.08);
+}
+
+.studio-broken__title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--c-bone);
+}
+
+.studio-broken__body {
+  margin: var(--s-2) 0 0;
+  font-size: 12px;
+  color: var(--c-danger);
+  overflow-wrap: anywhere;
+}
+
+.studio-broken__note {
+  margin: var(--s-3) 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--c-mute);
+}
+
+/* --------------------------------------------- stale-draft recovery */
+/*
+ * Full-screen, deliberately. This is a data-loss decision and it should not be
+ * possible to click past it by accident into the editor behind.
+ */
+.studio-recovery {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--s-6);
+  background: var(--c-surface);
+  color: var(--c-text);
+  overflow: auto;
+}
+
+.studio-recovery__card {
+  max-width: 560px;
+  padding: var(--s-8);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-lg);
+  background: var(--c-raised);
+  box-shadow: var(--sh-pop);
+}
+
+.studio-recovery__icon {
+  width: 26px;
+  height: 26px;
+  color: var(--c-danger);
+}
+
+.studio-recovery__card h1 {
+  margin: var(--s-4) 0 var(--s-3);
+  font-size: var(--fs-lg);
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.studio-recovery__card p {
+  color: var(--c-mute);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.studio-recovery__card code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+.studio-recovery__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin: var(--s-5) 0 var(--s-4);
+}
+
+.studio-recovery__primary,
+.studio-recovery__ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0 var(--s-4);
+  height: 38px;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  border: 1px solid var(--c-line);
+  transition:
+    background var(--t-fast) var(--e-out),
+    border-color var(--t-fast) var(--e-out);
+}
+
+.studio-recovery__primary {
+  background: var(--c-accent);
+  border-color: transparent;
+  color: #fff;
+}
+
+.studio-recovery__primary:hover {
+  filter: brightness(1.06);
+}
+
+.studio-recovery__ghost {
+  color: var(--c-text);
+  background: transparent;
+}
+
+.studio-recovery__ghost:hover {
+  background: var(--c-hover);
+  border-color: var(--c-line-strong);
+}
+
+.studio-recovery__ghost svg {
+  width: 15px;
+  height: 15px;
+}
+
+.studio-recovery__note {
+  margin: 0;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--c-line);
+  font-size: var(--fs-xs);
+}
+
+/* ------------------------------------------ reload from portfolio */
+.studio__reload,
+.studio__reload-confirm {
+  margin-top: var(--s-3);
+  font-size: var(--fs-xs);
+}
+
+.studio__reload {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  width: 100%;
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-sm);
+  color: var(--c-faint);
+  text-align: left;
+  transition: color var(--t-fast) var(--e-out), background var(--t-fast) var(--e-out);
+}
+
+.studio__reload:hover {
+  color: var(--c-text);
+  background: var(--c-hover);
+}
+
+.studio__reload svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+
+.studio__reload-confirm {
+  padding: var(--s-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  background: var(--c-raised);
+}
+
+.studio__reload-confirm p {
+  margin: 0 0 var(--s-3);
+  color: var(--c-mute);
+  line-height: 1.5;
+}
+
+.studio__reload-confirm div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.studio__reload-confirm button {
+  padding: var(--s-1) var(--s-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  color: var(--c-text);
+  font-size: var(--fs-xs);
+}
+
+.studio__reload-confirm button:hover {
+  background: var(--c-surface);
+}
+
+.studio__reload-yes {
+  color: var(--c-danger) !important;
+  border-color: var(--c-line-strong) !important;
+}
+
+/* ------------------------------------------- media requirement message */
+/*
+ * The one line telling you what this media item still needs. Its text comes
+ * from `mediaProblem()` — the same function the schema validates with — so it
+ * is never out of step with what Export will accept.
+ */
+.studio-req {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: var(--s-3) 0 0;
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-sm);
+  background: var(--c-raised-2);
+  color: var(--c-text);
+  font-size: var(--fs-xs);
+  line-height: 1.45;
+}
+
+.studio-req svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--c-danger);
+}
+
+.studio-req--ok {
+  color: var(--c-mute);
+  background: transparent;
+  padding-inline: 0;
+}
+
+.studio-req--ok svg {
+  color: var(--c-ok);
+}

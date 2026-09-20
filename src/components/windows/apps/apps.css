@@ -1,0 +1,1208 @@
+/**
+ * Shared styling for every window application.
+ *
+ * Apps render inside `.window__body`, which owns the scroll container — these
+ * rules only handle the content. Anything discipline-coloured reads `--accent`,
+ * set once here from a `data-discipline` attribute so no app hardcodes a hue.
+ */
+
+[data-discipline='marketing'] {
+  --accent: var(--c-marketing);
+}
+[data-discipline='creative'] {
+  --accent: var(--c-creative);
+}
+[data-discipline='digital'] {
+  --accent: var(--c-digital);
+}
+
+/* ── Project ─────────────────────────────────────────────────────────── */
+
+/*
+ * The lead image runs edge to edge before any text, then the writing settles
+ * into a single readable measure. Nothing here is boxed in a card.
+ */
+.case {
+  padding-bottom: var(--s-16);
+}
+
+.case[data-compact] {
+  padding-bottom: 0;
+}
+
+/*
+ * The hero is sized by its media, not by a rectangle decided in advance.
+ *
+ * This was a hard `aspect-ratio: 16 / 9` with `> * { height: 100% }`, so a
+ * portrait Reel opened a case study as a thin sliver marooned in a wide grey
+ * band, and a square photograph got the same treatment. The only constraint
+ * that belongs here is a ceiling: a very tall image must not push the writing
+ * two screens down the window.
+ */
+.case__hero {
+  margin: 0 0 var(--s-8);
+  overflow: hidden;
+  background: var(--c-sunken);
+}
+
+.case__hero > * {
+  width: 100%;
+}
+
+/* A still at its own shape: shrink-wrapped and centred, never letterboxed. */
+.case__hero .smart-image--natural .smart-image__img {
+  width: auto;
+  max-width: 100%;
+  max-height: 72dvh;
+  margin-inline: auto;
+}
+
+/* Anything with a declared ratio (video, embed, a forced aspect) keeps it
+   until it would be taller than the ceiling. */
+.case__hero .media-frame__stage {
+  max-height: 78dvh;
+}
+
+.case[data-compact] .case__hero {
+  border-radius: var(--r-md);
+}
+
+.case[data-compact] .case__hero .smart-image--natural .smart-image__img,
+.case[data-compact] .case__hero .media-frame__stage {
+  max-height: 52dvh;
+}
+
+/* Everything after the hero shares one centred column. */
+.case__head,
+.case__facts,
+.case__lede,
+.case__metrics,
+.case__narrative,
+.case__section,
+.case__grid,
+.case__links,
+.case__disclaimer {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--s-6);
+  padding-right: var(--s-6);
+}
+
+.case__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+/* DISPLAY role. Three near-identical headings — this, .about__name and
+   .contact__title — were three copies of one intent; they now share the role so
+   one control moves all of them. See the role block in tokens.css. */
+.case__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--size-display);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  color: var(--c-bone);
+  text-wrap: balance;
+}
+
+.case__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-mute);
+}
+
+.case__role {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-faint);
+}
+
+/* The one line of editorial voice in the layout. */
+.case__intro {
+  margin: var(--s-3) 0 0;
+  max-width: 56ch;
+  font-family: var(--font-editorial);
+  font-size: var(--fs-lg);
+  line-height: 1.5;
+  color: var(--c-text);
+}
+
+.case__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--s-4);
+  margin-top: var(--s-8);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--c-hairline);
+}
+
+.fact dt {
+  margin-bottom: 4px;
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+}
+
+.fact dd {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-text);
+}
+
+.case__lede {
+  margin-top: var(--s-8);
+  max-width: 66ch;
+  font-size: var(--fs-md);
+  line-height: 1.75;
+  color: var(--c-text);
+}
+
+.case__metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--s-6);
+  margin-top: var(--s-10);
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.metric__value {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--c-bone);
+}
+
+.metric__label {
+  font-size: var(--fs-xs);
+  color: var(--c-text);
+}
+
+.metric__note {
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+}
+
+.case__narrative {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+  margin-top: var(--s-10);
+}
+
+.case__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.case__block-label {
+  margin: 0;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--c-mute);
+}
+
+.case__block-body {
+  margin: 0;
+  max-width: 64ch;
+  font-size: var(--fs-md);
+  line-height: 1.75;
+  color: var(--c-text);
+}
+
+/* Media below the fold breaks out of the text column. */
+.case__section {
+  max-width: 1040px;
+  margin-top: var(--s-12);
+}
+
+.case__media {
+  margin-top: var(--s-4);
+}
+
+.case__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--s-8);
+  margin-top: var(--s-12);
+  padding-top: var(--s-8);
+  border-top: 1px solid var(--c-hairline);
+}
+
+.case__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.case__bullets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case__bullets li {
+  position: relative;
+  padding-left: var(--s-4);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--c-text);
+}
+
+.case__bullets li::before {
+  content: '';
+  position: absolute;
+  top: 0.62em;
+  left: 0;
+  width: 6px;
+  height: 1px;
+  background: var(--accent, var(--c-faint));
+}
+
+.case__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  margin-bottom: var(--s-4);
+}
+
+.case__credits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+}
+
+.case__credits li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-1) 0;
+  border-bottom: 1px solid var(--c-line);
+  color: var(--c-text);
+}
+
+.case__credit-role {
+  color: var(--c-faint);
+}
+
+.case__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  padding-top: var(--s-6);
+  border-top: 1px solid var(--c-line);
+}
+
+.case__disclaimer {
+  margin: var(--s-8) 0 0;
+  padding: var(--s-3) var(--s-4);
+  border-left: 2px solid var(--c-line-strong);
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+  color: var(--c-faint);
+}
+
+/* ── Notes ───────────────────────────────────────────────────────────── */
+
+.note {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+}
+
+.note__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-4);
+  border-bottom: 1px solid var(--c-line);
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+}
+
+.note__body {
+  flex: 1;
+  margin: 0;
+  padding: var(--s-5);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.8;
+  color: var(--c-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.note[data-tone='accent'] .note__body {
+  color: var(--c-bone);
+  border-left: 2px solid var(--c-accent);
+}
+
+.note[data-tone='easter-egg'] {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(232, 90, 42, 0.12), transparent 70%),
+    var(--c-surface);
+}
+
+.note[data-tone='easter-egg'] .note__body {
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  line-height: 1.6;
+  color: var(--c-bone);
+}
+
+/* ── Media player ────────────────────────────────────────────────────── */
+
+.player {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  background: var(--c-void);
+}
+
+.player__stage {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: var(--s-3);
+}
+
+/*
+ * The media box inside the player window.
+ *
+ * `aspect-ratio` decides the shape; the two maxima keep it inside the window
+ * whichever way the person has dragged it. Height wins for portrait, width for
+ * landscape, and `margin: auto` centres whatever is left over — so a 9:16 Reel
+ * stays tall and narrow in a wide window instead of being stretched to fill it.
+ *
+ * Adapters render `mode="focus"` in here and position themselves absolutely,
+ * which is what `position: relative` is for.
+ */
+.player__box {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+  overflow: hidden;
+  background: #000;
+  border-radius: var(--r-md);
+}
+
+/* With a ratio set, height leads and width follows from it. */
+.player__box[style*='aspect-ratio'] {
+  height: 100%;
+}
+
+/* 'auto' has no shape to honour — let it take the room it is given. */
+.player__box:not([style*='aspect-ratio']) {
+  width: 100%;
+  height: 100%;
+}
+
+.player__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-top: 1px solid var(--c-line);
+  background: var(--c-glass);
+}
+
+.player__info {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.player__title {
+  overflow: hidden;
+  font-size: var(--fs-sm);
+  color: var(--c-bone);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player__meta {
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+}
+
+.player__controls {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--s-1);
+}
+
+/* ── Browser ─────────────────────────────────────────────────────────── */
+
+.browser {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+}
+
+.browser__chrome {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-raised);
+}
+
+.browser__lock {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  color: var(--c-digital);
+}
+
+.browser__address {
+  flex: 1;
+  overflow: hidden;
+  padding: var(--s-1) var(--s-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background: var(--c-ink);
+  font-size: var(--fs-3xs);
+  color: var(--c-mute);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.browser__page {
+  position: relative;
+  flex: 1;
+  min-height: 220px;
+  overflow: hidden;
+}
+
+.browser__page > .poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.browser__overlay {
+  position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  padding: var(--s-6);
+  background: linear-gradient(180deg, rgba(5, 5, 6, 0.5), rgba(5, 5, 6, 0.88));
+  text-align: center;
+}
+
+.browser__host {
+  font-size: var(--fs-3xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-digital);
+}
+
+.browser__note {
+  margin: 0;
+  max-width: 42ch;
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+  color: var(--c-mute);
+}
+
+/* ── About ───────────────────────────────────────────────────────────── */
+
+.about {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--s-8) var(--s-6) var(--s-12);
+}
+
+.about__hero {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: var(--s-5);
+  align-items: center;
+}
+
+.about__portrait {
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-media);
+}
+
+.about__portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.about__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+/* DISPLAY role. */
+.about__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--size-display);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  color: var(--c-bone);
+}
+
+.about__positioning {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  font-style: italic;
+  color: var(--c-creative);
+}
+
+.about__availability {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--c-mute);
+}
+
+/*
+ * The stat blocks that used to live here (projects counted per discipline)
+ * have been removed on purpose: this page is about a person, not a scoreboard.
+ */
+
+.about__statement {
+  margin: var(--s-8) 0;
+  padding-left: var(--s-5);
+  border-left: 2px solid var(--c-accent-line);
+  max-width: 50ch;
+  font-family: var(--font-editorial);
+  font-size: var(--fs-lg);
+  line-height: 1.5;
+  color: var(--c-bone);
+  text-wrap: pretty;
+}
+
+.about__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.about__body p {
+  margin: 0;
+  max-width: 58ch;
+  font-size: var(--fs-md);
+  line-height: 1.75;
+  color: var(--c-text);
+}
+
+.about__gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--s-4);
+  margin: var(--s-8) 0;
+}
+
+.about__figure {
+  margin: 0;
+}
+
+.about__figure img {
+  width: 100%;
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-media);
+}
+
+.about__figure figcaption {
+  margin-top: var(--s-2);
+  font-size: var(--fs-2xs);
+  color: var(--c-faint);
+}
+
+/* Interests, tools, current focus — whatever the content file decides. */
+.about__lists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--s-6) var(--s-8);
+  margin-top: var(--s-10);
+  padding-top: var(--s-6);
+  border-top: 1px solid var(--c-line);
+}
+
+.about__list-title {
+  margin: 0 0 var(--s-3);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--c-accent);
+}
+
+.about__list ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about__list li {
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--c-text);
+}
+
+.about__footnote {
+  margin: var(--s-8) 0 0;
+  font-family: var(--font-editorial);
+  font-size: var(--fs-sm);
+  font-style: italic;
+  color: var(--c-mute);
+}
+
+/* ── CV ──────────────────────────────────────────────────────────────── */
+
+.cv {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--s-8) var(--s-6) var(--s-12);
+}
+
+.cv__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.cv__name {
+  margin: var(--s-1) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--c-bone);
+}
+
+.cv__role {
+  margin: 4px 0 0;
+  font-size: var(--fs-sm);
+  color: var(--c-creative);
+}
+
+.cv__contact {
+  margin: var(--s-2) 0 0;
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+}
+
+.cv__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--s-2);
+}
+
+.cv__updated {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+}
+
+.cv__sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  margin-top: var(--s-6);
+}
+
+.cv__heading {
+  margin: 0 0 var(--s-2);
+  font-size: var(--fs-3xs);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-faint);
+}
+
+.cv__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cv__lines li {
+  padding-bottom: var(--s-2);
+  border-bottom: 1px solid var(--c-line);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--c-text);
+}
+
+.cv__lines li:last-child {
+  border-bottom: 0;
+}
+
+.cv__empty {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--fs-sm);
+  color: var(--c-faint);
+}
+
+.cv__empty svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Contact ─────────────────────────────────────────────────────────── */
+
+.contact {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: var(--s-8) var(--s-6) var(--s-12);
+}
+
+/* DISPLAY role. */
+.contact__title {
+  margin: var(--s-2) 0 var(--s-6);
+  max-width: 18ch;
+  font-family: var(--font-display);
+  font-size: var(--size-display);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  color: var(--c-bone);
+  text-wrap: balance;
+}
+
+.contact__email {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-md);
+  background: var(--c-raised);
+}
+
+.contact__email-address {
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  color: var(--c-bone);
+  word-break: break-all;
+}
+
+.contact__email-actions {
+  display: flex;
+  gap: var(--s-2);
+}
+
+.contact__socials {
+  display: flex;
+  flex-direction: column;
+  margin: var(--s-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contact__social {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-1);
+  border-bottom: 1px solid var(--c-line);
+  color: var(--c-text);
+  text-decoration: none;
+  transition: color var(--t-instant) var(--e-out), padding-left var(--t-fast) var(--e-out);
+}
+
+.contact__social:hover {
+  padding-left: var(--s-3);
+  color: var(--c-bone);
+}
+
+.contact__social-label {
+  flex: none;
+  min-width: 90px;
+  font-size: var(--fs-sm);
+}
+
+.contact__social-handle {
+  flex: 1;
+  overflow: hidden;
+  font-size: var(--fs-xs);
+  color: var(--c-faint);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact__social-arrow {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--c-faint);
+  transition: transform var(--t-fast) var(--e-out);
+}
+
+.contact__social:hover .contact__social-arrow {
+  transform: translate(2px, -2px);
+  color: var(--c-accent);
+}
+
+.contact__note {
+  margin: var(--s-6) 0 0;
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+  color: var(--c-faint);
+}
+
+/* ── Skills ──────────────────────────────────────────────────────────── */
+
+.skills {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--s-8) var(--s-6) var(--s-12);
+}
+
+.skills__head {
+  margin-bottom: var(--s-6);
+}
+
+.skills__lede {
+  margin: var(--s-2) 0 0;
+  max-width: 44ch;
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  line-height: 1.4;
+  color: var(--c-text);
+}
+
+.skills__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--s-5);
+}
+
+.skill-group {
+  padding-top: var(--s-3);
+  border-top: 2px solid var(--accent, var(--c-line-strong));
+}
+
+.skill-group__title {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--c-bone);
+}
+
+.skill-group__caption {
+  margin: var(--s-1) 0 0;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--c-mute);
+}
+
+.skill-group__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: var(--s-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skill-group__items li {
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--c-text);
+}
+
+/* ── Experience ──────────────────────────────────────────────────────── */
+
+.experience {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--s-8) var(--s-6) var(--s-12);
+}
+
+.experience__head {
+  margin-bottom: var(--s-6);
+}
+
+.experience__lede {
+  margin: var(--s-2) 0 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  color: var(--c-text);
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline__item {
+  position: relative;
+  padding: 0 0 var(--s-8) var(--s-6);
+  border-left: 1px solid var(--c-line);
+}
+
+.timeline__item:last-child {
+  padding-bottom: 0;
+  border-left-color: transparent;
+}
+
+.timeline__marker {
+  position: absolute;
+  top: 6px;
+  left: -4px;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: var(--c-faint);
+}
+
+.timeline__item[data-current] .timeline__marker {
+  background: var(--c-creative);
+  box-shadow: 0 0 0 4px rgba(232, 90, 42, 0.16);
+}
+
+.timeline__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.timeline__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.timeline__role {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--c-bone);
+}
+
+.timeline__period {
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+}
+
+.timeline__company {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-creative);
+}
+
+.timeline__location {
+  color: var(--c-faint);
+}
+
+.timeline__summary {
+  margin: 0;
+  max-width: 56ch;
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  color: var(--c-text);
+}
+
+.timeline__highlights {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline__highlights li {
+  position: relative;
+  padding-left: var(--s-4);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--c-mute);
+}
+
+.timeline__highlights li::before {
+  content: '';
+  position: absolute;
+  top: 0.62em;
+  left: 0;
+  width: 6px;
+  height: 1px;
+  background: var(--c-faint);
+}
+
+.timeline__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.timeline__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}
+
+/* ── Narrow windows ──────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .case,
+  .about,
+  .cv,
+  .contact,
+  .skills,
+  .experience {
+    padding: var(--s-5) var(--s-4) var(--s-8);
+  }
+
+  .case__block,
+  .about__hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-2);
+  }
+
+  .about__portrait {
+    max-width: 130px;
+  }
+
+  .file-row {
+    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-areas: 'thumb main' 'thumb tags';
+  }
+
+  .file-row__thumb {
+    width: 44px;
+    height: 32px;
+  }
+
+  .file-row__meta {
+    display: none;
+  }
+}
+
+/* ── System alert ────────────────────────────────────────────────────── */
+
+/*
+ * The creative-software easter eggs. Compact, centred, Apple-ish: an icon, a
+ * bold one-line title, a short line of body copy, and at most two buttons.
+ * Anything longer stops being a joke and starts being a feature.
+ */
+.alert {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  padding: var(--s-6) var(--s-6) var(--s-5);
+  text-align: center;
+}
+
+.alert__icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: var(--r-md);
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+}
+
+.alert__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.alert[data-tone='caution'] .alert__icon {
+  background: color-mix(in srgb, var(--c-light-min) 18%, transparent);
+  color: var(--c-light-min);
+}
+
+.alert[data-tone='error'] .alert__icon {
+  background: color-mix(in srgb, var(--c-danger) 16%, transparent);
+  color: var(--c-danger);
+}
+
+.alert__title {
+  margin: 0;
+  max-width: 26ch;
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: 620;
+  line-height: 1.25;
+  letter-spacing: var(--tracking-tight);
+  color: var(--c-bone);
+  text-wrap: balance;
+}
+
+.alert__body {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--c-mute);
+  text-wrap: pretty;
+}
+
+.alert__actions {
+  display: flex;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}

@@ -1,0 +1,513 @@
+/** Menu bar, dock and command palette. */
+
+/* ── Menu bar ────────────────────────────────────────────────────────── */
+
+.menubar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: var(--z-menubar);
+  display: flex;
+  height: var(--menubar-h);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: 0 var(--s-3);
+  background: var(--c-glass-strong);
+  backdrop-filter: var(--blur-chrome);
+  border-bottom: 1px solid var(--c-hairline);
+  transition:
+    background-color var(--t-theme) var(--e-in-out),
+    border-color var(--t-theme) var(--e-in-out);
+}
+
+.menubar__left,
+.menubar__right {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.menubar__left {
+  gap: var(--s-1);
+}
+
+.menubar__right {
+  flex: none;
+  gap: 2px;
+}
+
+/* The branding is a quiet wordmark, not a logo lockup. */
+.menubar__mark {
+  padding: 0 var(--s-3) 0 var(--s-2);
+  font-size: var(--fs-xs);
+  font-weight: 640;
+  letter-spacing: -0.012em;
+  color: var(--c-bone);
+}
+
+/* Primary navigation — the four things a recruiter is looking for. */
+.menubar__nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.menubar__link {
+  padding: 3px var(--s-3);
+  border-radius: var(--r-sm);
+  color: var(--c-mute);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+  transition:
+    background var(--t-instant) var(--e-out),
+    color var(--t-instant) var(--e-out);
+}
+
+.menubar__link:hover {
+  background: var(--c-hover);
+  color: var(--c-bone);
+}
+
+/* An open section is "selected" — one of the few places the accent appears. */
+.menubar__link--open {
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+  font-weight: 560;
+}
+
+.menubar__btn {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 3px var(--s-2);
+  border-radius: var(--r-sm);
+  color: var(--c-mute);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  transition:
+    color var(--t-instant) var(--e-out),
+    background var(--t-instant) var(--e-out);
+}
+
+.menubar__btn:hover {
+  background: var(--c-hover);
+  color: var(--c-bone);
+}
+
+.menubar__btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Theme toggle. Icon-only; the icon itself says which way the switch goes. */
+.menubar__toggle {
+  display: grid;
+  width: 26px;
+  height: 22px;
+  place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--c-mute);
+  cursor: pointer;
+  transition:
+    color var(--t-instant) var(--e-out),
+    background var(--t-instant) var(--e-out);
+}
+
+.menubar__toggle svg {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--t-base) var(--e-spring);
+}
+
+.menubar__toggle:hover {
+  background: var(--c-hover);
+  color: var(--c-bone);
+}
+
+.menubar__toggle:hover svg {
+  transform: rotate(-18deg);
+}
+
+.menubar__clock {
+  margin-left: var(--s-2);
+  padding-right: var(--s-1);
+  font-size: var(--fs-xs);
+  color: var(--c-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .menubar__btn span {
+    display: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .menubar__link {
+    padding: 3px var(--s-2);
+  }
+}
+
+/* ── Dock ────────────────────────────────────────────────────────────── */
+
+.dock {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z-dock);
+  display: flex;
+  min-height: var(--dock-h);
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-4) var(--s-3);
+  pointer-events: none;
+}
+
+/*
+ * The dock floats as a soft glass pill, not a chunky slab: high blur, low
+ * opacity, a hairline ring for the edge and one wide shadow for the lift.
+ */
+.dock__rail,
+.dock__running {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  margin: 0;
+  padding: var(--s-1) var(--s-2);
+  border-radius: var(--r-xl);
+  background: var(--c-glass);
+  box-shadow:
+    inset 0 1px 0 var(--c-edge-light),
+    var(--sh-ring),
+    0 12px 36px -12px rgba(14, 16, 20, 0.28);
+  backdrop-filter: var(--blur-chrome);
+  list-style: none;
+  pointer-events: auto;
+  transition: background-color var(--t-theme) var(--e-in-out);
+}
+
+[data-theme='dark'] .dock__rail,
+[data-theme='dark'] .dock__running {
+  box-shadow:
+    inset 0 1px 0 var(--c-edge-light),
+    var(--sh-ring),
+    0 16px 44px -14px rgba(0, 0, 0, 0.7);
+}
+
+.dock__rail {
+  flex: none;
+}
+
+/* Hairline divider between the app rail and the external shortcuts. */
+.dock__sep {
+  width: 1px;
+  height: 24px;
+  margin: 0 var(--s-1);
+  background: var(--c-line);
+}
+
+.dock__app {
+  position: relative;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: var(--r-md);
+  color: var(--c-mute);
+  cursor: pointer;
+  transition:
+    color var(--t-fast) var(--e-out),
+    background var(--t-fast) var(--e-out),
+    transform var(--t-base) var(--e-spring);
+}
+
+.dock__app svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dock__app:hover {
+  background: var(--c-hover-strong);
+  color: var(--c-bone);
+  transform: translateY(-3px);
+}
+
+.dock__app:active {
+  transform: translateY(-1px);
+}
+
+.dock__app--running {
+  color: var(--c-text);
+}
+
+.dock__app--running::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  transform: translateX(-50%);
+}
+
+.dock__tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  padding: 4px var(--s-2);
+  border-radius: var(--r-sm);
+  background: var(--c-glass-strong);
+  backdrop-filter: var(--blur-chrome);
+  box-shadow: var(--sh-pop);
+  font-size: var(--fs-3xs);
+  color: var(--c-text);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity var(--t-fast) var(--e-out),
+    transform var(--t-fast) var(--e-out);
+}
+
+.dock__app:hover .dock__tip,
+.dock__app:focus-visible .dock__tip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.dock__running {
+  max-width: min(46vw, 520px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.dock__running::-webkit-scrollbar {
+  display: none;
+}
+
+.dock__task {
+  display: flex;
+  max-width: 180px;
+  align-items: center;
+  gap: var(--s-2);
+  height: 32px;
+  padding: 0 var(--s-3);
+  border-radius: var(--r-md);
+  color: var(--c-mute);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  transition:
+    color var(--t-instant) var(--e-out),
+    background var(--t-instant) var(--e-out),
+    opacity var(--t-instant) var(--e-out);
+}
+
+.dock__task svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.dock__task-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dock__task:hover {
+  background: var(--c-hover);
+  color: var(--c-text);
+}
+
+.dock__task--focused {
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+}
+
+.dock__task--minimized {
+  opacity: 0.5;
+}
+
+@media (max-width: 860px) {
+  .dock__task-label {
+    display: none;
+  }
+}
+
+/* ── Command palette ─────────────────────────────────────────────────── */
+
+.palette {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-palette);
+  display: flex;
+  justify-content: center;
+  padding: min(14vh, 140px) var(--s-4) var(--s-4);
+}
+
+.palette__scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: var(--c-scrim);
+  backdrop-filter: blur(3px);
+  cursor: default;
+  animation: fade-in var(--t-fast) var(--e-out) both;
+}
+
+.palette__panel {
+  position: relative;
+  display: flex;
+  width: min(620px, 100%);
+  max-height: 60vh;
+  flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--r-xl);
+  background: var(--c-glass-strong);
+  box-shadow:
+    inset 0 1px 0 var(--c-edge-light),
+    var(--sh-focus-window);
+  backdrop-filter: var(--blur-chrome);
+  animation: palette-in var(--t-base) var(--e-out) both;
+}
+
+@keyframes palette-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.palette__field {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-5);
+  border-bottom: 1px solid var(--c-hairline);
+}
+
+.palette__input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--c-bone);
+  font-family: var(--font-sans);
+  font-size: var(--fs-lg);
+  outline: none;
+}
+
+.palette__input::placeholder {
+  color: var(--c-faint);
+}
+
+.palette__esc {
+  flex: none;
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  background: var(--c-hover-strong);
+  font-size: 10px;
+  color: var(--c-faint);
+}
+
+.palette__results {
+  flex: 1;
+  margin: 0;
+  padding: var(--s-2);
+  overflow-y: auto;
+  list-style: none;
+}
+
+.palette__none {
+  padding: var(--s-6) var(--s-4);
+  font-size: var(--fs-sm);
+  color: var(--c-faint);
+  text-align: center;
+}
+
+.palette__item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.palette__item--active {
+  background: var(--c-accent-soft);
+}
+
+.palette__item--active .palette__item-title {
+  color: var(--c-accent);
+}
+
+.palette__item-main {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.palette__item-title {
+  overflow: hidden;
+  font-size: var(--fs-sm);
+  color: var(--c-bone);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette__item-sub {
+  overflow: hidden;
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette__item-kind {
+  flex: none;
+  font-size: 10px;
+  color: var(--c-faint);
+}
+
+.palette__item-enter {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--c-mute);
+}
+
+.palette__footer {
+  display: flex;
+  gap: var(--s-4);
+  padding: var(--s-2) var(--s-5);
+  border-top: 1px solid var(--c-hairline);
+  font-size: 10px;
+  color: var(--c-faint);
+}
+
+@media (max-width: 560px) {
+  .palette__footer,
+  .palette__item-kind {
+    display: none;
+  }
+}

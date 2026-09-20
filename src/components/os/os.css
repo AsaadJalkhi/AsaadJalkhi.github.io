@@ -1,0 +1,651 @@
+/**
+ * Desktop shell: wallpaper, boot, icons, widgets, cursor.
+ * Chrome (menu bar, dock, palette) lives in chrome.css.
+ *
+ * The wallpaper carries no type, no grid and no coloured glow — the desktop is
+ * a quiet room, and the colour in this interface comes from the work itself.
+ */
+@import './chrome.css';
+
+.desktop {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--c-void);
+  transition: background-color var(--t-theme) var(--e-in-out);
+}
+
+.desktop__icons {
+  position: absolute;
+  inset: var(--menubar-h) 0 var(--dock-h) 0;
+  z-index: var(--z-desktop-icons);
+}
+
+.desktop__windows {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-windows);
+  pointer-events: none;
+}
+
+/*
+ * `.window-layer` is the drag boundary: react-rnd resolves bounds="parent"
+ * against it, so it has to fill the desktop rather than collapse around its
+ * absolutely-positioned children.
+ */
+.window-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Rnd renders a positioned wrapper per window; only those take the pointer. */
+.window-layer > * {
+  pointer-events: auto;
+}
+
+/* ── Wallpaper ───────────────────────────────────────────────────────── */
+
+.wallpaper {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-wallpaper);
+  overflow: hidden;
+}
+
+/*
+ * Two full-bleed layers, one per theme, permanently stacked and cross-faded by
+ * opacity. Both are always mounted, which is the whole point: swapping a single
+ * background would hard-cut, and this eases one into the other instead.
+ *
+ * Each layer is a CSS gradient by default. When `settings.theme.wallpaperLight`
+ * / `wallpaperDark` name an image, it is set as an inline `background-image` on
+ * top of the gradient, so a missing or slow file degrades to the gradient
+ * rather than to a white flash.
+ */
+.wallpaper__layer {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0;
+  transition: opacity var(--t-theme) var(--e-in-out);
+  will-change: opacity;
+}
+
+.wallpaper__layer[data-active='true'] {
+  opacity: 1;
+}
+
+.wallpaper__layer--light {
+  background-color: #eef0f3;
+  background-image: radial-gradient(86% 66% at 18% 2%, rgba(255, 255, 255, 0.95), transparent 58%),
+    radial-gradient(70% 58% at 88% 96%, rgba(79, 151, 216, 0.1), transparent 62%),
+    linear-gradient(197deg, #f4f5f7 0%, #e8eaee 52%, #dfe2e7 100%);
+}
+
+.wallpaper__layer--dark {
+  background-color: #0a0b0c;
+  background-image: radial-gradient(78% 62% at 22% 4%, rgba(255, 255, 255, 0.06), transparent 62%),
+    radial-gradient(64% 54% at 86% 96%, rgba(111, 178, 236, 0.07), transparent 64%),
+    linear-gradient(200deg, #17191c 0%, #0d0e10 46%, #08090a 100%);
+}
+
+/* When a custom image is supplied it sits above the gradient in the same box. */
+.wallpaper__layer[style*='background-image'] {
+  background-blend-mode: normal;
+}
+
+.wallpaper__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 110% at 50% 42%, transparent 52%, rgba(0, 0, 0, 0.14));
+  transition: opacity var(--t-theme) var(--e-in-out);
+}
+
+[data-theme='dark'] .wallpaper__vignette {
+  background: radial-gradient(120% 110% at 50% 42%, transparent 48%, rgba(0, 0, 0, 0.5));
+}
+
+/* ── Boot ────────────────────────────────────────────────────────────── */
+
+/*
+ * `--boot-ms` is the whole budget, set by BootSequence.tsx. The hairline fills
+ * across exactly that time so the animation ends when the desktop arrives
+ * rather than being cut off mid-way.
+ */
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-boot);
+  display: grid;
+  place-items: center;
+  background: var(--c-void);
+  transition: opacity 200ms var(--e-out);
+}
+
+.boot[data-leaving] {
+  opacity: 0;
+}
+
+.boot__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+.boot__mark {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--c-bone);
+  animation: boot-mark 420ms var(--e-out) both;
+}
+
+/* Hairline, not a progress bar: it says "a moment", not "37% of 100%". */
+.boot__line {
+  position: relative;
+  display: block;
+  width: 108px;
+  height: 1px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--c-bone) 14%, transparent);
+}
+
+.boot__line::after {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--c-bone) 62%, transparent);
+  animation: boot-line var(--boot-ms, 900ms) var(--e-out) both;
+  content: '';
+  transform-origin: left;
+}
+
+@keyframes boot-mark {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes boot-line {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/*
+ * Nothing to animate: BootSequence finishes immediately under reduced motion,
+ * but the first frame still paints, so it should be the settled state.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .boot,
+  .boot__mark,
+  .boot__line::after {
+    animation: none;
+    opacity: 1;
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ── Desktop icons ───────────────────────────────────────────────────── */
+
+.dicon {
+  position: absolute;
+  display: flex;
+  /* Wide enough for the 72px bare artwork plus a two-word label. */
+  width: 104px;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-1);
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--c-mute);
+  font: inherit;
+  cursor: grab;
+  touch-action: none;
+  /*
+   * This element owns the whole gesture. Without these, a press that landed on
+   * the label selected the text and a press that landed on the artwork started
+   * Chrome's own image drag — both of which cut the pointer stream the desktop
+   * layout is listening to, so the shortcut stopped following the cursor.
+   */
+  user-select: none;
+  -webkit-user-select: none;
+  /* Positioned by percentage centre-point; see useDesktopLayout. */
+  transform: translate(-50%, -50%);
+  transition:
+    background var(--t-fast) var(--e-out),
+    color var(--t-fast) var(--e-out);
+}
+
+.dicon:hover {
+  background: var(--c-hover);
+  color: var(--c-text);
+}
+
+.dicon--selected {
+  background: var(--c-accent-soft);
+  color: var(--c-bone);
+  box-shadow: inset 0 0 0 1px var(--c-accent-line);
+}
+
+/*
+ * While dragging: no transition (the icon must track the pointer exactly), a
+ * slight lift, and pointer events off elsewhere so the drop lands cleanly.
+ */
+.dicon--dragging {
+  z-index: 2;
+  cursor: grabbing;
+  transition: none;
+}
+
+.dicon--dragging .dicon__glyph {
+  transform: scale(1.06);
+}
+
+/* A wrap across the screen edge should read as a jump, not a slide. */
+.dicon--wrapped {
+  animation: dicon-wrap var(--t-base) var(--e-out);
+}
+
+@keyframes dicon-wrap {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * A generic icon — a folder, a document, a PDF, a note — or a monogram.
+ *
+ * NOT a plate. This used to be a 60×56 raised tile: a gradient, an inset
+ * highlight, a ring, a shadow, `overflow: hidden`, and a special folder-shaped
+ * border-radius, with a 24px glyph in the middle. Custom artwork next to it was
+ * drawn bare at 72px, so a desktop holding both read as two different kinds of
+ * object — half of the icons wearing buttons and half not.
+ *
+ * One visual language: a mark and a label. Same 72px footprint as `.dicon__art`,
+ * a glyph large enough to hold that footprint, and nothing behind either.
+ */
+.dicon__glyph {
+  position: relative;
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  color: var(--c-text);
+  transition: transform var(--t-fast) var(--e-out);
+}
+
+.dicon:hover .dicon__glyph {
+  transform: translateY(-2px);
+}
+
+.dicon__glyph svg {
+  width: 40px;
+  height: 40px;
+}
+
+/*
+ * Custom artwork — a company logo, an app mark — drawn as itself.
+ *
+ * This used to be an `<img>` stuffed inside `.dicon__glyph`: a 48×44 raised
+ * tile with `overflow: hidden`, a gradient, an inset highlight and two shadows,
+ * with the logo shrunk to 38×34 inside 5px of padding and an optional tint
+ * painted behind its transparency. A carefully made mark came out as a small
+ * smudge on somebody else's button.
+ *
+ * So artwork gets no container at all. 72px — inside the 64–80px the icons were
+ * specified at — `contain`, and nothing behind it.
+ */
+.dicon__art {
+  position: relative;
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  transition: transform var(--t-fast) var(--e-out);
+}
+
+.dicon:hover .dicon__art {
+  transform: translateY(-2px);
+}
+
+.dicon--dragging .dicon__art {
+  transform: scale(1.06);
+}
+
+/*
+ * The artwork is decoration; the button around it is the control.
+ *
+ * `pointer-events: none` is the important line. A press landing on the `<img>`
+ * let Chrome start a native image drag — a ghost of the PNG followed the cursor
+ * over the widgets and the windows, `pointerdown` never reached the button, and
+ * the shortcut sat still. Dragging only worked if you grabbed the label or the
+ * margin around the picture. With this, every press lands on `.dicon`, which is
+ * where both the drag and the click already live. `draggable={false}` in
+ * DesktopIcon.tsx and `-webkit-user-drag` cover the rest.
+ */
+.dicon__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+/*
+ * Monogram fallback — two or three letters when there is no artwork.
+ *
+ * Letters, not letters in a coloured square. `color: inherit` so `icon.tint`,
+ * which DesktopIcon now sets on the parent as a text colour rather than as a
+ * background, actually reaches them.
+ */
+.dicon__mono {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: inherit;
+}
+
+.dicon__badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  padding: 1px 5px;
+  border-radius: var(--r-pill);
+  background: var(--c-raised-2);
+  box-shadow: var(--sh-ring);
+  font-size: 9px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--c-text);
+}
+
+/*
+ * A badge belongs to the icon, not to the box around it. The glyph box is 72px
+ * so it matches the artwork, but the mark inside it is 40px — pinning the badge
+ * to the box corner left it floating in empty space a third of an icon away.
+ */
+.dicon__glyph .dicon__badge {
+  top: 10px;
+  right: 8px;
+}
+
+.dicon__label {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 1px var(--s-1);
+  border-radius: var(--r-xs);
+  font-size: var(--fs-3xs);
+  line-height: 1.35;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Labels sit on the wallpaper, not on a surface, so they need their own
+ * legibility. In light mode a soft white halo; in dark mode a shadow.
+ */
+.dicon__label {
+  text-shadow:
+    0 1px 2px rgba(255, 255, 255, 0.8),
+    0 0 6px rgba(255, 255, 255, 0.6);
+}
+
+[data-theme='dark'] .dicon__label {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+.dicon--selected .dicon__label {
+  overflow: visible;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* ── Widgets ─────────────────────────────────────────────────────────── */
+
+/*
+ * Two small panels on the desktop: one practical, one personal. They use the
+ * same percentage positioning and the same drag/wrap behaviour as icons, so
+ * there is one layout system rather than two.
+ */
+.widget {
+  position: absolute;
+  min-width: 156px;
+  max-width: 230px;
+  padding: var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--c-glass);
+  box-shadow:
+    inset 0 1px 0 var(--c-edge-light),
+    var(--sh-ring),
+    var(--sh-md);
+  backdrop-filter: var(--blur-chrome);
+  color: var(--c-text);
+  text-align: left;
+  cursor: grab;
+  touch-action: none;
+  transform: translate(-50%, -50%);
+  transition:
+    background-color var(--t-theme) var(--e-in-out),
+    box-shadow var(--t-fast) var(--e-out);
+}
+
+.widget--dragging {
+  z-index: 3;
+  cursor: grabbing;
+  transition: none;
+  box-shadow:
+    inset 0 1px 0 var(--c-edge-light),
+    var(--sh-pop);
+}
+
+.widget__label {
+  display: block;
+  margin-bottom: var(--s-1);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--c-faint);
+}
+
+.widget__time {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 300;
+  letter-spacing: var(--tracking-display);
+  line-height: 1;
+  color: var(--c-bone);
+  font-variant-numeric: tabular-nums;
+}
+
+.widget__date {
+  display: block;
+  margin-top: var(--s-2);
+  font-size: var(--fs-2xs);
+  color: var(--c-mute);
+}
+
+.widget__title {
+  margin: 0 0 var(--s-2);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  color: var(--c-accent);
+}
+
+.widget__body {
+  margin: 0;
+  font-family: var(--font-editorial);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--c-text);
+}
+
+/* ── Reaction widget ─────────────────────────────────────────────────────
+ *
+ * The target is the whole panel, not a small button: a small hit area tests
+ * aiming, not reacting. Only the background colour changes between phases —
+ * no motion, so nothing telegraphs the switch a frame early.
+ */
+.reaction {
+  display: flex;
+  width: 100%;
+  min-height: 62px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin-top: var(--s-2);
+  padding: var(--s-3) var(--s-2);
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--c-hover);
+  box-shadow: inset 0 0 0 1px var(--c-line);
+  color: var(--c-text);
+  font: inherit;
+  cursor: pointer;
+  /* The card is draggable; the game must own its own gestures. */
+  touch-action: manipulation;
+  user-select: none;
+  transition:
+    background-color var(--t-fast) var(--e-out),
+    box-shadow var(--t-fast) var(--e-out),
+    color var(--t-fast) var(--e-out);
+}
+
+.reaction[data-phase='waiting'] {
+  background: var(--c-hover-strong);
+  color: var(--c-faint);
+  cursor: progress;
+}
+
+.reaction[data-phase='ready'] {
+  background: var(--c-accent);
+  box-shadow: inset 0 0 0 1px var(--c-accent-line);
+  color: var(--c-accent-ink);
+}
+
+.reaction[data-phase='early'] {
+  background: color-mix(in srgb, var(--c-danger) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-danger) 40%, transparent);
+  color: var(--c-danger);
+}
+
+.reaction__read {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.reaction__hint {
+  font-size: var(--fs-2xs);
+  line-height: 1.3;
+  opacity: 0.72;
+  text-align: center;
+}
+
+.reaction__best {
+  margin-top: var(--s-2);
+  color: var(--c-faint);
+  font-size: var(--fs-2xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The colour flip is the signal; never animate it away. */
+@media (prefers-reduced-motion: reduce) {
+  .reaction {
+    transition: none;
+  }
+}
+
+
+/* ── Custom cursor (off by default) ──────────────────────────────────── */
+
+.cursor {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-cursor);
+  pointer-events: none;
+}
+
+.cursor__dot,
+.cursor__ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.cursor__dot {
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  background: var(--c-bone);
+}
+
+.cursor__ring {
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border: 1px solid var(--c-line-strong);
+  transition:
+    width var(--t-fast) var(--e-out),
+    height var(--t-fast) var(--e-out),
+    margin var(--t-fast) var(--e-out),
+    opacity var(--t-fast) var(--e-out);
+}
+
+.cursor__ring[data-state='active'] {
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+}
+
+.cursor__ring[data-state='hidden'] {
+  opacity: 0;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1100px) {
+  .dicon {
+    width: 78px;
+  }
+
+  .widget {
+    min-width: 140px;
+  }
+}

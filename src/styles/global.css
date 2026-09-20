@@ -1,0 +1,244 @@
+@import './tokens.css';
+
+:root {
+  --grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------------- reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--c-ink);
+  color: var(--c-text);
+  /* The BODY role, applied once, at the root. Everything readable inherits it;
+     nothing has to opt in. See the role block in tokens.css. */
+  font-family: var(--font-body);
+  font-size: var(--size-body);
+  font-weight: var(--weight-body);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* --------------------------------------------------------------- focus */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: var(--s-2);
+  left: var(--s-2);
+  z-index: var(--z-cursor);
+  padding: var(--s-2) var(--s-4);
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform var(--t-fast) var(--e-out);
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* ------------------------------------------------------------ utilities */
+/*
+ * Mono is a spice, not the interface typeface — filenames and system details
+ * only. It is no longer uppercased, which is what made it shout.
+ */
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tracking-mono);
+  color: var(--c-mute);
+}
+
+.serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+/* ------------------------------------------------------------ scrollbar */
+/*
+ * Overlay-style: thin, neutral, and driven by the interaction tokens so the
+ * thumb is dark on light surfaces and light on dark ones without a second rule.
+ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-active) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--c-active);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: var(--r-pill);
+  transition: background var(--t-fast) var(--e-out);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--c-line-strong);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* -------------------------------------------------------- theme crossfade */
+/*
+ * Switching themes must never hard-cut. Surfaces, text and borders ease across
+ * together; the wallpaper does its own longer cross-fade in os.css. Scoped to
+ * the elements that actually carry theme colour rather than `*`, which would
+ * make every hover in the app feel sluggish.
+ */
+/*
+ * Only `body` is styled here — every other surface declares its own
+ * `background-color var(--t-theme)` inside its own transition shorthand, so
+ * nothing silently clobbers a component's hover timing.
+ */
+body {
+  transition:
+    background-color var(--t-theme) var(--e-in-out),
+    color var(--t-theme) var(--e-in-out);
+}
+
+/* ---------------------------------------------------------------- grain */
+/*
+ * A whisper of texture, not a filter. Anything heavier reads as a styled
+ * "concept" rather than as a real interface.
+ */
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: var(--grain-url);
+  background-size: 180px 180px;
+}
+
+/* -------------------------------------------------------- custom cursor */
+body[data-cursor='on'],
+body[data-cursor='on'] * {
+  cursor: none !important;
+}
+
+/* ------------------------------------------------------- reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------- printing */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+}

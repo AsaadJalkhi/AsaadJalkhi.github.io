@@ -1,0 +1,325 @@
+/*
+ * ASAAD.OS — design tokens.
+ *
+ * Two themes, one set of names. `:root` is LIGHT (the default), and
+ * `[data-theme='dark']` re-declares the same variables for dark. Nothing else
+ * in the codebase knows a theme exists: components reference the semantic
+ * names below and both modes fall out for free.
+ *
+ * Rules that keep the two honest:
+ *   - never write `rgba(255, 255, 255, …)` in a component; use --c-hover /
+ *     --c-active / --c-edge-light, which invert correctly;
+ *   - the chrome stays near-neutral. Colour comes from the work;
+ *   - the accent is a soft light blue reserved for state — focus, selection,
+ *     the active item, a toggle that is on. It is not a brand wash.
+ *
+ * Re-skinning the whole OS means editing this file and nothing else.
+ */
+
+:root {
+  /* ---- Surfaces (light) ---------------------------------------------- */
+  --c-void: #e9e9ec; /* behind everything */
+  --c-ink: #f2f2f4; /* desktop base */
+  --c-surface: #ffffff; /* window body */
+  --c-raised: #f7f7f9;
+  --c-raised-2: #eeeef1;
+  --c-sunken: #f4f4f6;
+  --c-scrim: rgba(240, 240, 243, 0.62);
+
+  /* Translucency is used only where a real OS uses it: chrome over content. */
+  --c-glass: rgba(252, 252, 253, 0.62);
+  --c-glass-strong: rgba(250, 250, 252, 0.78);
+  --blur-chrome: saturate(180%) blur(24px);
+
+  /* ---- Interaction washes -------------------------------------------- */
+  /* The single most important pair for theming: every hover/active surface
+     in the OS is one of these, so nothing has to know which mode it is in. */
+  --c-hover: rgba(10, 12, 16, 0.045);
+  --c-hover-strong: rgba(10, 12, 16, 0.075);
+  --c-active: rgba(10, 12, 16, 0.085);
+
+  /* ---- Lines & text --------------------------------------------------- */
+  --c-line: rgba(14, 16, 20, 0.1);
+  --c-line-strong: rgba(14, 16, 20, 0.17);
+  --c-hairline: rgba(14, 16, 20, 0.075);
+  /* Top highlight that makes a surface read as physical. */
+  --c-edge-light: rgba(255, 255, 255, 0.85);
+
+  --c-bone: #16181c; /* headings */
+  --c-text: #33373d;
+  --c-mute: #6b7078;
+  --c-faint: #93979f;
+
+  /* ---- Accent — soft light blue --------------------------------------- */
+  --c-accent: #4f97d8;
+  --c-accent-hi: #6fabe2; /* hover / lifted state */
+  --c-accent-ink: #ffffff; /* text on a filled accent */
+  --c-accent-soft: rgba(79, 151, 216, 0.14);
+  --c-accent-line: rgba(79, 151, 216, 0.45);
+  --c-accent-glow: rgba(79, 151, 216, 0.28);
+
+  --c-danger: #d05a52;
+  --c-ok: #4f9478;
+
+  /* ---- Discipline marks ----------------------------------------------- */
+  /* Desaturated to near-neutral: they label work, they don't decorate UI. */
+  --c-marketing: #9a7c42;
+  --c-creative: #a75f42;
+  --c-digital: #46786f;
+
+  /* ---- Window traffic lights ------------------------------------------ */
+  --c-light-close: #ec6a5e;
+  --c-light-min: #f4bf4f;
+  --c-light-max: #61c554;
+
+  /* ---- Typography ----------------------------------------------------- */
+  /* System-native stack: the single biggest thing that makes an interface
+     feel like a real OS rather than a web page imitating one. No webfont
+     request, no layout shift, correct rendering on macOS and Windows. */
+  --font-native-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI', Inter,
+    Roboto, 'Helvetica Neue', Arial, system-ui, sans-serif;
+  --font-native-display:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable Display', 'Segoe UI',
+    Inter, 'Helvetica Neue', Arial, system-ui, sans-serif;
+
+  /*
+   * THE CUSTOM FACES, resolved in one place.
+   *
+   * Three levels of fallback, and each one is doing a job:
+   *
+   *   --font-custom-<role>  this role's own face, when it has been given one
+   *   --font-custom         the shared face, used by every role that has not
+   *   <native stack>        no custom font configured at all
+   *
+   * None of these custom properties is declared here, and that is the mechanism
+   * rather than an omission. `useTypography` sets them on :root only after a real
+   * font file has loaded, so until then every `var()` below falls through to its
+   * native stack — which is the whole reason an unconfigured site looks exactly
+   * as it did before this system existed. **Do not give them default values:** an
+   * empty custom property makes `font-family` invalid at computed-value time
+   * instead of falling back, which would cost the page its font entirely.
+   *
+   * One file can still cover everything — set the shared face and stop. Pairing a
+   * display face with a different text face is the same feature used further.
+   */
+  --font-display: var(--font-custom-display, var(--font-custom, var(--font-native-display)));
+  --font-heading: var(--font-custom-heading, var(--font-custom, var(--font-native-display)));
+  --font-body: var(--font-custom-body, var(--font-custom, var(--font-native-sans)));
+  /* The interface reads as body text, so --font-sans follows the BODY role. */
+  --font-sans: var(--font-body);
+  --font-editorial: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-serif: var(--font-editorial);
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  /*
+   * --type-scale is the global typography scale (1 = 100%). It multiplies font
+   * sizes and nothing else: every --fs-* token below is a `font-size` and only
+   * ever a `font-size`, and spacing, radii, icons, the dock and window geometry
+   * are all in px on their own scales. Scaling type therefore cannot move the
+   * furniture.
+   */
+  --type-scale: 1;
+
+  --fs-3xs: calc(0.6875rem * var(--type-scale));
+  --fs-2xs: calc(0.75rem * var(--type-scale));
+  --fs-xs: calc(0.8125rem * var(--type-scale));
+  --fs-sm: calc(0.875rem * var(--type-scale));
+  --fs-base: calc(0.9375rem * var(--type-scale));
+  --fs-md: calc(1.0625rem * var(--type-scale));
+  --fs-lg: calc(1.3125rem * var(--type-scale));
+  --fs-xl: calc(1.75rem * var(--type-scale));
+  --fs-2xl: calc(2.5rem * var(--type-scale));
+  --fs-3xl: calc(clamp(2.5rem, 6vw, 4.5rem) * var(--type-scale));
+
+  --lh-tight: 1.08;
+  --lh-snug: 1.3;
+  --lh-body: 1.62;
+
+  --tracking-mono: 0.08em;
+  --tracking-wide: 0.02em;
+  --tracking-tight: -0.011em;
+
+  /*
+   * ---- The three typography roles -------------------------------------
+   *
+   * DISPLAY — rare, large, editorial: a major project title, the About
+   *   statement, a hero heading. Loud on purpose, so it is used sparingly.
+   * HEADING — media titles, ordinary project titles, section and window
+   *   headings, strong content labels.
+   * BODY    — captions, paragraphs, descriptions, metadata. Everything you
+   *   actually read.
+   *
+   * Three roles, five controls each — its own typeface plus size, weight, letter
+   * spacing and line height — and no per-component typography panel: buttons,
+   * menus and individual captions do not get their own font settings. Every
+   * default below is the value the corresponding CSS already used, so writing
+   * none of them changes nothing.
+   *
+   * `useTypography` overwrites these from settings.typography. When it writes a
+   * size it writes a clamp(): the configured number is the desktop reference and
+   * Display gives up the most on a phone, Heading some, Body almost none.
+   */
+  /* The role FAMILIES are resolved with the font stacks above, not here. */
+
+  --size-display: var(--fs-2xl);
+  --weight-display: 600;
+  --tracking-display: -0.028em;
+  --leading-display: 1.05;
+
+  --size-heading: var(--fs-lg);
+  --weight-heading: 500;
+  --tracking-heading: var(--tracking-tight);
+  --leading-heading: 1.2;
+
+  --size-body: var(--fs-base);
+  --weight-body: 400;
+  --tracking-body: 0em;
+  --leading-body: var(--lh-body);
+
+  /* ---- Spacing (4px scale) -------------------------------------------- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-20: 80px;
+  --s-24: 96px;
+
+  /* ---- Radii ----------------------------------------------------------- */
+  /* Rounder than before, which is most of what reads as "Apple finish". */
+  --r-xs: 5px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-win: 14px;
+  --r-pill: 999px;
+
+  /* ---- Elevation ------------------------------------------------------- */
+  /* Layered the way real window shadows work: a hairline ring for the edge,
+     a tight contact shadow, and a wide soft one for the lift. On light
+     surfaces the ring does the work the old heavy shadow used to. */
+  --sh-ring: 0 0 0 0.5px rgba(14, 16, 20, 0.11);
+  --sh-sm: 0 1px 2px rgba(14, 16, 20, 0.07);
+  --sh-md: 0 1px 2px rgba(14, 16, 20, 0.06), 0 8px 20px -10px rgba(14, 16, 20, 0.18);
+  --sh-window:
+    var(--sh-ring), 0 2px 6px -1px rgba(14, 16, 20, 0.09),
+    0 16px 40px -14px rgba(14, 16, 20, 0.24);
+  --sh-focus-window:
+    var(--sh-ring), 0 6px 16px -3px rgba(14, 16, 20, 0.13),
+    0 34px 72px -20px rgba(14, 16, 20, 0.32);
+  --sh-pop: var(--sh-ring), 0 20px 56px -16px rgba(14, 16, 20, 0.3);
+  --sh-media: 0 1px 2px rgba(14, 16, 20, 0.06), 0 10px 26px -14px rgba(14, 16, 20, 0.28);
+
+  /* ---- Motion ---------------------------------------------------------- */
+  --e-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --e-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --e-spring: cubic-bezier(0.34, 1.26, 0.64, 1);
+  --t-instant: 80ms;
+  --t-fast: 150ms;
+  --t-base: 220ms;
+  --t-slow: 360ms;
+  --t-scene: 520ms;
+  /* Theme changes get their own, longer curve — see .wallpaper. */
+  --t-theme: 620ms;
+
+  /* ---- Window system ---------------------------------------------------- */
+  --win-header: 42px;
+  --win-min-w: 320px;
+  --win-min-h: 220px;
+  --dock-h: 68px;
+  --menubar-h: 36px;
+
+  /* ---- Z-index layers (single source of truth) -------------------------- */
+  --z-wallpaper: 0;
+  --z-desktop-icons: 10;
+  --z-windows: 100; /* window manager adds its own offset per window */
+  --z-dock: 900;
+  --z-menubar: 950;
+  --z-sheet: 1000;
+  --z-palette: 1100;
+  /*
+   * Focus Mode. The highest APPLICATION layer: above the menu bar, the dock,
+   * every window, the widgets, the desktop icons and the command palette.
+   * Only the startup cover and the custom cursor outrank it.
+   *
+   * A token alone is not enough to make this true. Focus Mode is rendered from
+   * inside a project window, and `.window` carries `isolation: isolate` (for the
+   * backdrop-filter corner fix — see window.css), which makes the window a
+   * stacking context. Any z-index set inside it is only compared with its
+   * siblings in that window, so `.focus` used to be trapped below the menu bar
+   * no matter how large its number was. `MediaFocus` therefore portals itself to
+   * `document.body`, which is what puts it on this scale for real. Raising the
+   * number without the portal does nothing; see MediaFocus.tsx.
+   */
+  --z-focus: 1150;
+  --z-boot: 1200;
+  --z-cursor: 1300;
+
+  color-scheme: light;
+}
+
+/* ─────────────────────────────────────────────────────────────── dark ──── */
+/*
+ * Same names, different values. Note that the interaction washes flip to
+ * white and the shadows deepen — on a dark surface a hairline ring is
+ * invisible, so elevation has to come from the shadow again.
+ */
+[data-theme='dark'] {
+  --c-void: #08090a;
+  --c-ink: #0d0e10;
+  --c-surface: #151719;
+  --c-raised: #1c1e21;
+  --c-raised-2: #23262a;
+  --c-sunken: #101214;
+  --c-scrim: rgba(6, 7, 8, 0.62);
+
+  --c-glass: rgba(26, 28, 31, 0.66);
+  --c-glass-strong: rgba(17, 18, 20, 0.82);
+
+  --c-hover: rgba(255, 255, 255, 0.055);
+  --c-hover-strong: rgba(255, 255, 255, 0.085);
+  --c-active: rgba(255, 255, 255, 0.11);
+
+  --c-line: rgba(255, 255, 255, 0.075);
+  --c-line-strong: rgba(255, 255, 255, 0.14);
+  --c-hairline: rgba(255, 255, 255, 0.06);
+  --c-edge-light: rgba(255, 255, 255, 0.09);
+
+  --c-bone: #f6f6f5;
+  --c-text: #dddedf;
+  --c-mute: #91949a;
+  --c-faint: #62666c;
+
+  --c-accent: #6fb2ec;
+  --c-accent-hi: #8cc3f3;
+  --c-accent-ink: #06121d;
+  --c-accent-soft: rgba(111, 178, 236, 0.16);
+  --c-accent-line: rgba(111, 178, 236, 0.44);
+  --c-accent-glow: rgba(111, 178, 236, 0.3);
+
+  --c-danger: #c96a63;
+  --c-ok: #7fa08f;
+
+  --c-marketing: #c3a674;
+  --c-creative: #c08468;
+  --c-digital: #7ba39b;
+
+  --sh-ring: 0 0 0 0.5px rgba(0, 0, 0, 0.72);
+  --sh-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --sh-md: 0 2px 6px rgba(0, 0, 0, 0.3), 0 10px 24px -10px rgba(0, 0, 0, 0.5);
+  --sh-window:
+    var(--sh-ring), 0 4px 10px -2px rgba(0, 0, 0, 0.35), 0 18px 44px -12px rgba(0, 0, 0, 0.55);
+  --sh-focus-window:
+    var(--sh-ring), 0 8px 18px -4px rgba(0, 0, 0, 0.45), 0 36px 80px -20px rgba(0, 0, 0, 0.7);
+  --sh-pop: var(--sh-ring), 0 24px 60px -16px rgba(0, 0, 0, 0.7);
+  --sh-media: 0 1px 3px rgba(0, 0, 0, 0.3), 0 12px 30px -14px rgba(0, 0, 0, 0.6);
+
+  color-scheme: dark;
+}

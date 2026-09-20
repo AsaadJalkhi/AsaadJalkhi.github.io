@@ -1,0 +1,355 @@
+/* ------------------------------------------------------------------ button */
+.btn {
+  --btn-bg: transparent;
+  --btn-fg: var(--c-text);
+  --btn-border: var(--c-line-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border-radius: var(--r-sm);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition:
+    background var(--t-fast) var(--e-out),
+    border-color var(--t-fast) var(--e-out),
+    color var(--t-fast) var(--e-out),
+    transform var(--t-instant) var(--e-out);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.btn--sm {
+  padding: 5px 10px;
+  font-size: var(--fs-2xs);
+}
+.btn--md {
+  padding: 8px 14px;
+  font-size: var(--fs-sm);
+}
+.btn--lg {
+  padding: 13px 22px;
+  font-size: var(--fs-base);
+}
+.btn--block {
+  width: 100%;
+}
+
+.btn--primary {
+  --btn-bg: var(--c-bone);
+  --btn-fg: var(--c-ink);
+  --btn-border: var(--c-bone);
+  font-weight: 600;
+}
+.btn--primary:hover {
+  --btn-bg: #fff;
+  --btn-border: #fff;
+}
+
+.btn--outline:hover {
+  --btn-bg: rgba(242, 237, 228, 0.06);
+  --btn-border: var(--c-bone);
+}
+
+.btn--ghost {
+  --btn-border: transparent;
+  --btn-fg: var(--c-mute);
+}
+.btn--ghost:hover {
+  --btn-bg: rgba(242, 237, 228, 0.06);
+  --btn-fg: var(--c-bone);
+}
+
+.btn--quiet {
+  --btn-border: transparent;
+  --btn-bg: var(--c-raised-2);
+  --btn-fg: var(--c-text);
+}
+.btn--quiet:hover {
+  --btn-bg: var(--c-raised);
+  --btn-fg: var(--c-bone);
+}
+
+.btn--danger {
+  --btn-border: rgba(224, 82, 82, 0.4);
+  --btn-fg: #f0a0a0;
+}
+.btn--danger:hover {
+  --btn-bg: rgba(224, 82, 82, 0.14);
+  --btn-fg: #ffc9c9;
+  --btn-border: var(--c-danger);
+}
+
+.btn__icon {
+  display: inline-flex;
+  flex: none;
+}
+.btn__icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+/* -------------------------------------------------------------------- tags */
+/*
+ * Quiet labels, not badges. Uppercase monospace pills everywhere were the
+ * single biggest contributor to the "developer template" look, so a tag is now
+ * just small text with a hairline — and the discipline colours are a tint on
+ * the text rather than a filled chip.
+ */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-3xs);
+  letter-spacing: 0;
+  color: var(--c-mute);
+  background: transparent;
+  white-space: nowrap;
+}
+
+.tag--marketing {
+  color: var(--c-marketing);
+  border-color: color-mix(in srgb, var(--c-marketing) 26%, transparent);
+}
+.tag--creative {
+  color: var(--c-creative);
+  border-color: color-mix(in srgb, var(--c-creative) 26%, transparent);
+}
+.tag--digital {
+  color: var(--c-digital);
+  border-color: color-mix(in srgb, var(--c-digital) 26%, transparent);
+}
+.tag--subtle {
+  background: none;
+  border-color: transparent;
+  padding-inline: 0;
+  color: var(--c-faint);
+}
+
+.meta {
+  display: inline-block;
+}
+
+/* ----------------------------------------------------------- section title */
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--c-line);
+  margin-bottom: var(--s-6);
+}
+
+/* HEADING role — see the role block in tokens.css. */
+.section-title__text {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  font-family: var(--font-heading);
+  font-size: var(--size-heading);
+  font-weight: var(--weight-heading);
+  letter-spacing: var(--tracking-heading);
+  line-height: var(--leading-heading);
+  color: var(--c-bone);
+}
+
+.section-title__index {
+  color: var(--c-faint);
+  font-size: var(--fs-2xs);
+}
+
+/* ----------------------------------------------------------------- divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin: var(--s-6) 0;
+}
+.divider__line {
+  flex: 1;
+  height: 1px;
+  background: var(--c-line);
+}
+.divider__label {
+  color: var(--c-faint);
+}
+
+/* -------------------------------------------------------------- demo badge */
+/*
+ * Sample content still has to be unmistakably labelled — but as a footnote,
+ * not as a warning sticker.
+ */
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--fs-3xs);
+  font-style: italic;
+  letter-spacing: 0;
+  color: var(--c-faint);
+  cursor: help;
+}
+
+/* ------------------------------------------------------------------- empty */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: var(--s-16) var(--s-6);
+  text-align: center;
+  color: var(--c-faint);
+}
+.empty__icon svg {
+  width: 26px;
+  height: 26px;
+  opacity: 0.5;
+}
+.empty__title {
+  color: var(--c-mute);
+  font-size: var(--fs-sm);
+}
+.empty__hint {
+  font-size: var(--fs-xs);
+  max-width: 34ch;
+}
+
+/* ------------------------------------------------------------------ toggle */
+.toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  cursor: pointer;
+  padding: var(--s-2) 0;
+}
+.toggle__input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.toggle__track {
+  flex: none;
+  width: 34px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--c-line-strong);
+  background: rgba(242, 237, 228, 0.05);
+  transition: background var(--t-fast) var(--e-out);
+  position: relative;
+}
+.toggle__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--c-mute);
+  transition:
+    transform var(--t-fast) var(--e-out),
+    background var(--t-fast) var(--e-out);
+}
+.toggle__input:checked + .toggle__track {
+  background: var(--c-accent-soft);
+  border-color: var(--c-accent-line);
+}
+.toggle__input:checked + .toggle__track .toggle__thumb {
+  transform: translateX(14px);
+  background: var(--c-accent);
+}
+.toggle__input:focus-visible + .toggle__track {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+.toggle__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.toggle__label {
+  font-size: var(--fs-sm);
+  color: var(--c-text);
+}
+.toggle__hint {
+  font-size: var(--fs-xs);
+  color: var(--c-faint);
+}
+
+/* ------------------------------------------------------------------ fields */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.field--wide {
+  grid-column: 1 / -1;
+}
+.field__label {
+  color: var(--c-faint);
+}
+.field__hint {
+  font-size: var(--fs-xs);
+  color: var(--c-faint);
+}
+
+.field input[type='text'],
+.field input[type='number'],
+.field input[type='url'],
+.field input[type='email'],
+.field textarea,
+.field select,
+.input {
+  width: 100%;
+  padding: 9px 11px;
+  background: var(--c-ink);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  color: var(--c-bone);
+  font-size: var(--fs-sm);
+  font-family: var(--font-sans);
+  transition:
+    border-color var(--t-fast) var(--e-out),
+    background var(--t-fast) var(--e-out);
+}
+
+.field textarea {
+  min-height: 90px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.field input:hover,
+.field textarea:hover,
+.field select:hover {
+  border-color: var(--c-line-strong);
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: var(--c-accent-line);
+  background: var(--c-surface);
+  outline: none;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--c-faint);
+}

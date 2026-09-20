@@ -1,0 +1,19 @@
+/* Generated placeholder artwork. */
+
+.poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.poster__mark {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.poster__caption {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+}

@@ -1,0 +1,1184 @@
+/* ------------------------------------------------------------ media frame */
+.media-frame {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+/*
+ * A frame with no declared ratio: the content inside sizes it.
+ *
+ * This is what true Auto looks like — `height: auto`, no reserved box, so a
+ * portrait photograph makes a tall frame and a panorama makes a short one.
+ * `overflow: visible` because there is nothing to clip: nothing is being fitted
+ * into anything.
+ */
+.media-frame--fill .media-frame__stage {
+  height: auto;
+  overflow: visible;
+}
+
+.media-frame__stage {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-line);
+  background: var(--c-raised);
+}
+
+/* The stage's rounded corners have to reach the image inside it. */
+.media-frame--fill .media-frame__stage > .smart-image,
+.media-frame--fill .media-frame__stage > .media-open {
+  display: block;
+  width: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.media-frame__kind {
+  position: absolute;
+  top: var(--s-2);
+  left: var(--s-2);
+  padding: 2px 7px;
+  border-radius: var(--r-xs);
+  background: rgba(5, 5, 6, 0.7);
+  color: var(--c-mute);
+  font-size: var(--fs-3xs);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+/*
+ * The caption is editorial copy, not a label.
+ *
+ * It used to be one flex row with the credit and the actions, which meant a
+ * caption was a single line that either truncated or pushed everything else off
+ * the end. A caption is allowed to be a paragraph — sometimes several — because
+ * the sentence explaining what a piece of work was for is frequently the most
+ * valuable thing on the page.
+ *
+ * So: `pre-wrap` keeps the line breaks somebody typed, `overflow-wrap: anywhere`
+ * means a pasted URL or a long word breaks instead of widening the column, and
+ * the block grows downwards. It never scrolls sideways and it never makes its
+ * container wider than it was.
+ */
+.media-frame__caption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+  font-size: var(--fs-xs);
+  color: var(--c-mute);
+  line-height: 1.55;
+}
+
+/*
+ * `media.title` — this item's own name, and only ever its own. Rendered above
+ * the caption because that is the reading order, and absent entirely when the
+ * item has no title: nothing is inherited from the project here.
+ */
+.media-frame__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  /* The heading role at grid scale: a caption under one tile in a two-column
+     masonry cannot carry a full-size heading without shouting over the work.
+     It still tracks the Heading control, proportionally. */
+  font-size: calc(var(--size-heading) * 0.72);
+  font-weight: var(--weight-heading);
+  letter-spacing: var(--tracking-heading);
+  line-height: var(--leading-heading);
+  color: var(--c-text);
+  overflow-wrap: anywhere;
+}
+
+.media-frame__text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 68ch;
+}
+
+.media-frame__meta {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+.media-frame__credit {
+  color: var(--c-faint);
+  overflow-wrap: anywhere;
+}
+
+.media-frame__actions {
+  display: flex;
+  gap: var(--s-1);
+  flex: none;
+  margin-left: auto;
+}
+
+.media-fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+ * SmartImage renders a <span> wrapper around the <img>, so the picture needs an
+ * explicit box or it sits at its natural size in the top-left corner of one —
+ * with `object-fit` doing nothing, because there is no height for it to fit to.
+ *
+ * Scoped to the two shapes this layer actually uses rather than declared
+ * globally: `.smart-image` also appears in the About window and the Work grid,
+ * which size it their own way.
+ */
+.media-fill > .smart-image__img,
+.media-fill > .smart-image__fallback,
+.media-fill > .smart-image__skeleton {
+  width: 100%;
+  height: 100%;
+}
+
+/*
+ * The other shape: the picture sizes its own container.
+ *
+ * This is Auto. No height is declared anywhere up the chain, so the image is
+ * exactly as tall as it is — nothing cropped, nothing letterboxed. The missing
+ * -file fallback keeps a gentle 4:3 so an absent asset does not collapse the
+ * frame to a line.
+ */
+.smart-image--natural {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.smart-image--natural .smart-image__img {
+  width: 100%;
+  height: auto;
+}
+
+.smart-image--natural .smart-image__fallback {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+.smart-image--natural .smart-image__skeleton {
+  position: absolute;
+  inset: 0;
+}
+
+.media-video,
+.media-iframe,
+.media-pdf {
+  border: none;
+  background: #000;
+  object-fit: contain;
+}
+
+/* --------------------------------------------------------------- facades */
+.media-facade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: hidden;
+}
+
+.media-facade::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 5, 6, 0) 40%, rgba(5, 5, 6, 0.7) 100%);
+  opacity: 0.9;
+  transition: opacity var(--t-base) var(--e-out);
+}
+
+.media-facade:hover::after {
+  opacity: 0.6;
+}
+
+.media-facade:hover .smart-image__img {
+  transform: scale(1.02);
+}
+
+.media-facade .smart-image__img {
+  transition:
+    opacity var(--t-base) var(--e-out),
+    transform var(--t-slow) var(--e-out);
+}
+
+.media-facade__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--c-bone);
+  color: var(--c-ink);
+  transition:
+    transform var(--t-fast) var(--e-snap),
+    background var(--t-fast) var(--e-out);
+}
+
+.media-facade__play svg {
+  width: 20px;
+  height: 20px;
+  margin-left: 2px;
+}
+
+.media-facade__play--soft {
+  background: rgba(242, 237, 228, 0.14);
+  color: var(--c-bone);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--c-line-strong);
+}
+
+.media-facade__play--soft svg {
+  margin-left: 0;
+}
+
+.media-facade:hover .media-facade__play {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.media-facade:disabled {
+  cursor: not-allowed;
+}
+.media-facade:disabled .media-facade__play {
+  opacity: 0.35;
+}
+
+/*
+ * Overlay-only facade: the cover is already rendered on the layer beneath, so
+ * this variant contributes the action and the label and nothing else.
+ */
+.media-facade--quiet {
+  background: transparent;
+}
+
+.media-facade--quiet::after {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 55%);
+}
+
+.media-facade__note {
+  position: absolute;
+  left: var(--s-3);
+  bottom: var(--s-3);
+  z-index: 2;
+  color: var(--c-text);
+  font-size: var(--fs-3xs);
+}
+
+/* ----------------------------------------------------------- placeholder */
+.media-placeholder {
+  position: absolute;
+  inset: 0;
+}
+
+.media-placeholder__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1);
+  text-align: center;
+  padding: var(--s-4);
+  background: rgba(5, 5, 6, 0.58);
+}
+
+.media-placeholder__title {
+  font-size: var(--fs-sm);
+  color: var(--c-text);
+}
+
+.media-placeholder__hint {
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+}
+
+/* -------------------------------------------------------------- browser */
+.media-browser {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-surface);
+}
+
+.media-browser__bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  height: 30px;
+  padding: 0 var(--s-3);
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-raised);
+}
+
+.media-browser__dots {
+  display: flex;
+  gap: 5px;
+}
+.media-browser__dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(242, 237, 228, 0.16);
+}
+
+.media-browser__url {
+  flex: 1;
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  background: var(--c-ink);
+  color: var(--c-mute);
+  font-size: var(--fs-3xs);
+  letter-spacing: 0.06em;
+  text-transform: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.media-browser__viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ------------------------------------------------------------ instagram */
+/*
+ * `overflow: hidden`, NOT `auto`. The embed script injects an iframe whose
+ * height it picks itself and frequently overestimates; with `auto` that became
+ * the reported "giant scrollable viewer" — a scrollbar inside a media tile
+ * inside a window. We give it a fixed frame and crop, which is the honest
+ * trade: we cannot resize a cross-origin iframe, so we can either crop it or
+ * let it wreck the layout.
+ */
+.media-instagram {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--c-surface);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.media-instagram .instagram-media {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* The injected iframe ignores its container unless told twice. */
+.media-instagram iframe {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* ------------------------------------------------------------------ pdf */
+.media-pdf__fallback {
+  padding: var(--s-6);
+  color: var(--c-mute);
+  font-size: var(--fs-sm);
+}
+.media-pdf__fallback a {
+  color: var(--c-accent);
+  text-decoration: underline;
+}
+
+/* -------------------------------------------------------- gallery strip */
+/*
+ * Removed in session 9: `.media-gallery-strip`, a fixed three-up contact sheet
+ * that cropped every image in a gallery to the same rectangle. Galleries now
+ * use `.media-set` above, where each picture keeps its own shape.
+ */
+
+/* A single website screenshot, sized by the picture rather than a box. */
+.media-shot--single {
+  display: block;
+  width: 100%;
+}
+
+/* --------------------------------------------------- generative scenes */
+.media-scene {
+  position: absolute;
+  inset: 0;
+  background: #0a0a0c;
+}
+
+.scene {
+  width: 100%;
+  height: 100%;
+}
+
+.scene__type {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+}
+
+.media-scene__label {
+  position: absolute;
+  right: var(--s-3);
+  top: var(--s-3);
+  font-size: var(--fs-3xs);
+  color: rgba(242, 237, 228, 0.3);
+}
+
+.scene__col {
+  animation: scene-drift 5.2s var(--e-in-out) infinite alternate;
+  transform-origin: center;
+}
+
+.scene__ticker {
+  animation: scene-ticker 16s linear infinite;
+}
+
+.scene__bar {
+  animation: scene-bar 1.8s var(--e-in-out) infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.scene__cell {
+  animation: scene-cell 2.6s var(--e-in-out) infinite alternate;
+}
+
+.scene__pulse {
+  animation: scene-pulse 3.4s var(--e-in-out) infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.scene__slide {
+  animation: scene-slide 4.4s var(--e-out) infinite alternate;
+}
+.scene__slide--alt {
+  animation-duration: 6s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes scene-drift {
+  from {
+    transform: translateY(-6px);
+  }
+  to {
+    transform: translateY(6px);
+  }
+}
+
+@keyframes scene-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes scene-bar {
+  from {
+    transform: scaleY(0.45);
+  }
+  to {
+    transform: scaleY(1.15);
+  }
+}
+
+@keyframes scene-cell {
+  from {
+    opacity: 0.08;
+  }
+  to {
+    opacity: 0.75;
+  }
+}
+
+@keyframes scene-pulse {
+  0%,
+  100% {
+    transform: scale(0.86);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.9;
+  }
+}
+
+@keyframes scene-slide {
+  from {
+    transform: translateX(-10px);
+  }
+  to {
+    transform: translateX(14px);
+  }
+}
+
+.media-scene[data-static] * {
+  animation: none !important;
+}
+
+/* --------------------------------------------------------- media masonry */
+/*
+ * Two independently packed columns.
+ *
+ * The columns are real elements, filled shortest-first in JS (see
+ * MediaGallery), not a CSS grid. A grid is row-based: every item in a row is as
+ * tall as the tallest one in it, so a short landscape still beside a tall
+ * portrait one leaves a hole underneath it until the row ends. On a page of
+ * mixed portrait and landscape work that is most of the page.
+ *
+ * Each column is a plain flex stack, so an item and its caption are one block
+ * and a long caption pushes only its own column down.
+ *
+ * `data-columns` is set from the CONTAINER's width, not the viewport's — a case
+ * study lives inside a resizable window and the viewport knows nothing useful
+ * about how wide that window is.
+ */
+.media-masonry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+.media-masonry__run {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+.media-masonry__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  /* Equal widths, and `min-width: 0` so a wide caption cannot stretch one. */
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.media-masonry__item {
+  min-width: 0;
+}
+
+/* A featured item breaks out across both columns; masonry resumes under it. */
+.media-masonry__full {
+  min-width: 0;
+}
+
+.media-masonry[data-columns='1'] .media-masonry__run {
+  flex-direction: column;
+}
+
+/* ------------------------------------------------- opening a still larger */
+/*
+ * A still is safe to make clickable in a way a player is not: there are no
+ * controls underneath to steal the click from. Video and embeds keep the small
+ * explicit corner affordance instead — see FocusAffordance.
+ */
+.media-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: zoom-in;
+  color: inherit;
+}
+
+.media-open:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 3px;
+  border-radius: var(--r-md);
+}
+
+/* ------------------------------------------ several stills in one item */
+/*
+ * A gallery, or a set of website screenshots. Multi-column so the pictures pack
+ * rather than sitting in ragged rows, with each one keeping its own shape —
+ * cropping every image in a gallery to the same rectangle is the one thing a
+ * gallery of work must not do.
+ */
+.media-set {
+  columns: 2;
+  column-gap: var(--s-3);
+  min-width: 0;
+}
+
+.media-set[data-count='1'] {
+  columns: 1;
+}
+
+.media-set__item {
+  margin: 0 0 var(--s-3);
+  break-inside: avoid;
+  min-width: 0;
+}
+
+.media-set__item img,
+.media-set__shot img,
+.media-set__img img {
+  border-radius: var(--r-sm);
+}
+
+.media-set__caption {
+  margin: var(--s-1) 0 0;
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------- link preview */
+/*
+ * What a website looks like with no screenshots: small, quiet and honest.
+ * Deliberately NOT a large empty frame — an empty rectangle reads as something
+ * that failed to load, which is exactly the impression the old iframe gave.
+ */
+.media-linkpreview {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  min-width: 0;
+}
+
+.media-linkpreview__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--c-line);
+  color: var(--c-mute);
+}
+
+.media-linkpreview__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.media-linkpreview__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.media-linkpreview__title {
+  font-size: var(--fs-sm);
+  color: var(--c-text);
+  overflow-wrap: anywhere;
+}
+
+.media-linkpreview__host {
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+  overflow-wrap: anywhere;
+}
+
+.media-linkpreview__go {
+  margin-left: auto;
+  flex: none;
+  font-size: var(--fs-xs);
+  color: var(--c-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--c-line);
+}
+
+.media-linkpreview__go:hover {
+  border-bottom-color: currentColor;
+}
+
+/* The same idea compressed into a tile or a lightbox box. */
+.media-linkcard {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--s-2);
+  color: var(--c-faint);
+  background: var(--c-raised);
+}
+
+.media-linkcard svg {
+  width: 26px;
+  height: 26px;
+}
+
+.media-linkcard__host {
+  font-size: var(--fs-3xs);
+}
+
+/* ---------------------------------------------------------- media player */
+/*
+ * The stage an auto-playing adapter renders into. Three layers, and the order
+ * matters: cover underneath, media over it, affordance on top. The cover is
+ * never a spinner over the artwork — it IS the artwork until the real thing
+ * paints over it, and it stays put if the real thing never arrives.
+ */
+.media-player {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+/* Cover layer for iframes: no load event to hook, so it simply sits below. */
+.media-player__under {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Cover layer for <video>: fades out on first decoded frame. */
+.media-player__cover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  animation: cover-out var(--t-base) var(--e-out) forwards;
+  animation-delay: 60ms;
+}
+
+@keyframes cover-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.media-player .media-fill,
+.media-player .media-instagram,
+.media-player .media-facade {
+  z-index: 1;
+}
+
+/*
+ * "Open larger". A small corner button rather than a hit area over the whole
+ * frame, so the player's own controls underneath keep working — see
+ * FocusAffordance.tsx for why that distinction matters.
+ */
+.media-focus-btn {
+  position: absolute;
+  top: var(--s-3);
+  right: var(--s-3);
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(10, 10, 12, 0.55);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  opacity: 0;
+  transition:
+    opacity var(--t-fast) var(--e-out),
+    background var(--t-fast) var(--e-out);
+}
+
+.media-focus-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.media-frame:hover .media-focus-btn,
+.media-focus-btn:focus-visible {
+  opacity: 1;
+}
+
+.media-focus-btn:hover {
+  background: rgba(10, 10, 12, 0.8);
+}
+
+/* Touch has no hover, so the affordance is always visible there. */
+@media (hover: none) {
+  .media-focus-btn {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------ focus mode */
+/*
+ * The media viewer. Rebuilt in session 10 as three arrangements rather than one.
+ *
+ * THE MEDIA BOX IS SIZED INLINE, in pixels, by MediaFocus from the item's
+ * resolved aspect ratio and the real viewport (see focusLayout.ts). This
+ * stylesheet must not fight it: no width/height/max-* on `.focus__box`, and no
+ * `overflow` on the media anywhere in here. Two earlier viewers were broken by
+ * exactly that — `width: min(1000px, 100%); max-height: 80vh; overflow: auto`
+ * gave the white canvas, the stretched Reels and the nested scrollbar.
+ *
+ * There is no dark card. A full-screen scrim, then the content composed inside
+ * it, so the media and its information read as one designed thing.
+ */
+.focus {
+  position: fixed;
+  inset: 0;
+  /*
+   * The highest application layer: above the menu bar, the dock, every window,
+   * the widgets, the desktop icons and the command palette. `--z-focus` is on
+   * the single scale in tokens.css — no ad-hoc number is introduced here.
+   *
+   * THE TOKEN IS ONLY HALF OF IT. Focus Mode is rendered from inside a project
+   * window, and `.window` has `isolation: isolate`, which makes it a stacking
+   * context: a z-index set inside a window is only compared with that window's
+   * own children, and the window sits below `--z-menubar`. That is why the menu
+   * bar painted over portrait media no matter how high this number went.
+   * `MediaFocus` portals itself to `document.body` to escape that context. If
+   * the menu bar ever shows through Focus Mode again, the portal is what broke —
+   * do not reach for a bigger number.
+   */
+  z-index: var(--z-focus);
+  animation: focus-in var(--t-base) var(--e-out);
+
+  /* Overridden inline by MediaFocus; these are the no-navigation defaults. */
+  --focus-pad: 28px;
+  --focus-gutter: 0px;
+  --focus-nav: 40px;
+}
+
+@keyframes focus-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.focus__scrim {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(6, 6, 8, 0.92);
+  backdrop-filter: blur(18px);
+  cursor: zoom-out;
+}
+
+/*
+ * The composition. `gap` is set inline from the same constant MediaFocus
+ * measured the media against, and the padding is built from the same
+ * `--focus-pad` / `--focus-gutter` the arrows use, so the numbers cannot drift.
+ *
+ * THE HORIZONTAL PADDING INCLUDES THE NAVIGATION GUTTERS. This is the whole
+ * point: content never sits under an arrow because the space the arrows occupy
+ * was taken out of the layout before the media was measured, not merely covered
+ * by a higher z-index. `focusPlan()` subtracts the identical amount.
+ */
+.focus__layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--focus-pad) calc(var(--focus-pad) + var(--focus-gutter));
+  box-sizing: border-box;
+}
+
+/* --- portrait and balanced, side by side: information left, media right --- */
+.focus[data-flow='side'] .focus__layout {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: 'info media';
+  align-items: center;
+}
+
+/* --- stacked (landscape, and everything on a narrow viewport) ------------- */
+.focus[data-flow='stack'] .focus__layout {
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'media'
+    'info';
+  justify-items: center;
+}
+
+.focus__media {
+  grid-area: media;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+}
+
+/*
+ * The lit object. Sized inline; relative so the adapters' `position: absolute;
+ * inset: 0` children have a containing block to fill.
+ */
+.focus__box {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: #000;
+  box-shadow: 0 30px 90px -20px rgba(0, 0, 0, 0.8);
+}
+
+/*
+ * Instagram brings its own white card, its own chrome and its own width, and we
+ * do not restyle inside it — a standing decision, not an oversight: the embed is
+ * a cross-origin iframe and reaching into it is neither possible nor allowed.
+ * Username, "Original audio", "View profile" and its controls are expected. All
+ * we do is give the box the right shape and let it sit on its own background
+ * rather than on a black plate it cannot fill.
+ */
+.focus__box[data-type='instagram'] {
+  background: var(--c-surface);
+}
+
+.focus__box img,
+.focus__box video {
+  object-fit: contain;
+}
+
+/* ------------------------------------------------------------ information */
+/*
+ * Everything the viewer knows about the item, in one region. The caption lives
+ * IN HERE in every layout — it is not a floating block under the media any more,
+ * which is how it ended up outside the composition and underneath the dock.
+ *
+ * This region is what scrolls when the copy is long. The media never does.
+ */
+.focus__info {
+  grid-area: info;
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: var(--fs-sm);
+  text-align: left;
+}
+
+.focus[data-flow='side'] .focus__info {
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--s-4);
+  max-height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* Landscape / stacked: writing on the left, making credits on the right. */
+.focus[data-flow='stack'] .focus__info {
+  flex-flow: row wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-2) var(--s-6);
+  width: 100%;
+  max-height: 100%;
+  padding-top: var(--s-3);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.focus__story,
+.focus__facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+
+.focus[data-flow='stack'] .focus__story {
+  flex: 1 1 24rem;
+}
+
+.focus[data-flow='stack'] .focus__facts {
+  flex: 0 1 18rem;
+  align-items: flex-start;
+}
+
+/*
+ * HEADING role. This is `media.title` and only ever `media.title`.
+ *
+ * It was previously set in the editorial serif because it rendered the *project*
+ * name — a byline, not a title. Now that it names the one piece of media in
+ * front of you it takes the heading role like every other title in the OS.
+ */
+.focus__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--size-heading);
+  font-weight: var(--weight-heading);
+  letter-spacing: var(--tracking-heading);
+  line-height: var(--leading-heading);
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * Where the item came from — project, company, year. Deliberately the quietest
+ * thing in the panel and deliberately NOT a heading: this used to be rendered as
+ * `.focus__title` from the project, which made every image in a project appear
+ * to be named after the project. Provenance, not a title.
+ */
+.focus__context {
+  font-size: var(--fs-3xs);
+  color: rgba(255, 255, 255, 0.36);
+  overflow-wrap: anywhere;
+}
+
+/*
+ * Editorial copy. Author line breaks survive, long words break rather than
+ * pushing the panel wider, and nothing here can overflow horizontally.
+ */
+.focus__caption {
+  margin: var(--s-2) 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-height: 1.55;
+  max-width: 60ch;
+}
+
+.focus__fact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: rgba(255, 255, 255, 0.62);
+  overflow-wrap: anywhere;
+}
+
+.focus__fact-label {
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.36);
+}
+
+.focus__count {
+  font-size: var(--fs-3xs);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.focus__external {
+  font-size: var(--fs-xs);
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.focus__external:hover {
+  color: var(--c-accent);
+}
+
+/* ---------------------------------------------------------------- controls */
+/*
+ * The controls belong to the OVERLAY, not to the picture.
+ *
+ * Absolutely positioned against `.focus` (which is `fixed; inset: 0`), so they
+ * take no part in the media's document flow: a tall caption cannot displace
+ * them, and they are in the same place for every item. `z-index: 3` puts them
+ * above the media, which matters because an iframe paints its own surface.
+ */
+.focus__close,
+.focus__nav {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: var(--focus-nav);
+  height: var(--focus-nav);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--r-sm);
+  background: rgba(20, 20, 24, 0.6);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background var(--t-fast) var(--e-out),
+    border-color var(--t-fast) var(--e-out);
+}
+
+.focus__close:hover,
+.focus__nav:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.focus__close svg,
+.focus__nav svg {
+  width: 18px;
+  height: 18px;
+}
+
+.focus__close {
+  top: var(--s-4);
+  right: var(--s-4);
+}
+
+/*
+ * Vertically centred on the overlay and horizontally centred INSIDE ITS OWN
+ * GUTTER — the lane `.focus__layout` gave up for it. There is nothing else in
+ * that lane, so an arrow cannot cover a title, a caption or the media, and
+ * nothing can cover the arrow either.
+ */
+.focus__nav {
+  top: 50%;
+  left: auto;
+  right: auto;
+  transform: translateY(-50%);
+}
+
+.focus__nav--prev {
+  left: calc(var(--focus-pad) + (var(--focus-gutter) - var(--focus-nav)) / 2);
+}
+
+.focus__nav--next {
+  right: calc(var(--focus-pad) + (var(--focus-gutter) - var(--focus-nav)) / 2);
+}
+
+/*
+ * Narrow viewport: one column, media then information, for every media type.
+ * A desktop side-by-side squeezed onto a phone is two bad columns instead of
+ * one good one — `focusLayout.ts` already forces `stack` below 1024px, and this
+ * only tightens the spacing to match.
+ */
+@media (max-width: 720px) {
+  .focus {
+    /*
+     * A smaller control, and `focusPlan()` narrows the gutter to match at the
+     * same breakpoint. The arrows stay in their own lanes; they do not move on
+     * top of the content to buy width back.
+     */
+    --focus-nav: 36px;
+  }
+
+  .focus[data-flow='stack'] .focus__info {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: var(--s-3);
+  }
+}

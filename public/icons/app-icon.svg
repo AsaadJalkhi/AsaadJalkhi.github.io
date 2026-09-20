@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180" role="img" aria-label="ASAAD.OS">
+  <rect width="180" height="180" rx="40" fill="#08080A"/>
+  <rect x="0.5" y="0.5" width="179" height="179" rx="39.5" fill="none" stroke="#F2EDE4" stroke-opacity="0.09"/>
+  <path d="M43 137 L90 43 L137 137" fill="none" stroke="#F2EDE4" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M66 108 H114" fill="none" stroke="#F2EDE4" stroke-width="13" stroke-linecap="round"/>
+  <circle cx="143" cy="41" r="13" fill="#E85A2A"/>
+</svg>

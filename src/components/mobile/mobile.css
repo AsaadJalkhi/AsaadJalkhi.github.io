@@ -1,0 +1,362 @@
+/** ASAAD.OS Mobile — cards and sheets, no windows. */
+
+.m-shell {
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  background: var(--c-ink);
+  /* Two quiet accent washes, same family as the desktop wallpaper fallback. */
+  background-image:
+    radial-gradient(120% 50% at 20% 0%, var(--c-accent-soft), transparent 62%),
+    radial-gradient(100% 50% at 90% 100%, var(--c-accent-soft), transparent 58%);
+  transition: background-color var(--t-theme) var(--e-in-out);
+}
+
+.m-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-glass-strong);
+  backdrop-filter: blur(14px);
+}
+
+.m-top__mark {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--c-bone);
+}
+
+.m-top__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.m-top__icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--c-mute);
+  cursor: pointer;
+  transition:
+    color var(--t-fast) var(--e-out),
+    background-color var(--t-fast) var(--e-out),
+    border-color var(--t-fast) var(--e-out);
+}
+
+.m-top__icon:active {
+  border-color: var(--c-accent-line);
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+}
+
+.m-top__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.m-scroll {
+  flex: 1;
+  padding-bottom: var(--s-10);
+}
+
+/* ── Hero ────────────────────────────────────────────────────────────── */
+
+.m-hero {
+  padding: var(--s-8) var(--s-4) var(--s-6);
+}
+
+.m-hero__positioning {
+  margin: 0;
+  font-size: var(--fs-3xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-creative);
+}
+
+.m-hero__name {
+  margin: var(--s-3) 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 14vw, 3.5rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  color: var(--c-bone);
+}
+
+.m-hero__line {
+  margin: var(--s-3) 0 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-xl);
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--c-text);
+}
+
+.m-hero__actions {
+  margin-top: var(--s-6);
+}
+
+.m-hero__hint {
+  margin: var(--s-2) 0 0;
+  font-size: var(--fs-3xs);
+  text-align: center;
+  color: var(--c-faint);
+}
+
+/* ── Sections ────────────────────────────────────────────────────────── */
+
+.m-section {
+  padding: var(--s-6) var(--s-4) 0;
+}
+
+.m-section__title {
+  margin: 0 0 var(--s-3);
+  font-size: var(--fs-3xs);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-faint);
+}
+
+/* ── Work cards ──────────────────────────────────────────────────────── */
+
+.m-work {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.m-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.m-card:active {
+  border-color: var(--accent, var(--c-line-strong));
+}
+
+.m-card__art {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--c-raised);
+}
+
+.m-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-4);
+}
+
+.m-card__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--c-bone);
+}
+
+.m-card__summary {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--c-mute);
+}
+
+.m-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}
+
+/* ── Tiles ───────────────────────────────────────────────────────────── */
+
+.m-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+
+.m-tile {
+  display: flex;
+  min-height: 76px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding: var(--s-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.m-tile:active {
+  background: var(--c-raised);
+}
+
+.m-tile svg {
+  width: 18px;
+  height: 18px;
+  color: var(--c-creative);
+}
+
+.m-tile__label {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--c-bone);
+}
+
+.m-tile__count {
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+}
+
+.m-tile[data-discipline] {
+  border-left: 2px solid var(--accent, var(--c-line));
+}
+
+/* ── Files ───────────────────────────────────────────────────────────── */
+
+.m-files {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.m-file {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-3) 0;
+  border: 0;
+  border-bottom: 1px solid var(--c-line);
+  background: transparent;
+  color: var(--c-text);
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.m-file svg {
+  width: 15px;
+  height: 15px;
+  color: var(--c-faint);
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────── */
+
+.m-foot {
+  padding: var(--s-8) var(--s-4) 0;
+  font-size: var(--fs-3xs);
+  color: var(--c-faint);
+}
+
+.m-foot__note {
+  margin: var(--s-2) 0 0;
+  line-height: 1.6;
+}
+
+/* ── Sheets ──────────────────────────────────────────────────────────── */
+
+.m-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  display: flex;
+  flex-direction: column;
+  background: var(--c-ink);
+  animation: sheet-up var(--t-base) var(--e-out) both;
+}
+
+@keyframes sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.m-sheet__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-glass-strong);
+  backdrop-filter: blur(14px);
+}
+
+.m-sheet__back {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: var(--s-1) var(--s-2) var(--s-1) var(--s-1);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--c-creative);
+  font: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.m-sheet__back svg {
+  width: 17px;
+  height: 17px;
+}
+
+.m-sheet__title {
+  overflow: hidden;
+  font-size: var(--fs-sm);
+  color: var(--c-bone);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.m-sheet__body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* The split explorer becomes a single column inside a sheet. */
+.m-sheet__body .win-split {
+  display: block;
+}
+
+.m-sheet__body .win-split__aside {
+  width: auto;
+  border-right: 0;
+  border-bottom: 1px solid var(--c-line);
+}

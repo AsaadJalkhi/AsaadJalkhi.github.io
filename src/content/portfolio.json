@@ -1,0 +1,1339 @@
+{
+  "version": 1,
+  "profile": {
+    "name": "Asaad Jalkhi",
+    "osName": "AsaaD.OS",
+    "positioning": "Marketing / Creative / Digital",
+    "headline": "Marketing, creative and digital.",
+    "subheadline": "Campaigns, content production, and the digital systems underneath them.",
+    "location": "Dubai, UAE",
+    "availability": "Open to marketing, creative and digital roles",
+    "about": [
+      "Asaad works across marketing, creative and digital — connecting strategy, content, technology and execution."
+    ],
+    "principles": [],
+    "aboutPage": {
+      "lede": "I plan the campaign, cut the film, and build the thing it lands on.",
+      "statement": "Marketing, creative and digital - usually all three on the same brief. Based in Dubai.",
+      "paragraphs": [
+        "I started in edit suites and IT rooms, which turns out to be a useful pair of habits. One taught me that an idea only counts once it is actually finished; the other taught me that most things break at the join, not in the middle.",
+        "These days that means I can sit in the strategy conversation, direct the shoot, do the edit, and then build the landing page and the automation behind it. Not because I want to do everything - because a lot of good work dies in the handover between people who each only do one part of it.",
+        "I like briefs with a real constraint in them: a deadline, a budget, a channel that behaves badly. Constraints make decisions fast. I would rather ship something specific and sharp this month than something perfect and theoretical next quarter.",
+        "Work has taken me from Syria to the UAE, from freelance edits to founding a small agency to running marketing in-house. The through-line has not changed: figure out what is worth saying, make it properly, and put it somewhere it can work."
+      ],
+      "images": [],
+      "lists": [
+        {
+          "title": "Currently",
+          "items": [
+            "Marketing Executive at GAF and The Good Moon",
+            "Building internal systems that stop work getting lost",
+            "Still taking freelance edits when the brief is good"
+          ]
+        },
+        {
+          "title": "Tools I live in",
+          "items": [
+            "Premiere Pro and After Effects",
+            "Photoshop and Illustrator",
+            "Blender, when a shot needs something real",
+            "VS Code - React, TypeScript, WordPress, Shopify",
+            "Meta and Google ad platforms, Zapier and Make"
+          ]
+        },
+        {
+          "title": "Off the clock",
+          "items": [
+            "Film, mostly for the cuts rather than the plot",
+            "Taking apart software that has no business being this well made",
+            "Long walks that are secretly just thinking about a timeline"
+          ]
+        }
+      ],
+      "footnote": "This portfolio is a small operating system because a scrolling page felt like a waste of a good excuse."
+    },
+    "contact": {
+      "headline": "Open to marketing, creative and digital roles.",
+      "note": "Email is the fastest way to reach me - I answer everything within a day or two."
+    },
+    "email": "asaadjalkhi01@gmail.com",
+    "phone": "+971 54 378 3607",
+    "socials": [
+      {
+        "label": "Email",
+        "handle": "asaadjalkhi01@gmail.com",
+        "url": "mailto:asaadjalkhi01@gmail.com",
+        "icon": "mail"
+      },
+      {
+        "label": "LinkedIn",
+        "handle": "asaad-jalkhi01",
+        "url": "https://www.linkedin.com/in/asaad-jalkhi01",
+        "icon": "linkedin"
+      },
+      {
+        "label": "Instagram",
+        "handle": "@eng.asaadjalkhi",
+        "url": "https://www.instagram.com/eng.asaadjalkhi/",
+        "icon": "instagram"
+      }
+    ],
+    "cv": {
+      "file": "cv/Asaad_CV.pdf",
+      "label": "Download CV (PDF)",
+      "sections": [
+        {
+          "heading": "Profile",
+          "lines": [
+            "Marketing executive, creative producer and digital generalist based in Dubai, UAE.",
+            "Marketing and campaigns, video production and editing, web and IT systems.",
+            "UAE Driving License."
+          ]
+        },
+        {
+          "heading": "Experience",
+          "lines": [
+            "Marketing Executive — GAF and The Good Moon, Dubai, UAE · Jul 2025 – Present",
+            "Founder and Creative Lead — DASH Digital Marketing Agency FZC, UAE · Dec 2024 – Jul 2026",
+            "Video Editor and Web Developer — Octoboss Marketing Agency, UAE · Dec 2023 – Dec 2024",
+            "IT Assistant — Saleha Trading Company · 2022 – 2023",
+            "Video Editor and IT Support — Magenta Studio, Syria · 2020 – 2022",
+            "IT Teacher Assistant — Al Farouk Government School, Syria · 2019 – 2020",
+            "Freelance Video Editor and Motion Designer · 2016 – Present"
+          ]
+        },
+        {
+          "heading": "Full CV",
+          "lines": [
+            "The complete CV is attached as a PDF — open or download it above."
+          ]
+        }
+      ]
+    }
+  },
+  "settings": {
+    "boot": {
+      "enabled": true,
+      "duration": 900,
+      "shortenAfterFirstVisit": true
+    },
+    "theme": {
+      "default": "light",
+      "allowToggle": true,
+      "wallpaperLight": "wallpapers/light-theme-wallpaper.jpg",
+      "wallpaperDark": "wallpapers/dark-theme-wallpaper.jpg"
+    },
+    "typography": {
+      "display": {
+        "font": {
+          "family": "RotontoTrial-SemiboldItalic",
+          "file": "fonts/RotontoTrial-SemiboldItalic.otf"
+        },
+        "size": 35
+      },
+      "heading": {
+        "font": {
+          "family": "sailors-slant",
+          "file": "fonts/sailors-slant.ttf"
+        },
+        "tracking": -0.04
+      },
+      "body": {
+        "font": {
+          "family": "Lato",
+          "file": "fonts/Lato-Light.ttf"
+        },
+        "weight": 600
+      },
+      "secondary": {
+        "family": "Lato",
+        "file": "Fonts/Lato-Light.ttf"
+      }
+    },
+    "customCursor": false,
+    "studioPin": "5729",
+    "seo": {
+      "title": "Asaad Jalkhi — Marketing, Creative & Digital",
+      "description": "Portfolio of Asaad Jalkhi. Marketing and campaigns, creative production, and digital systems."
+    }
+  },
+  "desktop": {
+    "items": [
+      {
+        "id": "d-gaf",
+        "label": "GAF",
+        "kind": "folder",
+        "target": {
+          "type": "folder",
+          "value": "gaf"
+        },
+        "zone": "left",
+        "rotate": 0,
+        "icon": {
+          "image": "icons/GAF2.png",
+          "imageLight": "icons/GAF-light.png",
+          "imageDark": "icons/GAF-dark.png",
+          "text": "GAF",
+          "tint": "#711218"
+        },
+        "accent": "marketing",
+        "badge": ""
+      },
+      {
+        "id": "d-good-moon",
+        "label": "The Good Moon",
+        "kind": "folder",
+        "target": {
+          "type": "folder",
+          "value": "good-moon"
+        },
+        "zone": "left",
+        "rotate": 0,
+        "icon": {
+          "imageLight": "icons/TGM-light.png",
+          "imageDark": "icons/TGM-dark.png",
+          "text": "TGM"
+        },
+        "accent": "marketing"
+      },
+      {
+        "id": "d-designers",
+        "label": "Designers&Us",
+        "kind": "folder",
+        "target": {
+          "type": "folder",
+          "value": "designers-us"
+        },
+        "zone": "left",
+        "rotate": 0,
+        "icon": {
+          "imageLight": "icons/D&US-light.png",
+          "imageDark": "icons/D&US-dark.png",
+          "text": "D&U"
+        },
+        "accent": "creative"
+      },
+      {
+        "id": "d-web",
+        "label": "Web & Digital",
+        "kind": "folder",
+        "target": {
+          "type": "folder",
+          "value": "web"
+        },
+        "zone": "left",
+        "rotate": 0,
+        "accent": "digital"
+      },
+      {
+        "id": "d-cv",
+        "label": "CV.pdf",
+        "kind": "pdf",
+        "target": {
+          "type": "app",
+          "value": "cv"
+        },
+        "zone": "left",
+        "rotate": 0,
+        "badge": "PDF"
+      },
+      {
+        "id": "d-readme",
+        "label": "read_me_first.txt",
+        "kind": "note",
+        "target": {
+          "type": "note",
+          "value": "read-me"
+        },
+        "zone": "left",
+        "rotate": 0
+      },
+      {
+        "id": "d-ideas",
+        "label": "ideas.txt",
+        "kind": "note",
+        "target": {
+          "type": "note",
+          "value": "ideas"
+        },
+        "zone": "left",
+        "rotate": 0
+      },
+      {
+        "id": "d-dont-open",
+        "label": "dont_open.txt",
+        "kind": "note",
+        "target": {
+          "type": "note",
+          "value": "dont-open"
+        },
+        "zone": "left",
+        "rotate": 0
+      },
+      {
+        "id": "d-photoshop",
+        "label": "Photoshop",
+        "kind": "app",
+        "target": {
+          "type": "alert",
+          "value": "photoshop"
+        },
+        "zone": "right",
+        "rotate": 0,
+        "icon": {
+          "imageLight": "icons/Ps.png",
+          "imageDark": "icons/Ps.png",
+          "text": "Ps",
+          "tint": "#31a8ff"
+        }
+      },
+      {
+        "id": "d-after-effects",
+        "label": "After Effects",
+        "kind": "app",
+        "target": {
+          "type": "alert",
+          "value": "after-effects"
+        },
+        "zone": "right",
+        "rotate": 0,
+        "icon": {
+          "imageLight": "icons/AE.png",
+          "imageDark": "icons/AE.png",
+          "text": "Ae",
+          "tint": "#9999ff"
+        }
+      },
+      {
+        "id": "d-blender",
+        "label": "Blender",
+        "kind": "app",
+        "target": {
+          "type": "alert",
+          "value": "blender"
+        },
+        "zone": "right",
+        "rotate": 0,
+        "icon": {
+          "image": "icons/Blender.png",
+          "text": "Bl"
+        }
+      },
+      {
+        "id": "d-vscode",
+        "label": "VS Code",
+        "kind": "app",
+        "target": {
+          "type": "alert",
+          "value": "vscode"
+        },
+        "zone": "right",
+        "rotate": 0,
+        "icon": {
+          "imageLight": "icons/VS.png",
+          "imageDark": "icons/VS.png",
+          "text": "Vs",
+          "tint": "#4f97d8"
+        }
+      },
+      {
+        "id": "new-shortcut",
+        "label": "DASH",
+        "kind": "folder",
+        "target": {
+          "type": "folder",
+          "value": "dash"
+        },
+        "zone": "any",
+        "rotate": 0,
+        "icon": {
+          "imageLight": "icons/dash.png",
+          "imageDark": "icons/dash.png"
+        },
+        "accent": "creative"
+      }
+    ],
+    "widgets": [
+      {
+        "id": "w-clock",
+        "type": "clock",
+        "title": "Dubai",
+        "x": 76,
+        "y": 15,
+        "zone": "right"
+      },
+      {
+        "id": "w-reaction",
+        "type": "reaction",
+        "title": "Reaction",
+        "x": 76,
+        "y": 36,
+        "zone": "right"
+      }
+    ],
+    "dockLinks": [
+      {
+        "id": "dl-mail",
+        "label": "Email",
+        "icon": "mail"
+      },
+      {
+        "id": "dl-linkedin",
+        "label": "LinkedIn",
+        "icon": "linkedin"
+      },
+      {
+        "id": "dl-instagram",
+        "label": "Instagram",
+        "icon": "instagram"
+      }
+    ],
+    "autoOpen": [
+      {
+        "app": "projects",
+        "x": 0.26,
+        "y": 0.11,
+        "width": 1120,
+        "height": 700,
+        "order": 2
+      },
+      {
+        "app": "note",
+        "payloadId": "read-me",
+        "x": 0.04,
+        "y": 0.62,
+        "width": 340,
+        "height": 260,
+        "order": 1
+      }
+    ]
+  },
+  "folders": [
+    {
+      "id": "gaf",
+      "name": "GAF",
+      "caption": "Brand marketing and campaigns",
+      "discipline": "marketing",
+      "order": 1
+    },
+    {
+      "id": "good-moon",
+      "name": "The Good Moon",
+      "caption": "Brand, social and guest experience",
+      "discipline": "marketing",
+      "order": 2
+    },
+    {
+      "id": "designers-us",
+      "name": "Designers&Us",
+      "caption": "Fashion film and campaign content",
+      "discipline": "creative",
+      "order": 3
+    },
+    {
+      "id": "dash",
+      "name": "DASH",
+      "caption": "Agency work across client accounts",
+      "discipline": "marketing",
+      "order": 4
+    },
+    {
+      "id": "web",
+      "name": "Web & Digital",
+      "caption": "Sites, commerce and internal systems",
+      "discipline": "digital",
+      "order": 5
+    },
+    {
+      "id": "experiments",
+      "name": "Experiments",
+      "caption": "Motion, 3D and unfinished ideas",
+      "discipline": "creative",
+      "order": 6
+    }
+  ],
+  "projects": [
+    {
+      "id": "gaf-brand-marketing",
+      "title": "Brand Marketing & Campaigns",
+      "shortTitle": "GAF Brand",
+      "folder": "gaf",
+      "company": "GAF",
+      "year": "2025 — Present",
+      "role": "Marketing Executive",
+      "location": "Dubai",
+      "summary": "Brand, campaigns, content and channel growth for a hospitality and F&B concept.",
+      "description": "testing this feield \n\ntest \n\n\ntext ",
+      "disciplines": [
+        "marketing",
+        "creative",
+        "digital"
+      ],
+      "categories": [
+        "Brand",
+        "Campaigns",
+        "Hospitality"
+      ],
+      "tags": [
+        "brand",
+        "social",
+        "content",
+        "campaigns"
+      ],
+      "responsibilities": [
+        "also tesitng this ahsldkfjklsadjfkladsfkldsajkljf"
+      ],
+      "tools": [
+        "Meta Business Suite",
+        "Premiere Pro",
+        "Photoshop",
+        "Mailchimp"
+      ],
+      "credits": [],
+      "caseStudy": {
+        "context": "what is this how it looks , why sjdfkl",
+        "challenge": "sdfsdf lets seeeeeeeeee",
+        "objective": "ok ok ok ",
+        "approach": "Sample placeholder text. A one-page brand platform turned into a practical content system: a small set of recurring formats, a monthly shoot day, and a shared calendar the whole team can read.",
+        "execution": "Sample placeholder text. Rebuilt the feed around those formats and moved production to a single monthly session that banks several weeks of content at once.",
+        "results": "no results at all '",
+        "metrics": [
+          {
+            "label": "folowers ",
+            "value": "50% ",
+            "note": "increees"
+          }
+        ],
+        "sections": [
+          {
+            "label": "testing extra sections ",
+            "body": "this is the body "
+          }
+        ]
+      },
+      "media": [
+        {
+          "id": "gaf-hero",
+          "type": "image",
+          "src": "media/gaf/gaf-hero.jpg",
+          "alt": "GAF campaign key visual",
+          "caption": "Seasonal campaign key visual",
+          "aspect": "16:9",
+          "demo": false,
+          "featured": true
+        },
+        {
+          "id": "gaf-grid",
+          "type": "image",
+          "src": "media/gaf/Thumbnails/steve_example.jpeg",
+          "alt": "Social grid layout",
+          "caption": "Feed system — recurring formats",
+          "demo": false
+        },
+        {
+          "id": "gaf-reel",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/p/DcL65A_N8Ie/",
+          "thumbnail": "media/gaf/Thumbnails/steve_example.jpeg",
+          "title": "Steeve decide to show us how to make french toast ",
+          "caption": "tjjdflksdjfkljdslkfjdslkfjldsjflkdsjklfjsdlkfjlkdsjfklsdjflkdsjafkljadsklfjklsadfjlkdsjfkldsajflkdsjflkjdsaklfjsdklfjklasdfjlkadsjfkldsjfkldsjaklfkladsfjdsklfjsadklfjds",
+          "aspect": "4:5",
+          "demo": false
+        },
+        {
+          "id": "m-rf04a7y",
+          "type": "drive",
+          "url": "https://drive.google.com/file/d/1mBEhGhpsNX1acLlhXmxslJhpVW7nTITB/view?usp=sharing",
+          "caption": "mohsen social media account ",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-h5n20qa",
+          "type": "youtube",
+          "url": "https://www.youtube.com/watch?v=A5aGYitlySc&t=3s",
+          "caption": "me as harry potter",
+          "aspect": "16:9"
+        },
+        {
+          "id": "m-0ez3g67",
+          "type": "website",
+          "url": "https://designersandus.com/",
+          "aspect": "16:9",
+          "iframe": true,
+          "featured": true
+        },
+        {
+          "id": "m-png89th",
+          "type": "drive",
+          "url": "https://drive.google.com/file/d/1qptRm6_toN71L1X22bCZ6sK_Kw53Vh46/view?usp=sharing"
+        },
+        {
+          "id": "m-96eftvt",
+          "type": "video",
+          "src": "media/gaf/local_videos/al_amakin.mp4"
+        }
+      ],
+      "heroMediaId": "gaf-hero",
+      "links": [],
+      "icon": {
+        "text": "GGG"
+      },
+      "tile": {
+        "span": "xl",
+        "aspect": "16:9"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 1
+    },
+    {
+      "id": "gaf-guest-systems",
+      "title": "Reservations, CRM & Guest Systems",
+      "shortTitle": "GAF Systems",
+      "folder": "gaf",
+      "company": "GAF",
+      "year": "2025 — Present",
+      "role": "Marketing Executive",
+      "summary": "Connecting bookings, POS and email so guest data actually reaches marketing.",
+      "disciplines": [
+        "digital",
+        "marketing"
+      ],
+      "categories": [
+        "Digital Systems",
+        "CRM",
+        "Automation"
+      ],
+      "tags": [
+        "CRM",
+        "reservations",
+        "automation",
+        "reporting"
+      ],
+      "responsibilities": [],
+      "tools": [
+        "Zapier / Make",
+        "Mailchimp",
+        "Google Sheets"
+      ],
+      "credits": [],
+      "caseStudy": {
+        "approach": "Sample placeholder text. Rather than buying another platform, connect the ones already paid for — one automation moves completed bookings into the CRM, one dashboard puts covers, spend and content performance on the same page.",
+        "metrics": [],
+        "sections": []
+      },
+      "media": [
+        {
+          "id": "gaf-flow",
+          "type": "image",
+          "src": "media/gaf/gaf-systems.jpg",
+          "alt": "Guest data flow diagram",
+          "caption": "Booking to CRM to report",
+          "aspect": "4:5",
+          "demo": true,
+          "featured": true
+        }
+      ],
+      "heroMediaId": "gaf-flow",
+      "links": [],
+      "tile": {
+        "span": "sm",
+        "aspect": "4:5"
+      },
+      "featured": false,
+      "demo": true,
+      "order": 2
+    },
+    {
+      "id": "good-moon-brand",
+      "title": "Brand, Social & Experience",
+      "shortTitle": "The Good Moon",
+      "folder": "good-moon",
+      "company": "The Good Moon",
+      "year": "2025 — Present",
+      "role": "Marketing Executive",
+      "summary": "A lifestyle hospitality brand built to be felt in the room first and seen on a feed second.",
+      "disciplines": [
+        "marketing",
+        "creative"
+      ],
+      "categories": [
+        "Brand",
+        "Social",
+        "Experience"
+      ],
+      "tags": [
+        "brand identity",
+        "social",
+        "events",
+        "art direction"
+      ],
+      "responsibilities": [],
+      "tools": [
+        "Figma",
+        "Photoshop",
+        "Premiere Pro",
+        "Lightroom"
+      ],
+      "credits": [],
+      "caseStudy": {
+        "approach": "Sample placeholder text. Warmth and sound instead of the daylight-minimal category norm — photography on available light, social that documents rather than announces.",
+        "metrics": [],
+        "sections": [
+          {
+            "label": "Sound as identity",
+            "body": "Sample placeholder text. The playlist is treated as a brand asset with the same care as the logo — published monthly, credited, and used as the soundbed for every piece of video."
+          }
+        ]
+      },
+      "media": [
+        {
+          "id": "moon-poster",
+          "type": "image",
+          "src": "media/good-moon/moon-poster.jpg",
+          "alt": "Event poster",
+          "caption": "Event series poster system",
+          "aspect": "1:1",
+          "demo": true,
+          "featured": true
+        },
+        {
+          "id": "moon-film",
+          "type": "generative",
+          "caption": "Event film — placeholder scene",
+          "aspect": "16:9",
+          "scene": "signal",
+          "demo": true
+        },
+        {
+          "id": "moon-social",
+          "type": "image",
+          "src": "media/good-moon/moon-social.jpg",
+          "alt": "Social grid",
+          "caption": "Documentary-style social direction",
+          "aspect": "1:1",
+          "demo": true
+        }
+      ],
+      "heroMediaId": "moon-poster",
+      "links": [],
+      "tile": {
+        "span": "lg",
+        "aspect": "1:1"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 1
+    },
+    {
+      "id": "times-square-film",
+      "title": "Times Square Campaign Film",
+      "shortTitle": "Times Square",
+      "folder": "designers-us",
+      "company": "Designers&Us / Octoboss",
+      "year": "2024",
+      "role": "Video Editor",
+      "summary": "A campaign video for Designers&Us, displayed on a Times Square screen.",
+      "description": "Edited while at Octoboss Marketing Agency. The media shown here is placeholder artwork — replace it with the real film and stills.",
+      "disciplines": [
+        "creative",
+        "marketing"
+      ],
+      "categories": [
+        "Fashion",
+        "Film",
+        "Campaign"
+      ],
+      "tags": [
+        "video",
+        "editing",
+        "fashion",
+        "OOH"
+      ],
+      "responsibilities": [],
+      "tools": [
+        "Premiere Pro",
+        "After Effects",
+        "Photoshop"
+      ],
+      "credits": [
+        {
+          "role": "Edit & post",
+          "name": "Asaad Jalkhi"
+        }
+      ],
+      "caseStudy": {
+        "approach": "Sample placeholder text. A street screen has no audio and a few seconds of attention, so the cut is built as a poster that moves — few holds, large type, no fine detail — while the social version keeps the pacing and sound.",
+        "metrics": [],
+        "sections": []
+      },
+      "media": [
+        {
+          "id": "ts-film",
+          "type": "generative",
+          "caption": "Billboard cut — placeholder scene",
+          "aspect": "16:9",
+          "scene": "marquee",
+          "demo": true,
+          "featured": true
+        },
+        {
+          "id": "ts-stills",
+          "type": "image",
+          "src": "media/designers-us/ts-stills.jpg",
+          "alt": "Film stills",
+          "caption": "Contact sheet — format adaptations",
+          "aspect": "16:9",
+          "demo": true
+        }
+      ],
+      "heroMediaId": "ts-film",
+      "links": [],
+      "tile": {
+        "span": "lg",
+        "aspect": "16:9"
+      },
+      "featured": true,
+      "demo": true,
+      "order": 1
+    },
+    {
+      "id": "designers-us-campaign",
+      "title": "Seasonal Campaign & Show Content",
+      "shortTitle": "D&U Campaign",
+      "folder": "designers-us",
+      "company": "Designers&Us / Octoboss",
+      "year": "2024",
+      "role": "Video Editor",
+      "summary": "Campaign and live show coverage, including support for Dubai Fashion Week content.",
+      "disciplines": [
+        "creative"
+      ],
+      "categories": [
+        "Fashion",
+        "Content",
+        "Events"
+      ],
+      "tags": [
+        "campaign",
+        "fashion week",
+        "event content",
+        "editing"
+      ],
+      "responsibilities": [],
+      "tools": [
+        "Premiere Pro",
+        "Lightroom",
+        "Photoshop"
+      ],
+      "credits": [],
+      "media": [
+        {
+          "id": "du-campaign",
+          "type": "image",
+          "src": "media/designers-us/du-campaign.jpg",
+          "alt": "Fashion campaign layout",
+          "caption": "Seasonal campaign",
+          "aspect": "4:5",
+          "demo": true,
+          "featured": true
+        },
+        {
+          "id": "du-ig",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/",
+          "thumbnail": "media/designers-us/du-social.jpg",
+          "caption": "Show coverage — sample Instagram embed",
+          "aspect": "4:5",
+          "demo": true
+        }
+      ],
+      "heroMediaId": "du-campaign",
+      "links": [],
+      "tile": {
+        "span": "sm",
+        "aspect": "4:5"
+      },
+      "featured": false,
+      "demo": true,
+      "order": 2
+    },
+    {
+      "id": "dash-agency",
+      "title": "Agency Campaigns & Client Accounts",
+      "shortTitle": "DASH",
+      "folder": "dash",
+      "company": "DASH Digital Marketing Agency FZC",
+      "year": "2024 — 2026",
+      "role": "Founder and Creative Lead",
+      "summary": "Campaign and content delivery across client accounts, from brief to reporting.",
+      "disciplines": [
+        "marketing",
+        "creative"
+      ],
+      "categories": [
+        "Agency",
+        "Campaigns",
+        "Content"
+      ],
+      "tags": [
+        "campaigns",
+        "paid social",
+        "client accounts",
+        "production"
+      ],
+      "responsibilities": [],
+      "tools": [
+        "Meta Ads Manager",
+        "Premiere Pro",
+        "Figma",
+        "Notion"
+      ],
+      "credits": [],
+      "caseStudy": {
+        "approach": "Sample placeholder text. Every shoot brief specifies the cutdowns and aspect ratios up front, so a single session produces a campaign's worth of assets instead of one hero film.",
+        "metrics": [],
+        "sections": []
+      },
+      "media": [
+        {
+          "id": "dash-campaign",
+          "type": "image",
+          "src": "media/dash/dash-campaign.jpg",
+          "alt": "Campaign layouts",
+          "caption": "Campaign creative — multi-format delivery",
+          "aspect": "3:2",
+          "demo": true,
+          "featured": true
+        },
+        {
+          "id": "dash-report",
+          "type": "image",
+          "src": "media/dash/dash-report.jpg",
+          "alt": "Report layout",
+          "caption": "Client report format",
+          "aspect": "4:3",
+          "demo": true
+        }
+      ],
+      "heroMediaId": "dash-campaign",
+      "links": [],
+      "tile": {
+        "span": "md",
+        "aspect": "3:2"
+      },
+      "featured": true,
+      "demo": true,
+      "order": 1
+    },
+    {
+      "id": "web-commerce-build",
+      "title": "Storefront & Content System",
+      "shortTitle": "Commerce Build",
+      "folder": "web",
+      "company": "Freelance",
+      "year": "2023",
+      "role": "Web Developer",
+      "summary": "A storefront rebuilt so the marketing team could run it without a developer.",
+      "disciplines": [
+        "digital",
+        "marketing"
+      ],
+      "categories": [
+        "Web",
+        "E-commerce",
+        "Systems"
+      ],
+      "tags": [
+        "Shopify",
+        "WordPress",
+        "performance",
+        "SEO"
+      ],
+      "responsibilities": [],
+      "tools": [
+        "Shopify",
+        "WordPress",
+        "Figma",
+        "Git"
+      ],
+      "credits": [],
+      "caseStudy": {
+        "approach": "Sample placeholder text. Cut the template count down to the few that earn their place, then make every one of them content-driven — layout in the theme, copy in fields.",
+        "metrics": [],
+        "sections": []
+      },
+      "media": [
+        {
+          "id": "web-store",
+          "type": "image",
+          "src": "media/web/web-store.jpg",
+          "alt": "Storefront layouts",
+          "caption": "Template system",
+          "aspect": "4:3",
+          "demo": true,
+          "featured": true
+        }
+      ],
+      "heroMediaId": "web-store",
+      "links": [],
+      "tile": {
+        "span": "md",
+        "aspect": "4:3"
+      },
+      "featured": false,
+      "demo": true,
+      "order": 1
+    },
+    {
+      "id": "web-asaad-os",
+      "title": "ASAAD.OS — This Portfolio",
+      "shortTitle": "ASAAD.OS",
+      "folder": "web",
+      "company": "Personal",
+      "year": "2026",
+      "role": "Concept, design & build",
+      "summary": "A portfolio built as a workspace, because the work does not fit one category.",
+      "description": "The whole site is driven by one validated content file, with a local Studio for editing it. Adding a project is a data change, not a code change.",
+      "disciplines": [
+        "digital",
+        "creative"
+      ],
+      "categories": [
+        "Web",
+        "Product",
+        "Design System"
+      ],
+      "tags": [
+        "React",
+        "TypeScript",
+        "Vite"
+      ],
+      "responsibilities": [],
+      "tools": [
+        "React",
+        "TypeScript",
+        "Vite",
+        "Zod"
+      ],
+      "credits": [],
+      "media": [
+        {
+          "id": "os-desktop",
+          "type": "image",
+          "src": "media/web/os-desktop.jpg",
+          "alt": "ASAAD.OS desktop",
+          "caption": "The workspace",
+          "aspect": "16:9",
+          "featured": true
+        },
+        {
+          "id": "os-quick",
+          "type": "image",
+          "src": "media/web/os-quickview.jpg",
+          "alt": "Quick View layout",
+          "caption": "Quick View — the same content, as one page",
+          "aspect": "16:9"
+        }
+      ],
+      "heroMediaId": "os-desktop",
+      "links": [],
+      "tile": {
+        "span": "lg",
+        "aspect": "16:9"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 2
+    },
+    {
+      "id": "experiments-cgi",
+      "title": "Product & Light Studies",
+      "shortTitle": "CGI Studies",
+      "folder": "experiments",
+      "company": "Personal",
+      "year": "2023 — Present",
+      "role": "3D / Motion",
+      "summary": "Ongoing 3D studies: product lighting, material tests and short loops.",
+      "disciplines": [
+        "creative"
+      ],
+      "categories": [
+        "3D",
+        "Motion"
+      ],
+      "tags": [
+        "Blender",
+        "lighting",
+        "motion"
+      ],
+      "responsibilities": [],
+      "tools": [
+        "Blender",
+        "After Effects"
+      ],
+      "credits": [],
+      "media": [
+        {
+          "id": "cgi-1",
+          "type": "image",
+          "src": "media/experiments/cgi-study.jpg",
+          "alt": "Lighting study",
+          "caption": "Lighting study",
+          "aspect": "1:1",
+          "demo": true,
+          "featured": true
+        },
+        {
+          "id": "cgi-loop",
+          "type": "generative",
+          "caption": "Material loop — placeholder scene",
+          "aspect": "1:1",
+          "scene": "grid",
+          "demo": true
+        }
+      ],
+      "heroMediaId": "cgi-1",
+      "links": [],
+      "tile": {
+        "span": "sm",
+        "aspect": "1:1"
+      },
+      "featured": false,
+      "demo": true,
+      "order": 1
+    }
+  ],
+  "experience": [
+    {
+      "id": "exp-gaf",
+      "company": "GAF and The Good Moon",
+      "role": "Marketing Executive",
+      "period": "Jul 2025 — Present",
+      "location": "Dubai, UAE",
+      "summary": "Marketing, campaigns, content production and the digital systems behind them.",
+      "highlights": [],
+      "disciplines": [
+        "marketing",
+        "creative",
+        "digital"
+      ],
+      "projectId": "gaf-brand-marketing",
+      "current": true
+    },
+    {
+      "id": "exp-dash",
+      "company": "DASH Digital Marketing Agency FZC",
+      "role": "Founder and Creative Lead",
+      "period": "Dec 2024 — Jul 2026",
+      "location": "UAE",
+      "summary": "Founded and led a digital marketing agency, running creative and campaign delivery for client accounts.",
+      "highlights": [],
+      "disciplines": [
+        "marketing",
+        "creative"
+      ],
+      "projectId": "dash-agency",
+      "current": false
+    },
+    {
+      "id": "exp-octoboss",
+      "company": "Octoboss Marketing Agency",
+      "role": "Video Editor and Web Developer",
+      "period": "Dec 2023 — Dec 2024",
+      "location": "UAE",
+      "summary": "Video editing and web development across agency client work.",
+      "highlights": [
+        "Edited a campaign video for Designers&Us that was displayed on a Times Square screen",
+        "Supported content production for Dubai Fashion Week"
+      ],
+      "disciplines": [
+        "creative",
+        "digital"
+      ],
+      "projectId": "times-square-film",
+      "current": false
+    },
+    {
+      "id": "exp-saleha",
+      "company": "Saleha Trading Company",
+      "role": "IT Assistant",
+      "period": "2022 — 2023",
+      "highlights": [],
+      "disciplines": [
+        "digital"
+      ],
+      "current": false
+    },
+    {
+      "id": "exp-magenta",
+      "company": "Magenta Studio",
+      "role": "Video Editor and IT Support",
+      "period": "2020 — 2022",
+      "location": "Syria",
+      "highlights": [],
+      "disciplines": [
+        "creative",
+        "digital"
+      ],
+      "current": false
+    },
+    {
+      "id": "exp-al-farouk",
+      "company": "Al Farouk Government School",
+      "role": "IT Teacher Assistant",
+      "period": "2019 — 2020",
+      "location": "Syria",
+      "highlights": [],
+      "disciplines": [
+        "digital"
+      ],
+      "current": false
+    },
+    {
+      "id": "exp-freelance",
+      "company": "Freelance",
+      "role": "Video Editor and Motion Designer",
+      "period": "2016 — Present",
+      "summary": "Video editing and motion design for independent clients.",
+      "highlights": [],
+      "disciplines": [
+        "creative"
+      ],
+      "current": true
+    }
+  ],
+  "skills": [
+    {
+      "id": "skills-marketing",
+      "title": "Marketing",
+      "discipline": "marketing",
+      "caption": "Deciding what to say, to whom, and why now.",
+      "items": [
+        "Brand strategy & positioning",
+        "Campaign planning",
+        "Social media",
+        "Influencer & partnerships",
+        "CRM & lifecycle email",
+        "Content strategy",
+        "Events & activations",
+        "Performance reporting"
+      ]
+    },
+    {
+      "id": "skills-creative",
+      "title": "Creative",
+      "discipline": "creative",
+      "caption": "Making the thing, not just briefing it.",
+      "items": [
+        "Creative direction",
+        "Video production",
+        "Editing & post",
+        "Motion graphics",
+        "Graphic design",
+        "3D / CGI",
+        "Photography direction"
+      ]
+    },
+    {
+      "id": "skills-digital",
+      "title": "Digital",
+      "discipline": "digital",
+      "caption": "The systems that make the rest of it run.",
+      "items": [
+        "Web development",
+        "WordPress & Shopify",
+        "React / TypeScript",
+        "CMS architecture",
+        "Automation (Zapier / Make)",
+        "CRM & booking systems",
+        "Analytics & dashboards",
+        "IT support"
+      ]
+    }
+  ],
+  "notes": [
+    {
+      "id": "ideas",
+      "title": "ideas.txt",
+      "body": "RUNNING LIST — not briefs, just things worth trying\n\n· A venue newsletter that is actually the playlist\n· Shoot the menu once a season, not once a week\n· Every campaign gets a tracked link before it gets a caption\n· Stop making 30s films nobody watches past 6s\n· The report should fit on one page or it isn't a report\n· If a format works, repeat it until it stops working\n\n(Some of these turned into projects. Most didn't.)",
+      "tone": "plain"
+    },
+    {
+      "id": "dont-open",
+      "title": "dont_open.txt",
+      "body": "You opened it.\n\nFine. Here is the actual secret:\n\nNone of this is complicated. Decide who it's for.\nMake something they'd want. Put it where they are.\nThen check whether it worked and be honest about the answer.\n\nEverything else is production.",
+      "tone": "easter-egg"
+    },
+    {
+      "id": "read-me",
+      "title": "read_me_first.txt",
+      "body": "Welcome.\n\nThe Work window is the portfolio — open a project to see it full size.\n\nIn a hurry?\n→ Quick View puts everything on one page.\n→ Ctrl/Cmd + K searches projects, companies and files.\n\nProjects marked \"sample\" are placeholder content shipped with the site\nto demonstrate the layout. Real work replaces them in\nsrc/content/portfolio.json.",
+      "tone": "accent"
+    },
+    {
+      "id": "scratch",
+      "title": "scratch.txt",
+      "body": "shot list — monthly\n\n01  dish, close, hard light\n02  room, golden hour, wide\n03  the person who made it\n04  guest moment, unposed\n05  what's on this week\n\nrepeat. that's the whole system.",
+      "tone": "plain"
+    }
+  ],
+  "alerts": [
+    {
+      "id": "photoshop",
+      "app": "Photoshop",
+      "title": "Photoshop is not installed",
+      "body": "It is, though. On the other machine. With fourteen unsaved documents named Final_v3.",
+      "tone": "caution",
+      "buttons": [
+        {
+          "label": "Fair enough",
+          "primary": true
+        }
+      ]
+    },
+    {
+      "id": "after-effects",
+      "app": "After Effects",
+      "title": "After Effects is rendering",
+      "body": "Estimated time remaining: 4 minutes. It has said that for forty minutes.",
+      "tone": "info",
+      "buttons": [
+        {
+          "label": "Wait",
+          "primary": false
+        },
+        {
+          "label": "Wait anyway",
+          "primary": true
+        }
+      ]
+    },
+    {
+      "id": "blender",
+      "app": "Blender",
+      "title": "Blender quit unexpectedly",
+      "body": "You pressed a key. It was a shortcut for something. That something is gone now.",
+      "tone": "error",
+      "buttons": [
+        {
+          "label": "Start over",
+          "primary": true
+        }
+      ]
+    },
+    {
+      "id": "vscode",
+      "app": "Visual Studio Code",
+      "title": "This site was built here",
+      "body": "React, TypeScript, and a JSON file doing far more work than it signed up for.",
+      "tone": "info",
+      "buttons": [
+        {
+          "label": "Nice",
+          "primary": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+/** The screen shown when portfolio.json fails validation. */
+
+.content-error {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: var(--s-6);
+  background: var(--c-void);
+}
+
+.content-error__panel {
+  max-width: 680px;
+  padding: var(--s-8);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--sh-pop);
+}
+
+.content-error__icon {
+  width: 26px;
+  height: 26px;
+  color: var(--c-marketing);
+}
+
+.content-error__title {
+  margin: var(--s-4) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--c-bone);
+}
+
+.content-error__lede {
+  margin: var(--s-3) 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+  color: var(--c-mute);
+}
+
+.content-error code {
+  padding: 1px 5px;
+  border-radius: var(--r-xs);
+  background: var(--c-raised-2);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--c-text);
+}
+
+.content-error__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: var(--s-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.content-error__list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  padding: var(--s-3);
+  border-left: 2px solid var(--c-creative);
+  background: var(--c-raised);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+.content-error__path {
+  font-size: var(--fs-3xs);
+  color: var(--c-creative) !important;
+}
+
+.content-error__message {
+  font-size: var(--fs-sm);
+  color: var(--c-text);
+}
+
+.content-error__hint {
+  margin: var(--s-6) 0 0;
+  font-size: var(--fs-3xs);
+  line-height: 1.6;
+  color: var(--c-faint);
+}
