@@ -15,6 +15,7 @@ import { CornerDownLeft } from 'lucide-react';
 import { useOs } from '@/state/os';
 import { usePortfolio } from '@/state/portfolio';
 import { useViewport } from '@/hooks/useEnvironment';
+import { useOpenTarget } from '@/hooks/useOpenTarget';
 import { buildIndex, searchEntries, type SearchEntry } from '@/lib/search';
 import { cx } from '@/lib/utils';
 
@@ -23,7 +24,13 @@ export function CommandPalette() {
   const viewport = useViewport();
   const open = useOs((state) => state.paletteOpen);
   const setPalette = useOs((state) => state.setPalette);
-  const openWindow = useOs((state) => state.openWindow);
+  /*
+   * Through the shared open path, not `openWindow`. The palette is reachable on
+   * mobile — there is a Search button in the top bar — and calling the window
+   * store from here produced the same invisible desktop window that the folder
+   * bug did.
+   */
+  const { present } = useOpenTarget();
   const setView = useOs((state) => state.setView);
   const tidy = useOs((state) => state.tidy);
   const closeAll = useOs((state) => state.closeAll);
@@ -55,7 +62,7 @@ export function CommandPalette() {
     const { action } = entry;
     switch (action.type) {
       case 'window':
-        openWindow({
+        present({
           app: action.app,
           title: action.title,
           subtitle: action.subtitle,

@@ -130,7 +130,6 @@ export function VideoMedia({ media, seed, discipline, mode, priority, onFocus }:
       ratio={ratio}
       title={media.title}
       caption={media.caption}
-      credit={media.credit}
       demo={media.demo}
       kindLabel="Video"
     >

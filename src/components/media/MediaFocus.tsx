@@ -61,6 +61,21 @@
  *   Campaigns" across every individual image in the project. Project context
  *   survives as a quiet line at the bottom of the information, where it reads as
  *   provenance rather than as the name of the picture.
+ *
+ * ── Session 14 ───────────────────────────────────────────────────────────────
+ *
+ *   **Tools are the item's, for the same reason the title is.** The Tools row
+ *   used to print `project.tools` — the software list for the whole case study —
+ *   next to each piece of media, so a still photograph listed Blender because a
+ *   render elsewhere in the project had used it. It now reads `media.tools` and
+ *   only that; there is no fallback, and an item without it gets no Tools row
+ *   rather than an empty label. `project.tools` still exists and still appears in
+ *   the project footer, where a whole-project list is true.
+ *
+ *   **Credit and date are Focus-Mode-only, for the same reason.** An item may
+ *   carry a `credit` and a `date`; neither is drawn on its tile in the project
+ *   grid, which stays title + caption. `MediaFrame` has no `credit` prop at all
+ *   now, so that is a property of the component rather than a habit.
  */
 import { useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -83,12 +98,18 @@ const GAP = 24;
  * Deliberately not a new schema: these are fields that already exist on the
  * project. Every one is optional, and a section with nothing in it is not
  * rendered at all — no empty headings.
+ *
+ * **`tools` is deliberately absent.** It used to be here, and the viewer printed
+ * `project.tools` beside every item — so a photograph in a project that also
+ * contains a 3D render advertised Blender as one of its tools. Tools are now read
+ * from `media.tools`, the item's own field; the project's list belongs to the
+ * project footer. Not passing it is not enough on its own, because the next
+ * caller would pass it again: the field is gone from the type so it cannot be.
  */
 export interface FocusContext {
   title?: string;
   company?: string;
   year?: string | number;
-  tools?: string[];
 }
 
 interface MediaFocusProps {
@@ -148,7 +169,12 @@ export function MediaFocus({
   const title = active.title?.trim();
   const caption = active.caption?.trim();
   const credit = active.credit?.trim();
-  const tools = context?.tools?.filter(Boolean) ?? [];
+  /*
+   * This item's own tools, with no `?? context` behind it — see FocusContext.
+   * Empty or unset means the row is absent, never "Tools —".
+   */
+  const tools = active.tools?.trim();
+  const date = active.date?.trim();
   const permalink = active.instagramUrl ?? active.url;
 
   /*
@@ -156,7 +182,7 @@ export function MediaFocus({
    * an information panel — otherwise every untitled, uncaptioned image would
    * open with a company name floating beside it.
    */
-  const hasInfo = Boolean(title || caption || credit || tools.length || permalink);
+  const hasInfo = Boolean(title || caption || credit || tools || date || permalink);
   const contextLine = [context?.title, context?.company, context?.year]
     .filter(Boolean)
     .join(' · ');
@@ -181,7 +207,7 @@ export function MediaFocus({
   /*
    * One hierarchy, in one place, used by every layout:
    *
-   *   media title → caption → tools → credit → external action
+   *   media title → caption → tools → date → credit → external action
    *
    * Landscape splits it into two editorial columns (the writing left, the making
    * credits right); portrait and balanced stack the same blocks down one panel.
@@ -197,12 +223,23 @@ export function MediaFocus({
 
   const facts = (
     <>
-      {tools.length > 0 && (
+      {tools && (
         <p className="focus__fact">
           <span className="focus__fact-label mono">Tools</span>
-          <span>{tools.join(', ')}</span>
+          <span>{tools}</span>
         </p>
       )}
+      {date && (
+        <p className="focus__fact">
+          <span className="focus__fact-label mono">Date</span>
+          <span>{date}</span>
+        </p>
+      )}
+      {/*
+       * The item's credit line lives here and nowhere else. It is deliberately
+       * not drawn on the tile in the project grid — see `media.credit` in the
+       * schema, and `MediaFrame`, which cannot render one.
+       */}
       {credit && (
         <p className="focus__fact">
           <span className="focus__fact-label mono">Credit</span>

@@ -42,6 +42,7 @@ import { AlertCircle, CheckCircle2, ImagePlus } from 'lucide-react';
 import { Btn, Toggle } from '@/components/ui/Ui';
 import { mediaProblem, type MediaItem, type MediaSubItem } from '@/types/content';
 import { Advanced, Area, Choice, Grid, Repeater, Text, LOCAL_PATH_HINT, opts } from './parts';
+import { SourceField } from './SourceField';
 
 const SCENES = ['marquee', 'campaign', 'signal', 'grid'] as const;
 
@@ -128,14 +129,11 @@ function SubItemFields({
   return (
     <>
       <Grid>
-        <Text
-          label={kind === 'screenshot' ? 'Screenshot file or URL' : 'Image file or URL'}
+        <SourceField
+          label={kind === 'screenshot' ? 'Screenshot source' : 'Image source'}
           value={item.src ?? item.url}
-          mono
-          wide
           placeholder={kind === 'screenshot' ? 'media/site/home.jpg' : 'media/gaf/still-01.jpg'}
-          hint={LOCAL_PATH_HINT}
-          onChange={(v) => patch({ src: v || undefined, url: undefined })}
+          onChange={(v) => patch({ src: v, url: undefined })}
         />
       </Grid>
       <Grid>
@@ -193,14 +191,13 @@ function SourceFields({ item, patch }: { item: MediaItem; patch: Patch }) {
     case 'video':
       return (
         <Grid>
-          <Text
-            label="Local file or direct video URL"
+          {/* Local and URL are separate answers to "where is it?" — see SourceField. */}
+          <SourceField
+            label="Video source"
             value={item.src ?? item.url}
-            mono
-            wide
             placeholder="media/gaf/reel.mp4"
-            hint={`${LOCAL_PATH_HINT} A full https:// link to an .mp4 or .webm works too.`}
-            onChange={(v) => patch({ src: v || undefined })}
+            hint="An .mp4 or .webm."
+            onChange={(v) => patch({ src: v })}
           />
           <Text
             label="Poster / Cover"
@@ -266,14 +263,11 @@ function SourceFields({ item, patch }: { item: MediaItem; patch: Patch }) {
 
     case 'image':
       return (
-        <Text
-          label="Image file or URL"
+        <SourceField
+          label="Image source"
           value={item.src ?? item.url}
-          mono
-          wide
-          placeholder="media/gaf/hero.jpg"
-          hint={`${LOCAL_PATH_HINT} A full https:// image URL works too.`}
-          onChange={(v) => patch({ src: v || undefined })}
+          placeholder="media/gaf/still-01.jpg"
+          onChange={(v) => patch({ src: v })}
         />
       );
 
@@ -497,6 +491,34 @@ export function MediaFields({ item, patch }: { item: MediaItem; patch: Patch }) 
         hint="Editorial copy, not a label — write as much as the work needs. Line breaks and paragraphs are kept."
         onChange={(v) => patch({ caption: v || undefined })}
       />
+
+      {/*
+       * Title → Caption → Tools → Date, the order they are read in.
+       *
+       * Tools here is the item's own list and it is the only one Focus Mode
+       * shows. The project's Tools field (Projects → the project itself) is the
+       * software list for the whole case study and stays in the project footer;
+       * it used to be printed beside every image, which credited Blender for a
+       * photograph. There is no media-level Credits on purpose — credits are the
+       * project's.
+       */}
+      <Grid>
+        <Text
+          label="Tools"
+          value={item.tools}
+          placeholder="Adobe Premiere Pro, Adobe After Effects"
+          hint="Optional. What made this one item. Leave it empty and no Tools line is shown — the project's Tools list is never used in its place."
+          onChange={(v) => patch({ tools: v || undefined })}
+        />
+        <Text
+          label="Date"
+          value={item.date}
+          placeholder="March 2026"
+          hint="Optional. When this was made or published — write it however it reads best. Shown in Focus Mode, next to Tools."
+          onChange={(v) => patch({ date: v || undefined })}
+        />
+      </Grid>
+
       <Grid>
         <Text
           label="Alt text"
@@ -507,7 +529,7 @@ export function MediaFields({ item, patch }: { item: MediaItem; patch: Patch }) 
         <Text
           label="Credit"
           value={item.credit}
-          hint="Photographer, studio, collaborator."
+          hint="Photographer, studio, collaborator. Shown when the item is opened in Focus Mode — never on the tile in the project grid."
           onChange={(v) => patch({ credit: v || undefined })}
         />
       </Grid>

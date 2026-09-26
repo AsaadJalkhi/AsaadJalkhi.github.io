@@ -155,7 +155,6 @@ export function EmbedMedia({ media, seed, discipline, mode, priority, onFocus }:
       aspect={media.aspect}
       title={media.title}
       caption={media.caption}
-      credit={media.credit}
       demo={media.demo}
       ratio={ratio}
       kindLabel={label}

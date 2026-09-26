@@ -21,6 +21,7 @@ import { CommandPalette } from '@/components/os/CommandPalette';
 import { CustomCursor } from '@/components/os/CustomCursor';
 import { Desktop } from '@/components/os/Desktop';
 import { MobileShell } from '@/components/mobile/MobileShell';
+import { MobileSurface } from '@/components/mobile/MobileSurface';
 import { QuickView } from '@/components/quick-view/QuickView';
 import type { ValidationResult } from '@/types/content';
 import '@/styles/error.css';
@@ -48,10 +49,24 @@ export default function App() {
   );
 }
 
+/**
+ * The surface goes on the outside of everything, so that "open this" means the
+ * same thing wherever it is asked from — the home screen, a tile inside a
+ * folder, a command-palette result, or the deep link applied below. See
+ * `MobileSurface` for why covering only part of the tree was not enough.
+ */
 function Shell() {
+  const compact = useIsCompact();
+  return (
+    <MobileSurface enabled={compact}>
+      <ShellBody compact={compact} />
+    </MobileSurface>
+  );
+}
+
+function ShellBody({ compact }: { compact: boolean }) {
   const portfolio = usePortfolio();
   const [route, navigate] = useHashRoute();
-  const compact = useIsCompact();
   const viewport = useViewport();
   const { openProject, openApp } = useOpenTarget();
 

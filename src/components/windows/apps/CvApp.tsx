@@ -1,7 +1,7 @@
 import { Download, FileText } from 'lucide-react';
 import { usePortfolio } from '@/state/portfolio';
 import { asset } from '@/lib/paths';
-import { Btn, DemoBadge, Meta } from '@/components/ui/Ui';
+import { Btn, DemoBadge } from '@/components/ui/Ui';
 import type { AppProps } from '../registry';
 import './apps.css';
 
@@ -17,7 +17,6 @@ export function CvApp(_props: AppProps) {
     <div className="cv">
       <header className="cv__head">
         <div>
-          <Meta>Curriculum Vitae</Meta>
           <h1 className="cv__name">{profile.name}</h1>
           <p className="cv__role">{profile.positioning}</p>
           <p className="cv__contact mono">

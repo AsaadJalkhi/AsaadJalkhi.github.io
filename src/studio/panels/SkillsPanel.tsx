@@ -6,15 +6,37 @@
  */
 import { disciplines, type SkillGroup } from '@/types/content';
 import type { PanelProps } from '../useDraft';
-import { Choice, Grid, Lines, PanelHead, Repeater, Text, opts, uniqueSlug } from './parts';
+import {
+  Choice,
+  FoldBar,
+  Grid,
+  Lines,
+  PanelHead,
+  Repeater,
+  Text,
+  opts,
+  uniqueSlug,
+  useFolds,
+} from './parts';
 
 export function SkillsPanel({ draft, update }: PanelProps) {
+  // Which entries are open: UI state keyed by id, never content.
+  const folds = useFolds();
+
   return (
     <div className="studio-panel">
       <PanelHead
         title="Capabilities"
         lede="Grouped by discipline. Keep each group to the things you would actually be hired for."
       />
+
+      {draft.skills.length > 0 && (
+        <FoldBar
+          folds={folds}
+          ids={draft.skills.map((group) => group.id)}
+          count={`${draft.skills.length} group(s)`}
+        />
+      )}
 
       <Repeater
         items={draft.skills}
@@ -34,6 +56,7 @@ export function SkillsPanel({ draft, update }: PanelProps) {
         })}
         labelOf={(group) => `${group.title} · ${group.items.length} item(s)`}
         addLabel="Add group"
+        fold={{ folds, id: (group) => group.id }}
       >
         {(group, patch) => (
           <>
@@ -45,7 +68,15 @@ export function SkillsPanel({ draft, update }: PanelProps) {
                 options={opts(disciplines)}
                 onChange={(v) => patch({ discipline: v as SkillGroup['discipline'] })}
               />
-              <Text label="ID" value={group.id} mono onChange={(v) => patch({ id: v })} />
+              <Text
+                label="ID"
+                value={group.id}
+                mono
+                onChange={(v) => {
+                  folds.rename(group.id, v);
+                  patch({ id: v });
+                }}
+              />
             </Grid>
 
             <Text

@@ -120,7 +120,6 @@ export function WebsiteMedia({ media, seed, discipline, mode, priority }: Adapte
         fill
         title={media.title}
         caption={media.caption}
-        credit={media.credit}
         demo={media.demo}
         kindLabel="Website"
       >
@@ -153,7 +152,6 @@ export function WebsiteMedia({ media, seed, discipline, mode, priority }: Adapte
         fill
         title={media.title}
         caption={media.caption}
-        credit={media.credit}
         demo={media.demo}
         kindLabel="Website"
         actions={action}

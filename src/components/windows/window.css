@@ -209,6 +209,28 @@
   transition: background-color var(--t-theme) var(--e-in-out);
 }
 
+/*
+ * A maximised window runs to the bottom of the screen and the dock floats over
+ * it. So the scroller ends with a spacer as tall as the dock plus a gap, and
+ * the last line of content can always be scrolled up clear of it. A spacer, not
+ * padding: padding on an overflow box is not reliably part of the scroll range.
+ * Restored windows end above the dock already and get nothing.
+ * Apps with their own inner scroller add the same spacer to it (work.css).
+ */
+.window--maximized {
+  --window-clear: calc(var(--dock-h) + var(--s-4));
+}
+
+.window--maximized .window__body {
+  scroll-padding-bottom: var(--window-clear);
+}
+
+.window--maximized .window__body::after {
+  content: '';
+  display: block;
+  height: var(--window-clear);
+}
+
 /* --------------------------------------------------------- resize handles */
 
 .window__handle {

@@ -50,6 +50,15 @@ export function moveItem<T>(list: T[], from: number, to: number): T[] {
   return next;
 }
 
+/**
+ * The `moveItem` target for a drop into an insertion slot. Slot `k` is the gap
+ * before item `k`, so 0 is the start and `length` is the end; a slot past the
+ * dragged item lands one lower, because the item leaves its old place first.
+ */
+export function slotIndex(from: number, slot: number): number {
+  return slot > from ? slot - 1 : slot;
+}
+
 export function download(filename: string, contents: string, mime = 'application/json'): void {
   const blob = new Blob([contents], { type: mime });
   const url = URL.createObjectURL(blob);

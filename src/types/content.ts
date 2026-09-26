@@ -11,6 +11,7 @@
  * below and add an adapter in `src/components/media/adapters/`.
  */
 import { z } from 'zod';
+import { isExternal, localPathProblem } from '@/lib/paths';
 
 /* ------------------------------------------------------------------ atoms */
 
@@ -153,7 +154,44 @@ export const MediaItemSchema = z
     title: z.string().optional(),
     alt: z.string().optional(),
     caption: z.string().optional(),
+    /**
+     * Photographer, studio, collaborator — one line, for THIS item.
+     *
+     * Kept as an option and **shown only in Focus Mode**, never on the tile in
+     * the project grid: a credit line under every picture in a masonry is noise
+     * the moment more than one item has one, and the grid's job is title +
+     * caption. `MediaFrame` therefore has no `credit` prop at all — the rule is
+     * structural rather than a flag somebody has to remember to pass.
+     *
+     * Distinct from `project.credits`, which names the people on the whole case
+     * study and stays in the project footer.
+     */
     credit: z.string().optional(),
+    /**
+     * When this item was made or published, e.g. "March 2026" or "2026-03-14".
+     *
+     * Free text on purpose: "Summer 2025" and "14 March 2026" are both real
+     * answers, and a date picker would force a precision that photographs and
+     * campaigns often do not have. Nothing parses or sorts by it. Optional, and
+     * shown only in Focus Mode, beside Tools — the grid stays title + caption.
+     * Distinct from `project.year`, which dates the case study.
+     */
+    date: z.string().optional(),
+    /**
+     * What made THIS item, e.g. "Adobe Premiere Pro, Adobe After Effects".
+     *
+     * Distinct from `project.tools`, and deliberately not a fallback to it.
+     * Focus Mode used to print the project's whole tool list beside every media
+     * item, which claimed a photograph had been edited in Blender because
+     * something else in the same case study had. `project.tools` is the software
+     * list for the case study and stays in the project footer; this is the
+     * per-item answer and is the only thing Focus Mode shows.
+     *
+     * A free-text string rather than an array: it is one short line read as
+     * written, not a set of filterable chips like `project.tools`. Optional, so
+     * every existing media item stays valid and an untouched export gains no key.
+     */
+    tools: z.string().optional(),
     /**
      * Manual shape override. Leave it out for Auto — the media's real ratio.
      * See `AspectSchema` above; there is only one way to say "automatic".
@@ -322,6 +360,37 @@ export const CaseStudySchema = z.object({
 });
 export type CaseStudy = z.infer<typeof CaseStudySchema>;
 
+/* ------------------------------------------------------------------ banner */
+
+/**
+ * The wide editorial strip that opens a case study.
+ *
+ * A banner is **not** a media item and deliberately does not reuse
+ * `MediaItemSchema`. A media item is a piece of work — it can be a Reel, a PDF,
+ * a website, a gallery; it carries a caption and a credit; it opens in Focus
+ * Mode; it is *shown in full*. A banner is page furniture: one local image or
+ * one local video, cropped to a fixed shallow band, never focusable, never
+ * repeated in the body. Modelling it as a media item is what produced the old
+ * hero, where one list had to mean two unrelated things and `showHeroInMedia`
+ * existed to undo the confusion.
+ *
+ * Local only, and enforced rather than merely documented: an embed has its own
+ * aspect ratio, its own chrome and its own loading behaviour, none of which can
+ * be cropped to a band. Recommended source artwork is 1920 × 700, but any shape
+ * is accepted — the renderer covers the band and never reads the file's ratio.
+ */
+export const BannerSchema = z
+  .object({
+    type: z.enum(['image', 'video']),
+    src: nonEmpty,
+    alt: z.string().optional(),
+  })
+  .superRefine((banner, ctx) => {
+    const problem = localPathProblem(banner.src);
+    if (problem) ctx.addIssue({ code: 'custom', path: ['src'], message: problem });
+  });
+export type Banner = z.infer<typeof BannerSchema>;
+
 /* ----------------------------------------------------------------- project */
 
 export const ProjectSchema = z.object({
@@ -348,6 +417,22 @@ export const ProjectSchema = z.object({
   caseStudy: CaseStudySchema.optional(),
   media: z.array(MediaItemSchema).default([]),
   /**
+   * The wide strip at the top of the case study. Optional: a project without one
+   * opens on its title, with no empty band where a banner would have been.
+   *
+   * This replaced `heroMediaId` in session 13. The two are not the same idea —
+   * see `BannerSchema` — which is why it is a new field rather than a changed
+   * one.
+   */
+  banner: BannerSchema.optional(),
+  /**
+   * @deprecated Legacy hero, superseded by `banner`.
+   *
+   * Still read, and still valid content: a project that has a `heroMediaId` and
+   * no `banner` renders that item in the banner band, so existing portfolios
+   * look the same as they did. The Studio no longer writes it, and offers a
+   * one-click conversion instead. Nothing rewrites it behind the author's back.
+   *
    * Which media item opens the case study, by id. **Explicit, or nothing.**
    *
    * Until session 9 the hero was inferred — first `featured` item, else the
@@ -372,7 +457,19 @@ export const ProjectSchema = z.object({
    */
   showHeroInMedia: z.boolean().optional(),
   links: z.array(LinkSchema).default([]),
-  thumbnail: z.string().optional(),
+  /**
+   * Card image in the Work grid. A URL passes through; anything else is a local
+   * path and must satisfy `localPathProblem()`, the same rule as `banner.src` —
+   * so a machine path outside `public/` is a named error, never stored.
+   */
+  thumbnail: z
+    .string()
+    .optional()
+    .superRefine((value, ctx) => {
+      if (!value || isExternal(value)) return;
+      const problem = localPathProblem(value);
+      if (problem) ctx.addIssue({ code: 'custom', message: problem });
+    }),
   /** Icon used when this project sits on the desktop as a shortcut. */
   icon: IconSchema.optional(),
   /**
@@ -405,6 +502,17 @@ export const FolderSchema = z.object({
   /** Company logo or monogram for this folder's icon. */
   icon: IconSchema.optional(),
   order: z.number().optional(),
+  /*
+   * The optional intro drawn above the project cards when the folder is opened
+   * — a masthead for the brand or company, not a label. All three are optional
+   * and none is defaulted, so an old folder gains no keys and renders exactly as
+   * before. `name` stays the tab / window identity; `introTitle` only overrides
+   * the visible heading, and falls back to `name` when the intro exists without
+   * one. `banner` is the project banner, same schema, same local-only rule.
+   */
+  introTitle: z.string().optional(),
+  description: z.string().optional(),
+  banner: BannerSchema.optional(),
 });
 export type Folder = z.infer<typeof FolderSchema>;
 

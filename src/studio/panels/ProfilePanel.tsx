@@ -11,7 +11,22 @@
  */
 import { Toggle } from '@/components/ui/Ui';
 import type { PanelProps } from '../useDraft';
-import { Area, Grid, Lines, Num, PanelHead, Repeater, Section, Text } from './parts';
+import {
+  Area,
+  FoldBar,
+  Grid,
+  Lines,
+  Num,
+  PanelHead,
+  Repeater,
+  Section,
+  Text,
+  useFolds,
+} from './parts';
+
+/** The collapsible sections of this tab, in page order. */
+const FOLDS = ['identity', 'about', 'contact', 'cv', 'site'] as const;
+type Fold = (typeof FOLDS)[number];
 
 export function ProfilePanel({ draft, update }: PanelProps) {
   const { profile, settings } = draft;
@@ -37,6 +52,16 @@ export function ProfilePanel({ draft, update }: PanelProps) {
       Object.assign(next.profile.cv, changes);
     });
 
+  // Which sections are open: UI state only, never content.
+  const folds = useFolds<Fold>();
+  const summary: Record<Fold, string> = {
+    identity: [profile.name, profile.headline].filter(Boolean).join(' · '),
+    about: `${about.images.length} image(s) · ${about.lists.length} list(s)`,
+    contact: [profile.email, `${profile.socials.length} link(s)`].filter(Boolean).join(' · '),
+    cv: `${profile.cv.sections.length} section(s)`,
+    site: settings.seo.title,
+  };
+
   return (
     <div className="studio-panel">
       <PanelHead
@@ -44,7 +69,9 @@ export function ProfilePanel({ draft, update }: PanelProps) {
         lede="Who you are, how to reach you, and what the CV window shows."
       />
 
-      <Section title="Identity">
+      <FoldBar folds={folds} ids={FOLDS} />
+
+      <Section title="Identity" {...folds.props('identity', summary.identity)}>
         <Grid>
           <Text label="Name" value={profile.name} onChange={(v) => patchProfile({ name: v })} />
           <Text
@@ -102,6 +129,7 @@ export function ProfilePanel({ draft, update }: PanelProps) {
 
       <Section
         title="The About window"
+        {...folds.props('about', summary.about)}
         hint="The long version. Leave it all empty and the window falls back to the About paragraphs above."
       >
         <Text
@@ -188,6 +216,7 @@ export function ProfilePanel({ draft, update }: PanelProps) {
 
       <Section
         title="Contact"
+        {...folds.props('contact', summary.contact)}
         hint="The email and links here feed the Contact window, the menu bar, and Quick View."
       >
         <Text
@@ -236,6 +265,7 @@ export function ProfilePanel({ draft, update }: PanelProps) {
 
       <Section
         title="CV"
+        {...folds.props('cv', summary.cv)}
         hint="Put the PDF in public/cv/ and reference it without a leading slash."
       >
         <Grid>
@@ -292,7 +322,7 @@ export function ProfilePanel({ draft, update }: PanelProps) {
         </Repeater>
       </Section>
 
-      <Section title="Site settings">
+      <Section title="Site settings" {...folds.props('site', summary.site)}>
         <Grid cols={1}>
           <Text
             label="SEO title"

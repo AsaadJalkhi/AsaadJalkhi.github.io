@@ -9,12 +9,14 @@ import {
   Area,
   Choice,
   DisciplinePicker,
+  FoldBar,
   Grid,
   Lines,
   PanelHead,
   Repeater,
   Text,
   uniqueSlug,
+  useFolds,
 } from './parts';
 
 export function ExperiencePanel({ draft, update }: PanelProps) {
@@ -23,12 +25,23 @@ export function ExperiencePanel({ draft, update }: PanelProps) {
     label: project.title,
   }));
 
+  // Which entries are open: UI state keyed by id, never content.
+  const folds = useFolds();
+
   return (
     <div className="studio-panel">
       <PanelHead
         title="Experience"
         lede="Roles, in the order they should appear. Linking a project adds a “see the work” action."
       />
+
+      {draft.experience.length > 0 && (
+        <FoldBar
+          folds={folds}
+          ids={draft.experience.map((item) => item.id)}
+          count={`${draft.experience.length} role(s)`}
+        />
+      )}
 
       <Repeater
         items={draft.experience}
@@ -51,6 +64,7 @@ export function ExperiencePanel({ draft, update }: PanelProps) {
         })}
         labelOf={(item) => `${item.role} · ${item.company}`}
         addLabel="Add role"
+        fold={{ folds, id: (item) => item.id }}
       >
         {(item, patch) => (
           <>
@@ -72,7 +86,11 @@ export function ExperiencePanel({ draft, update }: PanelProps) {
                 label="ID"
                 value={item.id}
                 mono
-                onChange={(v) => patch({ id: v })}
+                onChange={(v) => {
+                  // Editing the id must not collapse the card being edited.
+                  folds.rename(item.id, v);
+                  patch({ id: v });
+                }}
               />
               <Choice
                 label="Linked project"

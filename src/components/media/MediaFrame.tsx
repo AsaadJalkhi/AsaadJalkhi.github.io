@@ -1,7 +1,15 @@
 /**
- * The shell every media adapter renders inside: shape, caption, credit and the
+ * The shell every media adapter renders inside: shape, title, caption and the
  * honest "Sample" marker for demo content. Adapters only care about their own
  * payload — layout lives here.
+ *
+ * **There is no `credit` prop, and that is the point.** A tile in the project
+ * grid shows the item's title and its caption. `media.credit` still exists and is
+ * still worth filling in — it is rendered in Focus Mode, where there is room for
+ * it and where someone has asked to look closely. Dropping the prop rather than
+ * simply not passing it means the next adapter cannot reintroduce a credit line
+ * under every picture in the masonry by accident. Same for `media.tools` and
+ * `media.date`, which this component has never known about.
  *
  * Two ways to be shaped, and the distinction matters:
  *
@@ -22,7 +30,8 @@ import type { ReactNode } from 'react';
 import type { Aspect } from '@/types/content';
 import { cx } from '@/lib/utils';
 import { DemoBadge } from '@/components/ui/Ui';
-import { RATIO_CSS, isAuto } from './aspect';
+import { RATIO, RATIO_CSS, isAuto } from './aspect';
+import { focusLayout } from './focusLayout';
 
 /** CSS `aspect-ratio` for every ratio the schema allows. */
 export const RATIOS = RATIO_CSS;
@@ -44,7 +53,6 @@ export interface MediaFrameProps {
    */
   title?: string;
   caption?: string;
-  credit?: string;
   demo?: boolean;
   /** Small chip in the corner, e.g. "YOUTUBE", "PDF". */
   kindLabel?: string;
@@ -60,7 +68,6 @@ export function MediaFrame({
   ratio,
   title,
   caption,
-  credit,
   demo,
   kindLabel,
   actions,
@@ -77,8 +84,33 @@ export function MediaFrame({
 
   const sized = Boolean(declared) && !fill;
 
+  /*
+   * The resolved ratio as a NUMBER, and what shape that number is.
+   *
+   * "Show the media in full" and "do not let the media be enormous" are not in
+   * tension once the frame knows its own shape: a ceiling on HEIGHT, converted
+   * to a ceiling on WIDTH through the ratio, caps a 9:16 Reel without cropping a
+   * pixel of it and without touching a 16:9 player, which is width-bound
+   * already. That conversion is why the number is published to CSS — a `calc()`
+   * cannot read `aspect-ratio`.
+   *
+   * The classifier is Focus Mode's, on purpose. Portrait means the same thing in
+   * a case study as it does in the overlay, and one shared function is what
+   * stops the two from drifting into disagreeing about 4:5.
+   */
+  const resolved = isAuto(aspect)
+    ? ratio && ratio > 0
+      ? ratio
+      : undefined
+    : RATIO[aspect as Exclude<Aspect, 'auto'>];
+  const shape = resolved ? focusLayout(resolved) : undefined;
+
   return (
-    <figure className={cx('media-frame', !sized && 'media-frame--fill', className)}>
+    <figure
+      className={cx('media-frame', !sized && 'media-frame--fill', className)}
+      data-shape={shape}
+      style={resolved ? ({ '--frame-ratio': resolved } as React.CSSProperties) : undefined}
+    >
       <div
         className="media-frame__stage"
         style={sized ? ({ aspectRatio: declared } as React.CSSProperties) : undefined}
@@ -87,13 +119,12 @@ export function MediaFrame({
         {kindLabel && <span className="media-frame__kind mono">{kindLabel}</span>}
       </div>
 
-      {(title || caption || credit || demo || actions) && (
+      {(title || caption || demo || actions) && (
         <figcaption className="media-frame__caption">
           {title && <p className="media-frame__title">{title}</p>}
           {caption && <p className="media-frame__text">{caption}</p>}
-          {(credit || demo || actions) && (
+          {(demo || actions) && (
             <p className="media-frame__meta">
-              {credit && <span className="media-frame__credit">{credit}</span>}
               {demo && <DemoBadge />}
               {actions && <span className="media-frame__actions">{actions}</span>}
             </p>

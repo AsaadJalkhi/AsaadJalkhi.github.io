@@ -1,18 +1,18 @@
 /**
  * A project.
  *
- * Media first, words second: the lead image fills the top of the window before
- * any text appears, and the narrative sections render only for the fields the
+ * Media first, words second: the banner fills the top of the window before any
+ * text appears, and the narrative sections render only for the fields the
  * content file actually fills in — so a one-line project and a full case study
  * both come out looking deliberate.
  */
 import { ArrowUpRight } from 'lucide-react';
-import type { CaseStudy, MediaItem, Project } from '@/types/content';
+import type { CaseStudy, Project } from '@/types/content';
 import { usePortfolio } from '@/state/portfolio';
 import { findProject, primaryDiscipline } from '@/lib/contentStore';
 import { MediaGallery } from '@/components/media/MediaGallery';
-import { MediaRenderer } from '@/components/media/MediaRenderer';
 import { Btn, DemoBadge, Empty, Meta, Tag } from '@/components/ui/Ui';
+import { ProjectBanner, bodyMedia, resolveBanner } from './ProjectBanner';
 import type { AppProps } from '../registry';
 import './apps.css';
 
@@ -32,24 +32,13 @@ export function CaseStudyBody({ project, compact }: { project: Project; compact?
   const cs = project.caseStudy;
 
   /*
-   * The lead visual is now named, not guessed.
-   *
-   * It used to be "whichever item is featured, else the first one", which tied
-   * the top of the page to a flag that means something else entirely (a
-   * full-width row down in the body) and to the order of a list people reorder
-   * for other reasons. Set `heroMediaId` and that item opens the case study;
-   * leave it unset and the case study opens on its title, which is a real
-   * choice rather than an empty slot.
+   * The lead visual is a banner: its own field, its own local file, its own
+   * fixed band. It is not one of the media items below and cannot be — see
+   * `ProjectBanner`. Leave it unset and the case study opens on its title, with
+   * no empty strip where one might have been.
    */
-  const hero: MediaItem | undefined = project.heroMediaId
-    ? project.media.find((item) => item.id === project.heroMediaId)
-    : undefined;
-
-  // The hero is not repeated in the body unless explicitly asked for.
-  const rest =
-    hero && !project.showHeroInMedia
-      ? project.media.filter((item) => item.id !== hero.id)
-      : project.media;
+  const banner = resolveBanner(project);
+  const rest = bodyMedia(project);
 
   const facts = [
     ['Company', project.company],
@@ -59,12 +48,13 @@ export function CaseStudyBody({ project, compact }: { project: Project; compact?
   ].filter((entry): entry is [string, string] => Boolean(entry[1]));
 
   return (
-    <article className="case" data-discipline={discipline} data-compact={compact || undefined}>
-      {hero && (
-        <figure className="case__hero">
-          <MediaRenderer media={hero} seed={project.id} discipline={discipline} mode="full" priority />
-        </figure>
-      )}
+    <article
+      className="case"
+      data-discipline={discipline}
+      data-compact={compact || undefined}
+      data-bannerless={banner ? undefined : true}
+    >
+      {banner && <ProjectBanner banner={banner} />}
 
       <header className="case__head">
         <h1 className="case__title">{project.title}</h1>
@@ -112,11 +102,16 @@ export function CaseStudyBody({ project, compact }: { project: Project; compact?
               media={rest}
               seed={project.id}
               discipline={discipline}
+              /*
+               * Provenance only. `project.tools` is deliberately NOT passed: it
+               * is the tool list for the whole case study and belongs to the
+               * footer below, not beside each individual image. Focus Mode reads
+               * each item's own `media.tools` — see FocusContext.
+               */
               context={{
                 title: project.title,
                 company: project.company,
                 year: project.year,
-                tools: project.tools,
               }}
             />
           </div>

@@ -107,6 +107,8 @@ Add an object to `projects` in `portfolio.json`. Only five fields are required:
   "role": "Marketing Executive",
   "disciplines": ["marketing", "creative"],
   "categories": ["Brand", "Campaigns"],
+  // Project-wide: every tool used across the case study. Shown in the project
+  // footer. Per-item tools are `media[].tools` — see below.
   "tools": ["Meta Ads", "Premiere Pro"],
 
   // Art-directs this project's size and shape in the Work grid. Optional —
@@ -120,7 +122,20 @@ Add an object to `projects` in `portfolio.json`. Only five fields are required:
     "results": "...",
     "metrics": [{ "label": "Reach", "value": "1.2M" }]
   },
-  "media": [{ "id": "m1", "type": "image", "src": "media/gaf/hero.jpg" }],
+  // `tools`, `date` and `credit` are optional, belong to THIS item, and are shown
+  // only in Focus Mode — the grid tile shows `title` and `caption`. `tools` is
+  // never filled in from the project's list above.
+  "media": [
+    {
+      "id": "m1",
+      "type": "image",
+      "src": "media/gaf/hero.jpg",
+      "title": "Launch film — opening frame",
+      "tools": "Adobe Photoshop",
+      "date": "March 2026",
+      "credit": "Photography: Studio Name"
+    }
+  ],
   "links": [{ "label": "Live site", "url": "https://…", "kind": "website" }]
 }
 ```
@@ -137,7 +152,11 @@ public/media/gaf/hero.jpg   →   "src": "media/gaf/hero.jpg"
 ```
 
 Paths are resolved through `src/lib/paths.ts` so they keep working in a GitHub Pages
-subdirectory. Supported `type` values:
+subdirectory. In the Studio, image and video sources have an explicit **Local file / URL**
+choice; local mode accepts `/public/…` and a full `E:\…\public\…` Windows path and normalises
+both to the form above via `normalizeLocalPath()`, then checks the file is actually there. A
+path outside `public/` is refused rather than stored, so a machine-specific path can never
+reach `portfolio.json`. Supported `type` values:
 
 | Type | Needs | Notes |
 | --- | --- | --- |
@@ -158,10 +177,32 @@ image's shape for an opaque embed. There is one way to say automatic and it is o
 field. `thumbnail` / `poster` is the cover: shown before playback and used as the fallback
 whenever the media can't autoplay.
 
-`heroMediaId` on a project names the single item that opens the case study, at its own
-aspect ratio. Omit it and the case study opens on its title, which is a real choice. It is
-**not** inferred from `featured` — that flag now means only "give this its own full-width
-row in the body". Set `showHeroInMedia: true` to have the hero also appear below.
+### The project banner
+
+`banner` is the wide band across the top of a case study. It is **its own file**, not one of
+the project's media items:
+
+```jsonc
+"banner": { "type": "video", "src": "media/gaf/banner.mp4", "alt": "" }
+```
+
+`type` is `image` or `video`, and `src` must be a **local path inside `public/`** — a URL is a
+validation error. The band is a fixed height (`clamp(190px, 30vh, 280px)`, shallower on a
+phone), identical for every project, and the media fills it with `object-fit: cover`. Any
+source shape is accepted because none of them decide anything; **1920 × 700** is what survives
+the crop best. A `video` banner is decorative motion — autoplay, muted, looped, **no controls**.
+
+Omit `banner` and nothing is drawn: the case study opens on its title, which is a real choice,
+not an empty state.
+
+`heroMediaId` / `showHeroInMedia` are the **deprecated** predecessor, which promoted one of the
+project's own media items. They still validate and still render, so existing content is
+untouched; the Studio offers a one-click conversion and performs none on its own. New content
+should use `banner`.
+
+Media *below* the banner is never cropped: each item keeps its own aspect ratio, and tall items
+are bounded to about 70vh and centred rather than cut. `featured` means only "give this its own
+full-width row in the body".
 
 `generative` is **deprecated**: it still renders, and existing content using it is
 untouched, but it is no longer offered when adding media. `iframe: true` on a `website` item

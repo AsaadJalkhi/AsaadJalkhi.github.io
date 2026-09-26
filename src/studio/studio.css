@@ -25,6 +25,22 @@
   font-size: var(--fs-sm);
 }
 
+/*
+ * `.mono` is the BODY role in the visitor-facing OS (global.css). The Studio is
+ * a developer-facing tool where ids, paths and URLs really are code, so it
+ * keeps the mono face — except inside the draft preview, which must look
+ * exactly like the live site.
+ */
+.studio .mono,
+.studio-recovery .mono {
+  font-family: var(--font-mono);
+  letter-spacing: var(--tracking-mono);
+}
+.studio .studio-preview__stage .mono {
+  font-family: var(--font-body);
+  letter-spacing: var(--tracking-wide);
+}
+
 /* ----------------------------------------------------------------- sidebar */
 
 .studio__nav {
@@ -388,6 +404,285 @@
   padding: var(--s-4);
 }
 
+/* ------------------------------------------------------------ media list */
+
+/*
+ * A project's media as compact cards (List) or tiles (Grid). Collapsed cards
+ * are a single row; only an opened card draws its editor.
+ */
+.studio-media {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  align-items: flex-start;
+  container-type: inline-size;
+  width: 100%;
+}
+
+.studio-media__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+}
+
+.studio-media__view {
+  display: inline-flex;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+
+.studio-media__view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: 4px var(--s-2);
+  border: none;
+  background: var(--c-raised);
+  color: var(--c-mute);
+  font: inherit;
+  font-size: var(--fs-3xs);
+  cursor: pointer;
+}
+
+.studio-media__view-btn + .studio-media__view-btn {
+  border-left: 1px solid var(--c-line);
+}
+
+.studio-media__view-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.studio-media__view-btn:hover {
+  color: var(--c-bone);
+}
+
+.studio-media__view-btn.is-on {
+  background: var(--c-raised-2);
+  color: var(--c-bone);
+}
+
+.studio-media__count {
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+}
+
+.studio-media__bulk {
+  display: flex;
+  gap: var(--s-1);
+  margin-left: auto;
+}
+
+.studio-media-card__head {
+  min-height: 52px;
+  padding-block: var(--s-2);
+}
+
+/* A collapsed card is just its head — no divider under nothing. */
+.studio-media-card:not(.is-open) .studio-media-card__head {
+  border-bottom: none;
+}
+
+.studio-media-card__summary {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/*
+ * Collapsed cards stacked straight in a panel read as one list, not as spaced
+ * blocks: the panel's gap is pulled in between two neighbouring cards.
+ */
+.studio-panel > .studio-media-card + .studio-media-card,
+.studio-detail > .studio-media-card + .studio-media-card {
+  margin-top: calc(var(--s-2) - var(--s-6));
+}
+
+/* A card with a summary: the title keeps its width, the digest takes the rest. */
+.studio-fold__title {
+  flex: 0 1 auto;
+}
+
+.studio-fold__summary {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.studio-media-card__summary:hover .studio-fold__summary {
+  color: var(--c-mute);
+}
+
+.studio-media-card__kind {
+  flex-shrink: 0;
+  color: var(--c-mute);
+  font-size: var(--fs-3xs);
+}
+
+/*
+ * Drag to reorder. Only the grip is draggable; the card is the drop target. The
+ * insertion line is a box-shadow, because the cards clip their own overflow and
+ * a pseudo-element outside them would be cut off.
+ */
+.studio-media-grip {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 26px;
+  border-radius: var(--r-sm);
+  color: var(--c-faint);
+  cursor: grab;
+  user-select: none;
+}
+
+.studio-media-grip svg {
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+}
+
+.studio-media-grip:hover {
+  color: var(--c-bone);
+  background: var(--c-raised);
+}
+
+.studio-media-grip:active {
+  cursor: grabbing;
+}
+
+.studio-media-card.is-dragging,
+.studio-media-tile.is-dragging {
+  opacity: 0.45;
+}
+
+.studio-media-card.is-drop-before {
+  box-shadow: 0 -3px 0 -1px var(--c-accent);
+}
+
+.studio-media-card.is-drop-after {
+  box-shadow: 0 3px 0 -1px var(--c-accent);
+}
+
+.studio-media-tile.is-drop-before {
+  box-shadow: -3px 0 0 -1px var(--c-accent);
+}
+
+.studio-media-tile.is-drop-after {
+  box-shadow: 3px 0 0 -1px var(--c-accent);
+}
+
+.studio-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--s-3);
+  width: 100%;
+}
+
+/* Never more than four across, however wide the Studio gets. */
+@container (min-width: 1000px) {
+  .studio-media-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.studio-media-tile {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-raised);
+  overflow: hidden;
+}
+
+.studio-media-tile__open {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.studio-media-tile__open:hover .studio-media-tile__label {
+  color: var(--c-bone);
+}
+
+.studio-media-tile__thumb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  background: var(--c-ink);
+  overflow: hidden;
+}
+
+.studio-media-tile__thumb img,
+.studio-media-tile__thumb video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.studio-media-tile__none {
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+}
+
+.studio-media-tile__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s-2) var(--s-3);
+  min-width: 0;
+}
+
+.studio-media-tile__line {
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.studio-media-tile__label {
+  color: var(--c-text);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.studio-media-tile__tools {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: 0 var(--s-3) var(--s-2);
+}
+
 /* ------------------------------------------------------- master / detail */
 
 .studio-split {
@@ -499,6 +794,79 @@
 .studio-detail__tools {
   display: flex;
   gap: var(--s-1);
+}
+
+/* ----------------------------------------------------------------- preview */
+
+/*
+ * The draft preview. A layer inside `.studio` (which is its own stacking
+ * context), so Focus Mode — portalled to <body> on `--z-focus` — still opens
+ * above it. The stage is only a width; everything inside it is the live
+ * renderer with its own styles.
+ */
+.studio-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-void);
+}
+
+.studio-preview__bar {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-ink);
+}
+
+.studio-preview__note {
+  min-width: 0;
+  margin-left: auto;
+  overflow: hidden;
+  color: var(--c-faint);
+  font-size: var(--fs-3xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.studio-preview__viewport {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  padding: var(--s-4);
+  overflow: hidden;
+}
+
+.studio-preview__stage {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  color: var(--c-text);
+  /* Undo the Studio's denser base size — windows inherit the body's. */
+  font-size: var(--size-body);
+  line-height: var(--leading-body);
+}
+
+/* The Work view scrolls its own grid under its filter row, as in the window. */
+.studio-preview__stage[data-mode='folder'] {
+  overflow: hidden;
+}
+
+.studio-preview__stage[data-width='narrow'] {
+  max-width: 860px;
+}
+
+.studio-preview__stage[data-width='mobile'] {
+  max-width: 400px;
 }
 
 /* ------------------------------------------------------------------ export */
@@ -1003,43 +1371,44 @@
   line-height: 1.4;
 }
 
-/* A small, honest look at what the chosen hero actually is. */
 /*
- * MUST stay `position: relative`. This is the whole of the session-10 `#/studio`
- * regression, and it is a one-line fix to a one-word omission.
+ * The banner has no preview here, and that is not an omission.
  *
- * The preview renders `<MediaRenderer mode="card">`, and card mode hands back a
- * BARE adapter — for a still that is `<SmartImage class="media-fill">`, which is
- * `position: absolute; inset: 0`. With no positioned ancestor here, its
- * containing block resolved all the way up to `.studio` (`position: fixed;
- * inset: 0`) and the picture covered the entire editor. `overflow: hidden`
- * below does NOT rescue it: a clipper only clips descendants whose containing
- * block is inside it, and an absolute child that skipped past this element is
- * not one of them.
- *
- * Any future container that renders media in `card` or `focus` mode owes it the
- * same thing — the mode contract is "the container supplies the box".
+ * The hero picker had one, and it was the site of the session-10 `#/studio`
+ * regression: `mode="card"` hands back a BARE adapter whose root is
+ * `position: absolute; inset: 0`, the preview box had no `position: relative`,
+ * so the image resolved its containing block up to `.studio` (`fixed; inset: 0`)
+ * and covered the whole editor. A banner is a local file at a path you typed;
+ * the useful question is "is that file there?", which `SourceField` answers
+ * directly and without drawing anything. The rule the regression taught still
+ * stands for anyone adding a preview back: **any container rendering media in
+ * `card` or `focus` mode owes it a containing block** — the mode contract is
+ * "the container supplies the box". It is asserted in `check:ui`.
  */
-.studio-hero-preview {
-  position: relative;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  aspect-ratio: 16 / 10;
+
+/*
+ * A non-destructive notice: something about this project is out of date, here
+ * is what will happen, press the button if you want it to happen. Never a
+ * warning colour — nothing is wrong, and nothing has been changed yet.
+ */
+.studio-note {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  margin-bottom: var(--s-4);
+  padding: var(--s-3) var(--s-4);
   border: 1px solid var(--c-line);
+  border-left: 2px solid var(--c-line-strong);
   border-radius: var(--r-sm);
-  background: var(--c-sunken);
+  background: var(--c-raised-2);
 }
 
-.studio-hero-preview > * {
-  width: 100%;
-  height: 100%;
-}
-
-.studio-hero-preview__none {
-  color: var(--c-faint);
-  font-size: var(--fs-2xs);
-  letter-spacing: 0.08em;
+.studio-note p {
+  margin: 0;
+  font-size: var(--fs-xs);
+  line-height: 1.55;
+  color: var(--c-text);
 }
 
 /* ------------------------------------------------------- render failure */
@@ -1279,4 +1648,86 @@
 
 .studio-req--ok svg {
   color: var(--c-ok);
+}
+
+/* ── Media source: local file or URL ─────────────────────────────────── */
+/*
+ * Two halves of one control, because a local path and a URL are two different
+ * jobs — see the note in SourceField.tsx. The segmented pair sits above the
+ * input rather than beside it so the field keeps its full width for what is
+ * usually a long string.
+ */
+.studio-source {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+  background: var(--c-sunken);
+}
+
+.studio-source__opt {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: 3px var(--s-2);
+  border: 0;
+  border-radius: calc(var(--r-sm) - 2px);
+  background: transparent;
+  color: var(--c-faint);
+  font: inherit;
+  font-size: var(--fs-2xs);
+  cursor: pointer;
+}
+
+.studio-source__opt svg {
+  width: 13px;
+  height: 13px;
+}
+
+.studio-source__opt[data-on] {
+  background: var(--c-raised-2);
+  color: var(--c-bone);
+}
+
+/*
+ * The answer to "is the file actually there?". Quiet by default: a missing file
+ * is a normal step in a workflow where the file gets copied in afterwards, so
+ * it is a note, not a failure. Only a path that can never work — one outside
+ * public/ — is an error.
+ */
+.studio-source__status {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-size: var(--fs-2xs);
+  line-height: 1.4;
+  color: var(--c-faint);
+  overflow-wrap: anywhere;
+}
+
+.studio-source__status svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+}
+
+.studio-source__status--ok svg {
+  color: var(--c-ok);
+}
+
+.studio-source__status--warn {
+  color: var(--c-mute);
+}
+
+.studio-source__status--bad,
+.studio-source__status--bad svg {
+  color: var(--c-danger);
+}
+
+/* Specific enough to beat `.field input[type='text']` in ui.css without
+   reaching for !important. */
+.field input.studio-input--bad {
+  border-color: var(--c-danger);
 }

@@ -58,10 +58,12 @@ export function WindowShell({ win, children }: WindowShellProps) {
   // A maximised window tracks the viewport. Normal windows are left exactly
   // where the visitor put them — including off-screen. Clamping here is what
   // used to produce the wall, because this effect also runs on every x/y change.
+  // Maximised runs to the bottom edge: the dock floats over it (see window.css
+  // for the scroll clearance that keeps the last content reachable).
   useEffect(() => {
     if (!win.maximized) return;
     const top = topSafeArea();
-    setBox(win.id, { x: 12, y: top, width: viewport.width - 24, height: viewport.height - top - 84 });
+    setBox(win.id, { x: 12, y: top, width: viewport.width - 24, height: viewport.height - top });
   }, [viewport.width, viewport.height, win.maximized, win.id, setBox]);
 
   // A window already sitting above the menu bar — restored from an older
@@ -128,7 +130,12 @@ export function WindowShell({ win, children }: WindowShellProps) {
       }}
     >
       <section
-        className={cx('window', isFocused && 'window--focused', closing && 'window--closing')}
+        className={cx(
+          'window',
+          isFocused && 'window--focused',
+          closing && 'window--closing',
+          win.maximized && 'window--maximized',
+        )}
         data-accent={win.accent}
         role="dialog"
         aria-label={win.title}

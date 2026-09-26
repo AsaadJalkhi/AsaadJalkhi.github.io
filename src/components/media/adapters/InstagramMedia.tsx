@@ -177,7 +177,6 @@ export function InstagramMedia({ media, seed, discipline, mode, priority, onFocu
       ratio={ratio}
       title={media.title}
       caption={media.caption}
-      credit={media.credit}
       demo={media.demo}
       kindLabel="Instagram"
       actions={

@@ -28,7 +28,9 @@ src/
   types/content.ts         Zod schema + inferred types — the contract for the file above
   lib/
     contentStore.ts        Loads + validates content; memoised selectors
-    paths.ts               asset() — resolves public/ paths under any base path
+    paths.ts               asset() — resolves public/ paths under any base path;
+                           normalizeLocalPath() — the one definition of a stored local path
+    masonry.ts             Shortest-column-first packing + width → column count (pure)
     search.ts              Index + scoring for the command palette
     storage.ts             Guarded local + session storage (both throw in private mode)
     utils.ts               cx, clamp, seeded random, moveItem, download, copyText
@@ -36,10 +38,12 @@ src/
     os.ts                  Zustand: view, windows, z-order, palette, cursor, theme, tidy, reset
     portfolio.tsx          Context provider for validated content
   hooks/
+    useColumnCount.ts      How many columns the CONTAINER holds — ResizeObserver, not innerWidth
     useEnvironment.ts      Viewport size, compact breakpoint, reduced motion
     useHashRoute.ts        Hash routing
     useHotkeys.ts          Declarative global shortcuts
-    useOpenTarget.ts       "Open this project/note/app/url/alert" — the one way windows open
+    useOpenTarget.ts       "Open this project/note/app/url/alert" — the one way things open
+    openSurface.ts         How the SHELL opens things: a window, or a mobile sheet
     useTheme.ts            Resolves light/dark from content + choice; writes <html data-theme>
     useTypography.ts       Loads the shared + per-role font files; writes the role tokens
     useDesktopLayout.ts    Owns every desktop position: scatter, drag, wrap, persist
@@ -56,7 +60,7 @@ src/
     media/
       MediaRenderer.tsx    Dispatch on media.type
       MediaFrame.tsx       Shared frame: aspect, title, caption, credit, actions
-      MediaGallery.tsx     Two-column masonry, shortest-column-first packing
+      MediaGallery.tsx     One/two-column masonry over lib/masonry.ts + useColumnCount
       MediaFocus.tsx       The viewer: aspect-aware composition on a scrim
       focusLayout.ts       Pure: ratio + viewport → portrait / balanced / landscape
       aspect.ts            THE definition of Auto — real intrinsic ratios
@@ -64,7 +68,7 @@ src/
       adapters/            One per media type
       types.ts             AdapterProps — the contract every adapter implements
     quick-view/            Recruiter mode
-    mobile/                Purpose-built mobile shell
+    mobile/                Purpose-built mobile shell; MobileSurface owns the sheet stack
     ui/                    Btn, Tag, Meta, Field, Toggle, Empty, SmartImage, Poster
   studio/
     StudioApp.tsx          Grouped nav + validation banner
@@ -139,10 +143,38 @@ restored from the dock. `tidy()` lays every open window into a grid — the "cha
 organisation" gesture, and the safety net that rescues anything dragged out of reach.
 `resetDesktop()` clears storage and starts over.
 
+**Maximised = menu bar to bottom edge.** `toggleMaximize` and the viewport-tracking effect
+in `Window.tsx` both use `y: topSafeArea()`, `height: viewport.height - topSafeArea()`. The
+dock is not reserved; it overlays the window, since `--z-dock` (900) is above the windows
+layer (`--z-windows` 100) and below Focus Mode (`--z-focus` 1150). The window gets
+`.window--maximized`, which sets `--window-clear: calc(var(--dock-h) + var(--s-4))`. A
+`::after` spacer of that height ends the scroller: `.window__body`, or `.work__scroll` in the
+Work window, whose body spacer is turned off. That way the last content can scroll up clear
+of the dock. Restored windows get no spacer. Tidy still leaves an 84px dock gap, because it
+lays windows out rather than maximising them. `check-ui` 34 checks all of this.
+
 **Registry.** `components/windows/registry.tsx` maps `AppId → { label, icon, component }`.
 The window manager renders `APPS[win.app].component`. Adding an app is one entry; the
 Studio, dock and command palette all read from the same map. The Studio is `lazy()`-loaded
 so visitors never download the editor.
+
+**A folder is not an app.** `openFolder()` presents the **Work window** with
+`payload.folderId`, which `ProjectsApp` reads as the initial value of the folder filter it
+already has. So "All work", a brand tab and an opened folder are one component with a different
+array, and the only thing that positions project cards anywhere in the OS is `ProjectGrid`
+inside that file — see [Masonry](#masonry--one-packer-two-grids). A second grid for folder
+contents is the bug, not the feature; `check-ui` 27 fails if one appears.
+
+**Folder intro.** A folder can carry optional `introTitle`, `description` and `banner`
+(`FolderSchema`, no defaults). When the open folder has any of them, `WorkView` renders
+`FolderIntro` inside `.work__scroll`, before `ProjectGrid`: the shared `ProjectBanner`, then
+`.case__title` (`introTitle || name`), then `.case__intro`. It reuses the case study's
+classes, so `ProjectsApp` imports `apps.css`. Folder-specific spacing is `.work__intro` in
+`work.css`. The heading aligns to the grid edge and the folder name stays the tab label.
+With none of the fields set, nothing renders and the folder opens straight onto its cards.
+The Studio Folder preview is the same `WorkView`, so it shows the draft intro. A project or
+folder intro without a banner is marked `data-bannerless` and gets a top inset (32px, or 20px
+narrow). One with a banner gets nothing extra. See `check-ui` 31–33.
 
 ---
 
@@ -175,7 +207,9 @@ past the container is not clipped by it. This is not hypothetical; it is exactly
 Studio broke in session 10, where `.studio-hero-preview` had `aspect-ratio` and `overflow:
 hidden` but no `position: relative`, and the hero image escaped to `.studio` (`position:
 fixed; inset: 0`) and covered the entire editor. `scripts/check-ui.mjs` asserts the property
-for every such container.
+for every such container. That particular rule went with the hero it previewed in session 13,
+so check 2 now asserts its *absence* as well: a rule with no markup left is exactly the kind
+of thing that gets copied back into service later.
 
 #### Playback lifecycle
 
@@ -239,17 +273,77 @@ Auto propagates into layout rather than just into a number: with no declared rat
 `MediaFrame` declares no `aspect-ratio` at all and the picture sizes the frame from the
 inside (`fill` means "content sizes it"). A forced ratio letterboxes rather than crops.
 
-#### Masonry
+#### Body media is shown whole, and bounded by its own shape
 
-`MediaGallery.tsx` packs items **shortest-column-first** using an estimated height (the
-picture's ratio plus an allowance for its caption), rather than laying them out in CSS grid
-rows. Row-based grid left blank holes wherever neighbouring items disagreed about height,
-which is most of the time once every item keeps its own shape. `featured` items break out
-full-width and interrupt the run, and packing restarts beneath them. Column count comes from
-a `ResizeObserver` and fails open at 2.
+**Nothing in a case study body is cropped.** `object-fit: cover` exists in exactly two places:
+a grid tile in `card` mode, and the project banner. Everywhere else the media is `contain` or
+natural, so Focus Mode is a way to see something *larger*, never the only way to see it at all.
 
-Each item is one packed block: the media and its caption travel together, so a caption never
-detaches from the picture it describes.
+The problem that makes this non-trivial is that "show all of it" and "do not make it enormous"
+look opposed for a 9:16 Reel. They are not, because the frame already knows the resolved ratio.
+`MediaFrame` publishes two things: `data-shape`, from `focusLayout()` — the *same* thresholds
+Focus Mode uses, so `portrait` cannot come to mean two different things — and `--frame-ratio`,
+the resolved number. The stylesheet then converts a height ceiling into a width ceiling:
+
+```css
+.media-frame { --media-cap: 70vh; }
+.media-frame[data-shape='portrait'] .media-frame__stage {
+  max-width: calc(var(--media-cap) * var(--frame-ratio, 1));
+  margin-inline: auto;
+}
+```
+
+Portrait takes the cap at ×1 and balanced at ×1.15. Landscape gets no rule: it is bound by the
+column width already, and anything added there could only start cropping it. Because the bound
+is a `max-width`, the element keeps its own `aspect-ratio` and stays centred. Capping the `<img>`
+with `max-height` instead was tried and is worse — it shrinks the box without moving the auto
+margins, so the media strands itself against the left edge of its column.
+
+An `auto` image reaches these rules because `ImageMedia` measures itself with `useImageRatio`
+and hands the result to the frame. A `featured` item still spans the full width; spanning is a
+width decision and does not imply a crop.
+
+#### Masonry — one packer, two grids
+
+Both column layouts in the OS — the media inside a case study and the project cards in the
+Work window — pack **shortest-column-first** instead of laying out in CSS grid rows. Grid is
+row-based: every item in a row occupies a row as tall as the tallest item in it, so blank holes
+open up wherever neighbours disagree about height, which is most of the time once each item
+keeps its own shape.
+
+The algorithm is `lib/masonry.ts` and is shared:
+
+```
+packColumns(items, count, height)   items in source order → count columns, each next item
+                                    into the currently shortest one. Never sorts, never
+                                    mutates. count <= 1 returns the list as-is.
+columnsForWidth(width, steps)       ascending min-widths → column count. Pure, so the
+                                    breakpoints are asserted with numbers (check 27).
+```
+
+Heights are **estimated from the data**, never measured: a ratio plus an allowance for the text
+under it. The DOM then stays static — no observer per card, no reflow loop, no jump when images
+arrive. Being slightly wrong costs slightly uneven columns and nothing else. Each caller owns
+its own estimate, because only it knows what its item is made of.
+
+Column count comes from `hooks/useColumnCount.ts`, which measures the **container's content
+box**, not the viewport: every grid here lives in a draggable, resizable window, and two windows
+side by side disagree about what "wide" means. The first measurement is synchronous in a layout
+effect (so the opening frame is already right), a `ResizeObserver` handles resizes, and the
+initial state fails open at the widest tier.
+
+| Grid | Steps | Columns |
+| --- | --- | --- |
+| `MediaGallery` (case study) | `[620]` | 1 / 2 |
+| `ProjectGrid` (Work window) | `[700, 1150]` | 1 / 2 / 3 — three is the ceiling |
+
+In the media grid, `featured` items break out full-width and interrupt the run, and packing
+restarts beneath them. Each item is one packed block: the media and its caption travel together,
+so a caption never detaches from the picture it describes.
+
+In the Work grid, the same is true of a card and its label. Because masonry needs equal columns,
+`project.tile.span` no longer sets a card's width there; `tile.aspect` still decides its shape,
+which is what makes the heights vary in the first place.
 
 #### Focus Mode
 
@@ -348,6 +442,51 @@ deliberately not a heading, because rendering the project name as each item's ti
 images in one project read as ten copies of the same thing. Project context alone does not earn an
 information panel (`hasInfo` requires a title, caption, credit, tool or permalink).
 
+**Tools exist at two levels, and they are not the same list (session 14).**
+
+| Field | Shape | Where it appears |
+| --- | --- | --- |
+| `project.tools` | `string[]`, defaulted | The **project footer** only — chips beside Tags and Credits |
+| `project.credits` | `Credit[]`, defaulted | The **project footer** only |
+| `media.tools` | optional `string` | **Focus Mode** only, as the Tools row |
+| `media.date` | optional `string` | **Focus Mode** only, as the Date row |
+| `media.credit` | optional `string` | **Focus Mode** only, as the Credit row |
+| `media.title`, `media.caption` | optional `string` | The grid tile **and** Focus Mode |
+
+Focus Mode used to render `project.tools` next to every item, which is wrong in the ordinary case
+rather than the edge case: a case study cut in Premiere, retouched in Photoshop and rendered in
+Blender told the visitor that a single photograph in it had been made with all three. `media.tools`
+is read straight from the item (`active.tools?.trim()`), there is **no fallback** to the project, and
+an item without it renders no Tools row at all — never a label with nothing after it.
+
+The enforcement is the type, not the call site: `tools` was **removed from `FocusContext`**, so a
+future caller cannot pass the project's list in even by accident. `FocusContext` is now provenance
+only (project title, company, year). `media.tools` is a free-text string rather than an array because
+it is one short line read as written; `project.tools` stays an array because those are chips.
+Credits remain **project-level only** — there is deliberately no `media.credits`, and the per-item
+`media.credit` (one line: photographer, studio, collaborator) is a different, older field.
+
+**`media.date` is free text, and nothing parses it.** "Summer 2025", "March 2026" and "2026-03-14"
+are all real answers to when a piece of work was made, and a date type would force a precision the
+work often does not have. Nothing sorts or filters by it; it is a line of provenance shown beside
+Tools. `project.year` still dates the case study.
+
+**The grid tile is title + caption, and `MediaFrame` enforces that by not having the props.**
+`media.tools`, `media.date` and `media.credit` are all Focus-Mode-only. `MediaFrame` never knew about
+tools or date, and in session 14 its **`credit` prop was deleted** along with the nine adapter call
+sites that passed it and the `.media-frame__credit` rule — a credit line under every picture in a
+two-column masonry is noise as soon as more than one item carries one. Deleting the prop rather than
+just omitting the argument matters: "don't pass a credit" is a decision nine adapters each have to
+remember, while "there is nothing to pass" is one decision that holds for the tenth adapter too.
+Sub-items inherit it instead of losing it — `asMediaItems()` carries the parent's `credit`, `tools`,
+`date` and `demo` onto each gallery image so opening one in Focus Mode shows them, while caption, alt
+and shape stay per-picture.
+
+`check:ui` 26 asserts every clause of the above, in both directions: the fallback is gone, no adapter
+passes credit/tools/date into the frame, and the footer still prints `project.tools` and
+`project.credits` while Focus Mode still prints all three item rows. Deleting a row is as much a
+regression as printing it on a tile.
+
 **Instagram in Focus Mode is constrained, never restyled.** The embed is opaque, official
 and cross-origin: we size the box around it and cover it while it initialises, and we do not
 attempt to reach inside it. There is no scraping and no private API.
@@ -363,6 +502,42 @@ Add a type: extend `mediaTypes` in the schema, add a `mediaProblem()` case, add 
 `FALLBACK_RATIO` entry, add an adapter, add the registry line in `MediaRenderer.tsx`, add a
 `SourceFields` branch in `studio/panels/MediaFields.tsx`.
 
+#### Where a picture or a video comes from: `SourceField`
+
+Image and video are the only two media types that can be *either* a file in `public/` or a
+remote URL, and `studio/panels/SourceField.tsx` makes the visitor say which. One box that
+accepted both could not name the mistake you had made, because it did not know which of the two
+you were attempting. YouTube, Vimeo, Instagram, Drive and website keep a single URL field — a
+"local file" half for YouTube would be a lie.
+
+**Normalisation lives in `lib/paths.ts`, not in the Studio.** `normalizeLocalPath()` is the one
+definition of what a stored path is, shared by the field and by `BannerSchema`:
+
+| typed | stored |
+| --- | --- |
+| `media/gaf/v.mp4` | `media/gaf/v.mp4` |
+| `/public/media/gaf/v.mp4` | `media/gaf/v.mp4` |
+| `E:\asaad portifolio\public\media\gaf\v.mp4` | `media/gaf/v.mp4` |
+| `E:\elsewhere\v.mp4` | *refused:* "This file must be inside the project's `public/` folder." |
+
+Backslashes become slashes, everything up to and including the last `public/` segment is
+dropped (matched case-insensitively, on a segment boundary), and duplicate and leading slashes
+collapse. A machine-absolute path with no `public/` segment is **refused by name rather than
+stored**: it cannot deploy, so accepting it would only move the failure somewhere further from
+the field that caused it. `portfolio.json` therefore never contains an `E:\…` — asserted by
+`check-ui` 23.
+
+**Existence is checked, not assumed.** `useAssetProbe` issues a `HEAD` for the resolved asset
+after a 400 ms settle, and treats a `text/html` content-type as not-found because Vite answers
+unknown paths with `index.html`. A miss is reported quietly in the field; nothing is blocked and
+nothing throws.
+
+**There is no file picker, and that is deliberate.** A browser will not tell a page where a
+chosen file lives — it reports `C:\fakepath\name.jpg` on purpose — so a picker here could only
+*look* like it worked. Making it real means Electron or a backend, which is a very large change
+to a static site in exchange for saving one paste. The mode is UI state only, so switching to
+URL to look and switching back cannot clear the source.
+
 #### Deprecated, retained
 
 `generative` is no longer offered when adding media and is gone from the user-facing guide,
@@ -371,19 +546,50 @@ live content use it. Removing the enum value would fail validation on every `por
 that contains one. `MediaFields` shows the option only for an item that already is one, so
 the select is never blank.
 
-#### Project hero
+#### Project banner
 
-`project.heroMediaId` explicitly names the item that opens a case study; `showHeroInMedia`
-optionally repeats it in the body. Both are `.optional()` rather than `.default()` so an
-untouched export gains no new keys — the round-trip guarantee.
+`project.banner` is the wide band at the top of a case study. It is **its own field**, not one
+of the project's media items:
 
-This replaced `media.find(featured) ?? media[0]`, which conflated three unrelated concepts.
-They are now separate and documented as such: the **Work grid tile** (`project.tile`) is how
-the project looks as a card; the **project hero** (`heroMediaId`) is the one item at the top
-of the case study; **project media** is everything below the writing. `featured` on a media
-item now means only "full-width row in the masonry". A `heroMediaId` pointing at deleted
-media is a named validation error, and the Studio clears the reference at the moment the
-media row is deleted.
+```ts
+banner?: { type: 'image' | 'video'; src: string; alt?: string }
+```
+
+`.optional()` rather than `.default()`, so an untouched export gains no new keys — the
+round-trip guarantee. `src` is refined through `localPathProblem()`, which makes "a local file
+inside `public/`" a schema rule rather than a request in a hint. There is no URL, Instagram,
+YouTube, Drive, website or embed banner: those types bring their own chrome and their own
+aspect ratios, and a band is neither.
+
+**Why it stopped being a media item.** `heroMediaId` promoted one of the project's own media by
+id, which meant the banner and the work competed for one list, "show the hero again below" had
+to exist as an option, and a 9:16 Reel could be elected to a role it is the wrong shape for.
+A banner is a different *kind* of thing from a piece of work, so it gets a different field.
+Nothing filters the media list any more, because the banner was never in it.
+
+**The band is the page's decision.** `.case__banner` is `height: clamp(190px, 30vh, 280px)`
+(`clamp(170px, 24vh, 190px)` when compact) with `overflow: hidden`, and the media inside is
+`width/height: 100%`, `object-fit: cover`, `object-position: center`. Every project's banner is
+therefore the same height at the same window size, any source shape is accepted, and there are
+no letterbox bars — the source's ratio is never consulted. Recommended source: **1920 × 700**.
+This is the one place in the app where cropping is correct, and it is the opposite of the rule
+for body media above.
+
+A `banner.type === 'video'` is **editorial motion, not a player**: `autoPlay muted loop
+playsInline`, no `controls`, no progress bar, and `tabIndex={-1}`. `ProjectBanner.tsx` renders
+it directly and deliberately does not go through `MediaRenderer`, whose entire contract is
+"show the work whole at its own ratio".
+
+**Legacy content is read, not rewritten.** `resolveBanner(project)` falls back to `heroMediaId`
+when no banner is set, and `bodyMedia(project)` keeps honouring `showHeroInMedia` for exactly
+those projects. `heroMediaId` is `@deprecated`, still validates, and a dangling one is still a
+named validation error that the Studio clears when the media row is deleted. The Studio offers
+a one-click "use it as the banner" migration and never performs one on its own.
+
+The three concepts this originally separated are unchanged: the **Work grid tile**
+(`project.tile`) is how the project looks as a card, the **banner** is the band at the top, and
+**project media** is everything below the writing. `featured` on a media item still means only
+"full-width row in the masonry".
 
 ---
 
@@ -580,6 +786,39 @@ from the menu bar.
 apps are cards, projects open as full-screen sheets, there is no dragging and no custom
 cursor. Quick View is prominent. All content stays reachable.
 
+### How "open this" resolves — one path, declared by the shell
+
+Every app component is shared between the two shells, so no app can be the thing that knows
+which one it is in. `hooks/openSurface.ts` is how the **shell** says how opening works:
+
+- `useOpenTarget` describes *what* is being opened and routes everything through one `present()`
+  exit. It consults `useOpenSurface()` first and falls back to `openWindow` only when there is
+  no surface. Nothing else in the hook may call `openWindow`; `check-ui` 25 counts the calls.
+- **Desktop** provides no surface, so `present()` opens a window — unchanged behaviour.
+- **Mobile** provides one. `MobileSurface` pushes a full-screen sheet onto a **stack**, so a
+  project opened from inside a folder can go Back to the folder rather than to the home screen.
+  Every level stays mounted; buried levels are `inert`.
+
+**The provider wraps the whole shell** — `Shell` renders
+`<MobileSurface enabled={compact}><ShellBody /></MobileSurface>` — and that is load-bearing, not
+tidiness.
+
+> **The bug this fixes.** `MobileShell` used to keep its own sheet state and open things
+> directly. Tapping a folder opened a sheet containing `ProjectsApp`; the tiles inside it call
+> `useOpenTarget().openProject`, which called `openWindow` — a *desktop* window. Nothing on
+> mobile renders the window layer, so the tap looked dead, while a real window sat in state and
+> appeared the moment the viewport grew wide enough to draw it. A project tapped on the home
+> screen worked only because that one call site bypassed the hook. Two paths, one of them wrong.
+>
+> Providing the surface inside `MobileShell` would fix the reported case and leave two doors
+> open: the **command palette** (reachable from the mobile top bar, and calling `openWindow`
+> directly) and a cold **`#/project/<id>` deep link** applied in `App.tsx` both sit *above* the
+> home screen in the tree. A surface that covers only part of the app is a surface someone has
+> to remember, which is how this bug survives its own fix.
+
+The palette therefore opens through `useOpenTarget().present`, which exists for callers that
+have already built an `OpenSpec` and would otherwise reach past the surface to the store.
+
 ---
 
 ## Routing
@@ -649,6 +888,116 @@ up to `localStorage` so a refresh mid-edit isn't destructive. Panels are pure fu
 `{ draft, update }`, where `update` takes a mutator applied to a fresh clone. Form
 primitives live in `panels/parts.tsx` — `Repeater` handles every nested list (reorder,
 duplicate, delete) so no panel reimplements list editing.
+
+The one exception is a project's media, which renders through `panels/MediaList.tsx` because a
+fully expanded form per item made a ten-item project several screens long. It keeps the
+`Repeater` contract (same `moveItem`, same id de-duplication on Duplicate, same `onChange(next)`)
+and adds presentation only:
+
+- **Cards are collapsed by default.** A collapsed card is one ~52px row — `#NN`, a short type
+  (`Gallery · 8 images`), and a label from `mediaLabel()`: `title` → local file name → a
+  type-specific summary (a shortened URL, never the whole one) → the type. Move / duplicate /
+  delete stay on the row beside a chevron. `MediaFields` is mounted only while a card is open;
+  collapsing loses nothing because every value already lives in the draft. `Advanced` inside it
+  is still its own `<details>`, closed by default.
+- **Open state is a `useFolds` set of media ids** — independent per card, session only,
+  and reset per project because `ProjectsPanel` renders `<MediaList key={project.id}>`. Expand all
+  / Collapse all rewrite that set for the current project only. A newly added item opens itself.
+- **List / Grid** is a preference in `localStorage` (`storageKeys.studioMediaView`, default
+  `list`). Grid is overview only: `auto-fill, minmax(200px, 1fr)` tiles, capped at four columns by
+  a container query, each with a thumbnail (thumbnail → poster → image / first gallery image /
+  first screenshot → a local video's first frame), the same row text and actions. Clicking a tile
+  switches to List with that card open and scrolls to it — the form is never crammed into a tile.
+- A gallery stays **one** card; its images are edited inside it, as before.
+- **Drag to reorder (session 19).** Every List row and Grid tile has a `GripVertical` grip
+  (`.studio-media-grip`, `aria-label`/`title` "Drag to reorder media") beside the `#NN`. Only the
+  grip is `draggable`; the card is a drop target. Native HTML5 drag and drop, with no dependency.
+  The drag image is the whole card, and the payload uses a private MIME type, so text fields
+  inside an open card won't accept it. `.studio-media` handles `dragover`/`drop`: the pointer's
+  top or bottom half (List) or left or right half (Grid, where rows wrap) picks before or after
+  the card under it, drawn as a `--c-accent` box-shadow line (`is-drop-before`/`is-drop-after`).
+  A target on either side of the dragged item shows no line and does nothing. On drop,
+  `slotIndex(from, slot)` in `lib/utils.ts` turns the insertion slot into a target index, and the
+  arrows' `move(from, to)` applies it, so there is one `moveItem` call and one `items` array in
+  both views. Keys are the media id (`itemKeys`, which adds the position only for a repeated id).
+  Open cards stay open after a move, and their editors keep their internal state. Touch devices
+  keep the arrows as the fallback.
+
+None of this touches the schema, the draft or the export — checks 28 and 35 assert it.
+
+**One collapsible primitive (sessions 20–21).** Every fold in the Studio draws through three
+exports of `parts.tsx`:
+
+- **`Collapsible`** is the card: the media-card look (`studio-rep__item studio-media-card`, a ~52px
+  head). The head is one real button (`aria-expanded`, `aria-controls`) holding an optional `#NN`
+  (`index`), a `tag`, the `title` and a one-line `summary`. `lead` (a drag grip) sits before it and
+  `actions` (move, duplicate, delete) after it, both *siblings* of the button, so using one never
+  toggles the card. The chevron comes last. The body, wrapped in a `StudioBoundary`, mounts only
+  while open. It is controlled (`open` + `onToggle`) or self-contained (`defaultOpen`, false).
+  Extra attributes land on the card, which is how `MediaList` passes its `data-media-*` drag data.
+- **`useFolds<K>()`** holds one collection's open ids in a `Set` in component state, empty at mount:
+  `isOpen`, `toggle`, `reveal` (a new item), `set` (Expand all is `set(ids)`, Collapse all is
+  `set([])`), `rename` (an id edit keeps its card open) and `props(id, summary)` to spread on a
+  `Section`.
+- **`FoldBar`** is the row above a collection: its own children (the media List/Grid switch, the
+  project Preview button), a count, and Expand all / Collapse all for that collection only.
+
+`Section` with `onToggle` is now a `Collapsible`. `Repeater` with `fold={{ folds, id }}` draws each
+row as one, and opens a newly added row itself. Without `fold`, rows are the plain always-open
+rows as before.
+
+Users:
+
+- **Projects:** the seven sections (below).
+- **Media:** `MediaList` List cards. The grip is the `lead` and the tools are the `actions`.
+- **Folders, Experience and Capabilities:** entries fold by id.
+- **Profile & CV, Desktop & Dock and Appearance:** every section folds, with a digest (counts,
+  names, `Light by default · toggle on`, `Custom typography`).
+
+Each of these has its own bar. Not folded:
+
+- **Export & Import:** a short linear flow.
+- **Small nested lists** (links, credits, metrics, socials, alert buttons, gallery images,
+  screenshots): each row is a few fields.
+- **The Appearance role blocks:** they live inside the Typography section.
+- **`Advanced`:** it stays its own `<details>`.
+- **Folder intro:** a `Section` with local state.
+
+The old `studio-section--fold` and `studio-detail__bar` CSS is gone. Checks 28, 29, 35, 40 and 41.
+
+**Project sections fold (session 17).** `Section` in `parts.tsx` takes optional
+`open` / `onToggle` / `summary`; with `onToggle` it renders its title as a real button
+(`aria-expanded`, `aria-controls`) and mounts its hint and fields only while open. Other panels
+don't pass it and are unchanged. `ProjectsPanel` folds its seven top-level sections — Identity,
+Tile, Case study, Media, Project banner, Links, Credits (`FOLDS`) — all collapsed by default, each
+with a one-line digest from `foldSummaries()` (title · company · year, `Medium · 4:3`, `3 fields ·
+2 metrics · 0 sections`, `14 items`, `Image` / `Video` / `None` / `Legacy hero`, `2 links`,
+`1 credit`). Open state is a `Set<Fold>` in component state. It resets only when a *different*
+project is chosen (`choose()`), not whenever the id changes, because typing a new project's title
+renames its id. A new project opens on Identity. **Expand all / Collapse all** above the sections
+rewrite that set and nothing else. Media is two levels: the Media fold holds `MediaList`, whose
+cards fold on their own as above; closing the Media fold unmounts the list, so its open cards reset.
+
+**Draft preview (session 17).** A **Preview** button above the sections mounts
+`panels/ProjectPreview.tsx` as a full-screen layer inside `.studio`, and only while it is open.
+It gets `draft` as a prop and draws it with the live renderers:
+
+- **Project** → `CaseStudyBody` (from `ProjectApp.tsx`, already prop-driven): banner, header,
+  facts, narrative, media masonry, Focus Mode, footer, links.
+- **Folder** → `WorkView`, extracted from `ProjectsApp` with no behaviour change: the filter row,
+  featured-then-`order` sort, `ProjectGrid`, `Tile` and `projectThumb`. `ProjectsApp` is now
+  `WorkView` fed `usePortfolio()` and `openProject`; the preview feeds it the draft and a local
+  callback that switches the preview to Project mode for that card. It starts on the edited
+  project's folder.
+
+Nothing is exported or saved, no window is opened, the hash is not touched and the published
+portfolio is not read — check 29 pins this and fails if the preview draws `case` / `work` / `tile`
+markup of its own. **Desktop / Narrow / Mobile** set only the stage width (full / 860px / 400px);
+the preference is `storageKeys.studioPreviewWidth`. The masonry and the Work grid measure their own
+container, so they respond as in a resized window. The few rules keyed to the viewport
+(`@media (max-width: 640px)` in `apps.css`) do not fire, because the viewport has not changed.
+Focus Mode portals to `<body>` on `--z-focus`, so it opens above the preview. Escape closes Focus
+first, then the preview.
 
 Export is **blocked while validation fails**, which stops a broken file from reaching the
 live site.
@@ -721,7 +1070,25 @@ CSS custom properties in `tokens.css`, co-located plain CSS per area. No CSS-in-
 utility framework, no runtime style cost.
 
 Z-index is a single scale in tokens (`--z-wallpaper` → `--z-cursor`) so nothing fights.
-Monospace exists (`--font-mono`) but must never dominate.
+
+**The visitor-facing OS uses two faces only: Heading and Body (session 20).** `--font-mono`
+still exists, but only the Studio and the content-error screen use it. The class named `.mono`
+in `global.css` is the shared small-label class. It's used by `Meta`, `Field`, `Divider`, Quick
+View, CV, Experience, Focus Mode facts, media hosts and others, and it is now set in
+`--font-body`. That one class was what put a code face into so many places. `studio.css`
+scopes `.studio .mono` back to `--font-mono`, except inside `.studio-preview__stage`, which has
+to match the live site. The direct `--font-mono` uses in visitor CSS (note body, contact and
+Quick View email, poster caption, generative scene label) are `--font-body` now. `check-ui` 36
+fails if `--font-mono` comes back into a visitor stylesheet.
+
+**App content doesn't repeat its window title.** No component injects the app name. Each app
+used to open with a hard-coded `<Meta>` eyebrow that matched its registry label (About,
+Capabilities, Contact, CV's "Curriculum Vitae", Experience). Those eyebrows are gone, and the
+window chrome names the app. `NoteApp` starts straight on `note.body`, with no filename header
+or line count. `check-ui` 37 compares every `<Meta>` in the apps against the registry labels.
+Real section headings (CV sections, project footer labels, skill groups) stay.
+
+An empty folder renders its intro, if it has one, and nothing else. There is no placeholder.
 
 ### Typography: three roles, a face each, one scale
 

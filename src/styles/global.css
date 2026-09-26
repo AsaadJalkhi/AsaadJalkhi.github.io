@@ -123,13 +123,15 @@ a {
 
 /* ------------------------------------------------------------ utilities */
 /*
- * Mono is a spice, not the interface typeface — filenames and system details
- * only. It is no longer uppercased, which is what made it shout.
+ * Small quiet label: metadata, periods, eyebrows. Despite the name it is set in
+ * the BODY role — a code face in the visitor-facing OS read as a third, stray
+ * typeface. The Studio re-scopes `.mono` back to --font-mono (studio.css),
+ * where paths and ids genuinely are code.
  */
 .mono {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--fs-2xs);
-  letter-spacing: var(--tracking-mono);
+  letter-spacing: var(--tracking-wide);
   color: var(--c-mute);
 }
 

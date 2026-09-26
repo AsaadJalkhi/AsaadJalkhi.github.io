@@ -250,7 +250,7 @@ function WorkCard({ project, onOpen }: { project: Project; onOpen: () => void })
             ))}
           </span>
           <span className="qv-work__cta mono">
-            Read case study <ArrowUpRight strokeWidth={1.5} />
+            Check project <ArrowUpRight strokeWidth={1.5} />
           </span>
         </span>
       </button>

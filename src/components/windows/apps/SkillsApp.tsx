@@ -1,5 +1,4 @@
 import { usePortfolio } from '@/state/portfolio';
-import { Meta } from '@/components/ui/Ui';
 import type { AppProps } from '../registry';
 import './apps.css';
 
@@ -15,7 +14,6 @@ export function SkillsApp(_props: AppProps) {
   return (
     <div className="skills">
       <header className="skills__head">
-        <Meta>Capabilities</Meta>
         <p className="skills__lede">
           Three disciplines that keep overlapping. The overlap is the useful part.
         </p>

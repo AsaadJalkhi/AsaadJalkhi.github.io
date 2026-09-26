@@ -32,7 +32,6 @@ export function GenerativeMedia({ media, seed, mode }: AdapterProps) {
       aspect={media.aspect ?? '16:9'}
       title={media.title}
       caption={media.caption}
-      credit={media.credit}
       demo={media.demo}
       kindLabel="Motion"
     >

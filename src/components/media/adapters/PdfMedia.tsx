@@ -58,7 +58,6 @@ export function PdfMedia({ media, seed, discipline, mode }: AdapterProps) {
       ratio={ratio}
       title={media.title}
       caption={media.caption}
-      credit={media.credit}
       demo={media.demo}
       kindLabel="PDF"
       actions={

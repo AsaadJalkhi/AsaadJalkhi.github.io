@@ -1,49 +1,27 @@
 /**
- * ASAAD.OS Mobile.
+ * ASAAD.OS Mobile — the home screen.
  *
  * Not a squeezed desktop: windows, dragging and the custom cursor are gone.
  * Apps are cards, and opening one pushes a full-screen sheet. Every piece of
  * content the desktop exposes is reachable here, and Quick View sits at the top
  * because on a phone that is usually what someone actually wants.
+ *
+ * Opening is not this component's business. Its cards go through
+ * `useOpenTarget` exactly like every tile inside a folder does, and
+ * `MobileSurface` — which wraps the whole app — turns that into a sheet. Being
+ * the shell is not a licence to take a shortcut: the shortcut is what the
+ * folder bug was made of.
  */
-import { useState } from 'react';
-import { ArrowRight, ChevronLeft, LayoutList, Moon, Search, Sun } from 'lucide-react';
-import { useOs, type AppId, type WindowInstance, type WindowPayload } from '@/state/os';
+import { ArrowRight, LayoutList, Moon, Search, Sun } from 'lucide-react';
+import { useOs } from '@/state/os';
 import { usePortfolio } from '@/state/portfolio';
+import { useOpenTarget } from '@/hooks/useOpenTarget';
 import { useResolvedTheme } from '@/hooks/useTheme';
 import { foldersSorted, featuredProjects, primaryDiscipline, projectThumb } from '@/lib/contentStore';
-import { APPS, DOCK_APPS } from '@/components/windows/registry';
+import { DOCK_APPS } from '@/components/windows/registry';
 import { SmartImage } from '@/components/ui/SmartImage';
 import { Btn, Tag } from '@/components/ui/Ui';
 import './mobile.css';
-
-interface Sheet {
-  app: AppId;
-  title: string;
-  payload: WindowPayload;
-}
-
-/**
- * Apps expect a `WindowInstance`. On mobile there is no real window, so we hand
- * them a stand-in — this is the only place that fabricates one.
- */
-function sheetWindow(sheet: Sheet): WindowInstance {
-  return {
-    id: `sheet-${sheet.app}`,
-    key: `sheet-${sheet.app}`,
-    app: sheet.app,
-    title: sheet.title,
-    payload: sheet.payload,
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-    z: 1,
-    minimized: false,
-    maximized: true,
-    resizable: false,
-  };
-}
 
 export function MobileShell() {
   const portfolio = usePortfolio();
@@ -51,14 +29,11 @@ export function MobileShell() {
   const setPalette = useOs((state) => state.setPalette);
   const toggleTheme = useOs((state) => state.toggleTheme);
   const theme = useResolvedTheme();
-  const [sheet, setSheet] = useState<Sheet | null>(null);
+  const { openProject, openFolder, openNote, openApp } = useOpenTarget();
 
   const { profile, settings } = portfolio;
   const folders = foldersSorted(portfolio);
   const featured = featuredProjects(portfolio);
-
-  const open = (app: AppId, title: string, payload: WindowPayload = {}) =>
-    setSheet({ app, title, payload });
 
   return (
     <div className="m-shell">
@@ -109,7 +84,7 @@ export function MobileShell() {
                 type="button"
                 className="m-card"
                 data-discipline={primaryDiscipline(project)}
-                onClick={() => open('project', project.shortTitle ?? project.title, { projectId: project.id })}
+                onClick={() => openProject(project.id)}
               >
                 <span className="m-card__art">
                   <SmartImage
@@ -145,7 +120,7 @@ export function MobileShell() {
                 type="button"
                 className="m-tile"
                 data-discipline={folder.discipline}
-                onClick={() => open('projects', folder.name, { folderId: folder.id })}
+                onClick={() => openFolder(folder.id)}
               >
                 <span className="m-tile__label">{folder.name}</span>
                 <span className="m-tile__count mono">
@@ -166,7 +141,7 @@ export function MobileShell() {
                   key={app.id}
                   type="button"
                   className="m-tile m-tile--app"
-                  onClick={() => open(app.id, app.label)}
+                  onClick={() => openApp(app.id)}
                 >
                   <Icon strokeWidth={1.4} />
                   <span className="m-tile__label">{app.label}</span>
@@ -181,7 +156,7 @@ export function MobileShell() {
           <ul className="m-files">
             {portfolio.notes.map((note) => (
               <li key={note.id}>
-                <button type="button" className="m-file" onClick={() => open('note', note.title, { noteId: note.id })}>
+                <button type="button" className="m-file" onClick={() => openNote(note.id)}>
                   <span>{note.title}</span>
                   <ArrowRight strokeWidth={1.5} />
                 </button>
@@ -199,26 +174,6 @@ export function MobileShell() {
           </p>
         </footer>
       </main>
-
-      {sheet && <MobileSheet sheet={sheet} onClose={() => setSheet(null)} />}
-    </div>
-  );
-}
-
-function MobileSheet({ sheet, onClose }: { sheet: Sheet; onClose: () => void }) {
-  const AppBody = APPS[sheet.app].component;
-  return (
-    <div className="m-sheet" role="dialog" aria-modal="true" aria-label={sheet.title}>
-      <header className="m-sheet__bar">
-        <button type="button" className="m-sheet__back" onClick={onClose}>
-          <ChevronLeft strokeWidth={1.5} />
-          <span>Back</span>
-        </button>
-        <span className="m-sheet__title">{sheet.title}</span>
-      </header>
-      <div className="m-sheet__body">
-        <AppBody win={sheetWindow(sheet)} />
-      </div>
     </div>
   );
 }

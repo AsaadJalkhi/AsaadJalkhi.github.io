@@ -1,7 +1,7 @@
 import { ArrowUpRight } from 'lucide-react';
 import { usePortfolio } from '@/state/portfolio';
 import { useOpenTarget } from '@/hooks/useOpenTarget';
-import { Btn, Meta, Tag } from '@/components/ui/Ui';
+import { Btn, Tag } from '@/components/ui/Ui';
 import type { AppProps } from '../registry';
 import './apps.css';
 
@@ -12,7 +12,6 @@ export function ExperienceApp(_props: AppProps) {
   return (
     <div className="experience">
       <header className="experience__head">
-        <Meta>Experience</Meta>
         <p className="experience__lede">Where the work in this portfolio came from.</p>
       </header>
 

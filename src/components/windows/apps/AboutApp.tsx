@@ -11,7 +11,6 @@
  */
 import { usePortfolio } from '@/state/portfolio';
 import { Poster } from '@/components/ui/Poster';
-import { Meta } from '@/components/ui/Ui';
 import { asset } from '@/lib/paths';
 import type { AppProps } from '../registry';
 import './apps.css';
@@ -49,7 +48,6 @@ export function AboutApp(_props: AppProps) {
         </div>
 
         <div className="about__intro">
-          <Meta>About</Meta>
           <h1 className="about__name">{profile.name}</h1>
           {lede && <p className="about__positioning">{lede}</p>}
           {profile.availability && <p className="about__availability">{profile.availability}</p>}

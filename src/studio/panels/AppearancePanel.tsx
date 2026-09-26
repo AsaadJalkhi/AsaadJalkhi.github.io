@@ -7,7 +7,11 @@
 import { Toggle } from '@/components/ui/Ui';
 import type { FontSpec, TypeRole, TypographySettings } from '@/types/content';
 import type { PanelProps } from '../useDraft';
-import { Choice, Grid, Num, PanelHead, Section, Text } from './parts';
+import { Choice, FoldBar, Grid, Num, PanelHead, Section, Text, useFolds } from './parts';
+
+/** The collapsible sections of this tab, in page order. */
+const FOLDS = ['theme', 'wallpapers', 'typography', 'pin'] as const;
+type Fold = (typeof FOLDS)[number];
 
 /**
  * The type system: three roles, each of which can have its own typeface.
@@ -254,6 +258,17 @@ function TypographyFields({ draft, update }: PanelProps) {
 export function AppearancePanel({ draft, update }: PanelProps) {
   const { theme } = draft.settings;
 
+  // Which sections are open: UI state only, never content.
+  const folds = useFolds<Fold>();
+  const summary: Record<Fold, string> = {
+    theme: `${theme.default === 'dark' ? 'Dark' : 'Light'} by default · toggle ${theme.allowToggle ? 'on' : 'off'}`,
+    wallpapers:
+      [theme.wallpaperLight && 'Light', theme.wallpaperDark && 'Dark'].filter(Boolean).join(' + ') ||
+      'Built-in gradients',
+    typography: draft.settings.typography ? 'Custom typography' : 'System font',
+    pin: draft.settings.studioPin ? 'PIN set' : 'No PIN',
+  };
+
   return (
     <div className="studio-panel">
       <PanelHead
@@ -261,8 +276,11 @@ export function AppearancePanel({ draft, update }: PanelProps) {
         lede="Light and dark mode, the desktop wallpapers, and who can open this Studio."
       />
 
+      <FoldBar folds={folds} ids={FOLDS} />
+
       <Section
         title="Theme"
+        {...folds.props('theme', summary.theme)}
         hint="The default is what a first-time visitor sees. If the toggle is on, their choice is remembered on their device."
       >
         <Grid>
@@ -293,6 +311,7 @@ export function AppearancePanel({ draft, update }: PanelProps) {
 
       <Section
         title="Wallpapers"
+        {...folds.props('wallpapers', summary.wallpapers)}
         hint="Optional. Drop the images in /public and reference them without a leading slash — e.g. wallpapers/light.jpg. Leave either one empty and that mode uses its built-in gradient. Switching theme cross-fades between the two."
       >
         <Grid>
@@ -323,6 +342,7 @@ export function AppearancePanel({ draft, update }: PanelProps) {
 
       <Section
         title="Typography"
+        {...folds.props('typography', summary.typography)}
         hint="Three roles — Display, Heading and Body — each with its own typeface, size, weight, letter spacing and line height. Set the shared font and every role uses it; give a role its own font and it overrides the shared one. Change nothing and the site keeps the system font at the sizes it already uses."
       >
         <TypographyFields draft={draft} update={update} />
@@ -330,6 +350,7 @@ export function AppearancePanel({ draft, update }: PanelProps) {
 
       <Section
         title="Studio PIN"
+        {...folds.props('pin', summary.pin)}
         hint="A privacy gate, not security. This is a static site with no server: the PIN is part of the JavaScript bundle, so anyone determined enough can read it in devtools. It keeps casual visitors out of the Studio — treat it as a closed door, not a lock."
       >
         <Grid>

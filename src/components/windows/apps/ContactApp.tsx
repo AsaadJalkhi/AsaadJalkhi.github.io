@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ArrowUpRight, Check, Copy, Mail } from 'lucide-react';
 import { usePortfolio } from '@/state/portfolio';
 import { copyText } from '@/lib/utils';
-import { Btn, Meta } from '@/components/ui/Ui';
+import { Btn } from '@/components/ui/Ui';
 import type { AppProps } from '../registry';
 import './apps.css';
 
@@ -31,7 +31,6 @@ export function ContactApp(_props: AppProps) {
 
   return (
     <div className="contact">
-      <Meta>Contact</Meta>
       <h1 className="contact__title">{headline}</h1>
 
       <div className="contact__email">

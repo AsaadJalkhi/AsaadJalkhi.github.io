@@ -93,6 +93,28 @@ Vary it — a grid where everything is `lg` stops being art-directed.
 
 In Studio → **Projects** → pick the project → **Media** → **Add media**.
 
+Existing media items are listed as one-line cards — number, type, and the title (or file name)
+— and are **collapsed** until you open them with the chevron or by clicking the row. A new item
+opens straight away. **Expand all / Collapse all** sit above the list, and **List / Grid** switches
+to a thumbnail overview; clicking a tile opens that item's editor back in the list. None of this
+is saved into the portfolio — it is only how the Studio shows the list.
+
+The project editor itself works the same way. **Identity, Tile, Case study, Media, Project banner,
+Links and Credits** are collapsed when you pick a project, each showing a short summary (for
+example `Media · 14 items`). Click a heading to open it, or use **Expand all / Collapse all** at the
+top. Media has two levels: open the Media section, then open the individual cards you want.
+
+Every other Studio tab works the same way. The sections of **Profile & CV, Desktop and
+Appearance** and the entries of **Folders, Experience and Capabilities** start collapsed, each with
+its own **Expand all / Collapse all**. The arrows, duplicate and delete buttons on a row never open
+or close it.
+
+**Preview** (top of the project editor) shows your current, unsaved edits exactly as ASAAD.OS
+draws them. You don't need to export or replace `portfolio.json` first. **Project** is the real
+case-study page. **Folder** is the real Work view, starting on this project's folder, with the
+draft's cards and thumbnails; clicking a card previews that project. **Desktop / Narrow / Mobile**
+change the preview's width. Close it with ✕ or Esc. Preview never saves or exports anything.
+
 **Pick the Type first.** The fields below it change to match — you only ever see the two or
 three that type actually uses, and a line underneath tells you what is still missing and
 turns into "Ready to export." when it isn't.
@@ -127,6 +149,60 @@ the external link**, and any part you leave empty is simply not rendered.
 
 Captions are separate and can be as long as you like: press Enter for a new line and the line breaks
 are kept.
+
+### Tools: the project's, and the item's
+
+There are **two** Tools fields, and they answer two different questions.
+
+**The project's Tools** (Studio → *Projects* → the project itself) is everything you used anywhere in
+that case study — `Adobe Premiere Pro, Adobe Photoshop, Blender`. It appears in the **project
+footer**, next to Tags and Credits, as the software list for the whole piece of work.
+
+**A media item's Tools** (Studio → the media item, under Caption) is what made *that one thing* —
+`Sony FX3, Adobe Lightroom` on a photograph, `Blender, Adobe After Effects` on a render. It appears
+**only in Focus Mode**, when you click the item open.
+
+This used to be one field doing both jobs, and the project's list was printed beside every item: a
+photograph in the project above claimed it had been made in Blender, because something else in the
+same project had. Now they are separate, so each one can be true.
+
+Media Tools is **optional and never inherited**. Leave it empty and the Tools line is simply not
+shown — the project's list is *not* used in its place, and you will never see "Tools —" with nothing
+after it. Old media items that predate the field keep working exactly as they are; fill it in on the
+items where it says something.
+
+**Credits stay with the project.** There is no per-item Credits field and there is not meant to be —
+the project's Credits section covers the people who worked on the work. (An individual item does have
+a one-line **Credit** for a photographer or collaborator, which is a different, smaller thing — see
+below.)
+
+### Date
+
+Every media item has an optional **Date**, next to Tools: when that piece of work was made or
+published. It is plain text, so write it however it reads best — `March 2026`, `Summer 2025`,
+`2026-03-14` are all fine. Nothing sorts or filters by it, so there is no format to get right.
+
+Like Tools, it is shown **only in Focus Mode**, and leaving it empty shows nothing at all. The
+project's own **Year** is separate and still dates the case study as a whole.
+
+### What shows where
+
+The ordinary project page — the media grid you scroll — shows each item's **title and caption**, and
+nothing else. Everything else waits until somebody clicks an item open:
+
+| Field | The project grid | Focus Mode |
+| --- | --- | --- |
+| Media title | ✓ | ✓ |
+| Caption | ✓ | ✓ |
+| Tools (the item's) | — | ✓ |
+| Date | — | ✓ |
+| Credit (the item's) | — | ✓ |
+| Project Tools & Credits | in the **footer** | — |
+
+**Credit is worth filling in and no longer appears on the tile.** It used to print under every
+picture in the grid, which turns into a wall of repeated names the moment several items share a
+photographer. Keep filling it in: it is shown, in full, when the item is opened. Nothing you have
+already written was lost — it simply moved to where there is room to read it.
 
 ### Several images: galleries
 
@@ -163,14 +239,37 @@ Paste the normal share link. Two things are worth knowing before you rely on it:
 A normal Drive share URL is not a video file and cannot be used as one — if you want
 reliable autoplay, put an `.mp4` in `public/` and use the `video` type instead.
 
-**Local file paths:** put the file inside `public/`, then write the path *without* `public/`
-and *without* a leading slash.
+### Local file, or URL
+
+Images and videos have **two buttons above the box: Local file and URL.** Say which you mean
+and the field helps with that one. (YouTube, Vimeo, Instagram, Drive and Website are always a
+URL — there is nothing to choose.)
+
+**Local file.** Put the file inside `public/`, then say where it is. You can paste whichever
+form you have and the field tidies it up when you click away:
 
 ```
-public/media/gaf/hero.jpg   →   media/gaf/hero.jpg
+media/gaf/reel.mp4                                ← what gets stored
+/public/media/gaf/reel.mp4                        → media/gaf/reel.mp4
+E:\asaad portifolio\public\media\gaf\reel.mp4     → media/gaf/reel.mp4
 ```
 
-A full `https://` URL works anywhere a local path does — external links are passed through
+So Windows' **"Copy as path"** is fine: paste it, tab out, done. The stored path is always
+relative to `public/`, because that is the only form that works once the site is published.
+
+**A file outside `public/` is refused**, with "This file must be inside the project's `public/`
+folder." That is not the Studio being fussy — a path like `E:\Downloads\clip.mp4` exists only on
+your machine, so the published site would show nothing. Move the file into `public/` first.
+
+**The field then goes and looks.** Under the box you'll see *Found public/media/gaf/reel.mp4*,
+or *No file at public/… yet. Copy it there and this will clear.* A missing file is a warning,
+not an error: you can write a project now and drop the assets in later.
+
+**There is no Browse button, on purpose.** A web page is not allowed to know where a file on
+your computer actually lives — browsers hide it deliberately — so a file picker here could only
+pretend to work. Copying the path is the honest version.
+
+**URL.** A full `https://` address to the file itself. External links are passed through
 untouched.
 
 ### Two things that are easy to get wrong
@@ -202,28 +301,54 @@ write as much as the work needs, in as many paragraphs as it needs; line breaks 
 long captions wrap instead of running off the side. Alt text is what the picture *is*, for
 screen readers. Credit is who else made it.
 
-### The project hero
+### The project banner
 
-**Project hero** (its own section, under Media) names the single item that opens the case
-study, above the writing. Pick one from the dropdown, or **None** — a case study that opens
-on its title is a real piece of art direction, not an empty state.
+**Project banner** (its own section, above Media) is the wide band across the top of a case
+study. It is **its own image or video**, not one of the project's media items — you point it at
+a file, you don't pick from a list.
 
 Three separate things, easy to confuse:
 
 | | What it controls |
 | --- | --- |
 | **Tile in the Work grid** | How the project looks as a card in the Work window |
-| **Project hero** | The one piece of media at the top of the case study |
+| **Project banner** | The wide band across the top of the case study |
 | **Media** | Everything laid out down the page below the writing |
 
-The hero is **not** repeated in the media below unless you tick "Also show the hero in the
-media below". And **"Full-width row"** on a media item no longer has anything to do with the
-hero — it means only "give this item its own row across both columns" down in the body.
+**"Full-width row"** on a media item has nothing to do with the banner — it means only "give
+this item its own row across both columns" down in the body.
 
-*Changed behaviour:* the hero used to be guessed — the first item flagged full-width, or
-failing that whichever item happened to be first in the list. Existing projects have had
-`heroMediaId` written to whatever that rule would have picked, so nothing moved; from now on
-it is yours to set.
+**What the banner accepts.** A **local file only** — an image or a video inside `public/`, same
+path rules as everywhere else. Not a URL, not Instagram, YouTube, Drive or a website: those
+bring their own player chrome and their own shape, and a band is neither.
+
+**Any source shape works, so don't fight it.** The band is a fixed height — the same for every
+project at the same window size — and the picture is cropped to fill it from the centre. It is
+never letterboxed and never has black bars, whatever you give it. **Recommended: 1920 × 700**
+(about 2.7 : 1), because that is roughly what actually survives the crop. A tall photograph will
+work; you will just see the middle of it.
+
+**A video banner is decoration, not a player.** It plays automatically, silently, on a loop,
+with no controls and no progress bar. Use a few seconds of motion, not a film — the film belongs
+in the media below, where people can watch it properly.
+
+**Leave it as None and the case study opens on its title.** Nothing is drawn, and there is no
+empty grey band — a case study that opens on its words is a real piece of art direction.
+
+> **If you set a hero before:** older projects stored a hero by pointing at one of their own
+> media items. Those still work and still display. The banner panel offers a one-click **"Use it
+> as the banner"** if you want to convert; nothing is converted unless you press it.
+
+### Media below the banner is shown in full
+
+The banner is the one thing on the page that gets cropped. Everything in the media below is
+shown **whole** — a 9:16 Reel, a portrait photograph and a panorama all keep their own shape,
+and none of them is cut to fit a box.
+
+Tall media is bounded rather than cropped: a portrait item is capped at roughly two thirds of
+the screen's height and centred, so it is completely visible without being absurd to scroll
+past. Clicking it still opens Focus Mode for a larger look — but you should never *need* Focus
+Mode to see what something is.
 
 **Media plays by itself.** There is no "Load embed" button — video and embeds load as they
 approach the screen and play muted when they're on it. You don't configure this.
@@ -268,11 +393,32 @@ Studio → **Projects** → **Featured** toggle. Featured projects are the only 
 Quick View → Selected Work. Keep it to your strongest 5–8.
 
 ### Rename a folder
-Studio → **Folders** → change **Name**. Safe.
+Studio → **Folders** → click the folder's row to open it (every folder card starts collapsed;
+**Expand all** opens them all) → change **Name**. Safe. (To change only the big heading inside the
+folder, use **Folder intro → Intro title** instead.)
 Changing a folder's **ID** is not — projects point at it. The Studio will tell you what broke.
 
 ### Add a folder
 Studio → **Folders** → **Add folder**. Set a name, an ID, and a discipline for its colour.
+
+### Give a folder an intro (banner, title, description)
+Studio → **Folders** → open the folder → **Folder intro**. All three fields are optional:
+- **Intro title** is the large heading above the cards. If you leave it empty, the folder
+  name is used. The name is still what the tab says.
+- **Description** is a paragraph about the brand or company. Line breaks are kept.
+- **Banner** works exactly like the project banner: a local image or a silent looping video,
+  cropped to the same band. Paste the path any way you like and it is cleaned when you leave the
+  field.
+
+If all three are empty, the folder opens straight onto its cards as before, and folders you
+haven't touched need no changes. Press **Preview → Folder** to see the intro before exporting.
+
+### Set a project's card thumbnail
+Studio → **Projects** → **Identity** → **Thumbnail**. This works like every other file field:
+paste `media/gaf/Thumbnails/cover.jpg`, or the full Windows "Copy as path" string, and it is
+trimmed to the path inside `public/` when you leave the field. Paths outside `public/` are
+refused. Choose **URL** for a remote image. If this is left empty, the card uses the first
+media item.
 
 ### Edit the About window
 Studio → **Profile & CV** → **The About window**. This is the long, human version:

@@ -11,6 +11,10 @@ export const storageKeys = {
   /** Desktop icon + widget positions the visitor has dragged. */
   layout: `${NS}:layout`,
   studioDraft: `${NS}:studio-draft`,
+  /** Studio media list: 'list' | 'grid'. A UI preference, never content. */
+  studioMediaView: `${NS}:studio-media-view`,
+  /** Studio preview width: 'desktop' | 'narrow' | 'mobile'. A UI preference, never content. */
+  studioPreviewWidth: `${NS}:studio-preview-width`,
   visits: `${NS}:visits`,
   /** Best time from the reaction widget. */
   reactionBest: `${NS}:reaction-best`,

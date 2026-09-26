@@ -4,7 +4,11 @@ import { Empty } from '@/components/ui/Ui';
 import type { AppProps } from '../registry';
 import './apps.css';
 
-/** Plain text files. Tone changes the styling, not the structure. */
+/**
+ * Plain text files. Tone changes the styling, not the structure. The filename
+ * is the window title, so the body starts straight on the text — no header,
+ * no line count.
+ */
 export function NoteApp({ win }: AppProps) {
   const portfolio = usePortfolio();
   const note = findNote(portfolio, win.payload.noteId);
@@ -13,10 +17,6 @@ export function NoteApp({ win }: AppProps) {
 
   return (
     <div className="note" data-tone={note.tone}>
-      <div className="note__head mono">
-        <span>{note.title}</span>
-        <span>{note.body.split('\n').length} lines</span>
-      </div>
       <pre className="note__body">{note.body}</pre>
     </div>
   );

@@ -1,20 +1,37 @@
 /**
  * One place that knows how to turn "a thing in the content file" into "an open
- * window". Used by the desktop, the dock, the explorer, the palette and Quick
- * View so behaviour stays identical everywhere.
+ * window". Used by the desktop, the dock, the explorer, the palette, Quick View
+ * and the mobile shell, so behaviour stays identical everywhere.
+ *
+ * *How* a thing opens is the shell's business, not this hook's: a desktop window
+ * on the desktop, a sheet on mobile. That is `OpenSurfaceContext` — see the note
+ * there for the bug that comes back the moment a call site decides for itself.
  */
 import { useMemo } from 'react';
-import { useOs, type AppId, type WindowPayload } from '@/state/os';
+import { useOs, type AppId, type OpenSpec, type WindowPayload } from '@/state/os';
 import { usePortfolio } from '@/state/portfolio';
 import { findFolder, findNote, findProject, primaryDiscipline } from '@/lib/contentStore';
 import { APPS } from '@/components/windows/registry';
+import { useOpenSurface } from './openSurface';
 import type { DesktopTarget } from '@/types/content';
 
 export function useOpenTarget() {
   const openWindow = useOs((state) => state.openWindow);
+  const surface = useOpenSurface();
   const portfolio = usePortfolio();
 
   return useMemo(() => {
+    /*
+     * The single exit. Everything below describes WHAT is being opened and
+     * leaves WHERE to the shell — a sheet on mobile, a window on the desktop.
+     * Nothing in this hook may call `openWindow` directly; doing so is what
+     * created a desktop window from a mobile tap and made the tap look dead.
+     */
+    const present = (spec: OpenSpec) => {
+      if (surface) surface(spec);
+      else openWindow(spec);
+    };
+
     /**
      * Viewing work is the point of the site, so a project claims almost the
      * whole workspace rather than opening as another mid-sized window.
@@ -31,7 +48,7 @@ export function useOpenTarget() {
     const openProject = (projectId: string) => {
       const project = findProject(portfolio, projectId);
       if (!project) return;
-      openWindow({
+      present({
         app: 'project',
         title: project.shortTitle ?? project.title,
         subtitle: [project.company, project.year].filter(Boolean).join(' · '),
@@ -43,7 +60,7 @@ export function useOpenTarget() {
 
     const openFolder = (folderId: string) => {
       const folder = findFolder(portfolio, folderId);
-      openWindow({
+      present({
         app: 'projects',
         title: folder ? folder.name : 'Projects',
         subtitle: folder?.caption,
@@ -55,14 +72,14 @@ export function useOpenTarget() {
     const openNote = (noteId: string) => {
       const note = findNote(portfolio, noteId);
       if (!note) return;
-      openWindow({ app: 'note', title: note.title, payload: { noteId } });
+      present({ app: 'note', title: note.title, payload: { noteId } });
     };
 
     const openMedia = (projectId: string, mediaId: string) => {
       const project = findProject(portfolio, projectId);
       const media = project?.media.find((item) => item.id === mediaId);
       if (!project || !media) return;
-      openWindow({
+      present({
         app: 'media',
         title: media.caption ?? media.id,
         subtitle: project.shortTitle ?? project.title,
@@ -72,11 +89,11 @@ export function useOpenTarget() {
     };
 
     const openApp = (app: AppId, payload?: WindowPayload) => {
-      openWindow({ app, title: APPS[app].label, payload });
+      present({ app, title: APPS[app].label, payload });
     };
 
     const openUrl = (url: string) => {
-      openWindow({ app: 'browser', title: 'Browser', subtitle: url, payload: { url } });
+      present({ app: 'browser', title: 'Browser', subtitle: url, payload: { url } });
     };
 
     /**
@@ -105,7 +122,7 @@ export function useOpenTarget() {
     const openAlert = (alertId: string) => {
       const alert = portfolio.alerts.find((entry) => entry.id === alertId);
       if (!alert) return;
-      openWindow({
+      present({
         app: 'alert',
         title: alert.app,
         subtitle: undefined,
@@ -147,6 +164,13 @@ export function useOpenTarget() {
     };
 
     return {
+      /**
+       * For a caller that has already built a spec — the command palette, whose
+       * search index stores one per result. Exposed so that "I know exactly
+       * what I want to open" still goes through the surface instead of
+       * reaching past it to `openWindow`.
+       */
+      present,
       openProject,
       openFolder,
       openNote,
@@ -157,5 +181,5 @@ export function useOpenTarget() {
       openAlert,
       openTarget,
     };
-  }, [openWindow, portfolio]);
+  }, [openWindow, surface, portfolio]);
 }

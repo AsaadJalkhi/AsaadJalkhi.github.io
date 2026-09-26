@@ -13,7 +13,7 @@
 }
 
 .poster__caption {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 9px;
   letter-spacing: 0.06em;
 }

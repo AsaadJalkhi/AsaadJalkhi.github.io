@@ -8,8 +8,8 @@
  * fields parse on every keystroke, and without this a trailing comma or blank
  * line would vanish under the cursor as you typed.
  */
-import { Component, useState, type ErrorInfo, type ReactNode } from 'react';
-import { ArrowDown, ArrowUp, Copy, ImageOff, Plus, Trash2 } from 'lucide-react';
+import { Component, useId, useState, type ErrorInfo, type HTMLAttributes, type ReactNode } from 'react';
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Copy, ImageOff, Plus, Trash2 } from 'lucide-react';
 import { Btn, Field } from '@/components/ui/Ui';
 import { disciplines, type Discipline, type IconSpec } from '@/types/content';
 import { asset } from '@/lib/paths';
@@ -87,15 +87,203 @@ export function PanelHead({ title, lede }: { title: string; lede?: string }) {
   );
 }
 
+/* -------------------------------------------------------------- collapsing */
+
+/**
+ * Which cards of one collection are open, keyed by a stable id (a media id, a
+ * folder id, a section name). Everything starts collapsed. This is UI state
+ * only: it lives in the component, resets on reload, and never reaches the
+ * draft, the schema or an export.
+ */
+export interface Folds<K extends string = string> {
+  isOpen: (id: K) => boolean;
+  toggle: (id: K) => void;
+  /** Opens one card and leaves the rest alone — a newly added item, say. */
+  reveal: (id: K) => void;
+  /** Exactly these open: `set(ids)` is Expand all, `set([])` is Collapse all. */
+  set: (ids: Iterable<K>) => void;
+  /** Keeps a card open while its id is being edited. */
+  rename: (from: K, to: K) => void;
+  /** Spread onto a `Section` to fold it: `<Section {...folds.props('cv', '3 sections')}>`. */
+  props: (id: K, summary?: string) => { open: boolean; onToggle: () => void; summary?: string };
+}
+
+export function useFolds<K extends string = string>(): Folds<K> {
+  const [open, setOpen] = useState<Set<K>>(() => new Set());
+  const toggle = (id: K) =>
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  return {
+    isOpen: (id) => open.has(id),
+    toggle,
+    reveal: (id) => setOpen((prev) => new Set(prev).add(id)),
+    set: (ids) => setOpen(new Set(ids)),
+    rename: (from, to) =>
+      setOpen((prev) => {
+        if (!prev.has(from)) return prev;
+        const next = new Set(prev);
+        next.delete(from);
+        next.add(to);
+        return next;
+      }),
+    props: (id, summary) => ({ open: open.has(id), onToggle: () => toggle(id), summary }),
+  };
+}
+
+/**
+ * The row above one collection: its count, then Expand all / Collapse all for
+ * that collection only. `children` go first (the media List/Grid switch, the
+ * project Preview button).
+ */
+export function FoldBar<K extends string>({
+  folds,
+  ids,
+  count,
+  bulk = true,
+  children,
+}: {
+  folds: Folds<K>;
+  ids: readonly K[];
+  count?: string;
+  bulk?: boolean;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="studio-media__bar">
+      {children}
+      {count && <span className="mono studio-media__count">{count}</span>}
+      {bulk && (
+        <div className="studio-media__bulk">
+          <Btn variant="quiet" size="sm" onClick={() => folds.set(ids)}>
+            Expand all
+          </Btn>
+          <Btn variant="quiet" size="sm" onClick={() => folds.set([])}>
+            Collapse all
+          </Btn>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The one collapsible card in the Studio: project sections, media items,
+ * folders, experience entries, panel sections all draw through here.
+ *
+ * The head is a real button (`aria-expanded`, `aria-controls`) holding the
+ * index, tag, title and one-line summary. `lead` (a drag grip) and `actions`
+ * (reorder, duplicate, delete) are its *siblings*, never inside it, so using
+ * one can never open or close the card. The body only mounts while open.
+ *
+ * Controlled with `open` + `onToggle` (so a collection can Expand all), or on
+ * its own from `defaultOpen`. Extra attributes land on the card (drag data).
+ */
+export function Collapsible({
+  title,
+  summary,
+  tag,
+  index,
+  lead,
+  actions,
+  hint,
+  open,
+  onToggle,
+  defaultOpen = false,
+  className,
+  children,
+  ...rest
+}: {
+  title: string;
+  summary?: string;
+  tag?: string;
+  /** Zero-based; drawn as #01, #02… */
+  index?: number;
+  lead?: ReactNode;
+  actions?: ReactNode;
+  hint?: string;
+  open?: boolean;
+  onToggle?: () => void;
+  defaultOpen?: boolean;
+  className?: string;
+  children: ReactNode;
+} & Omit<HTMLAttributes<HTMLElement>, 'title' | 'children' | 'className'>) {
+  const [own, setOwn] = useState(defaultOpen);
+  const expanded = onToggle ? Boolean(open) : own;
+  const toggle = onToggle ?? (() => setOwn((was) => !was));
+  const bodyId = useId();
+
+  return (
+    <section
+      {...rest}
+      className={cx('studio-rep__item', 'studio-media-card', expanded && 'is-open', className)}
+    >
+      <header className="studio-rep__head studio-media-card__head">
+        {lead}
+        <button
+          type="button"
+          className="studio-media-card__summary"
+          aria-expanded={expanded}
+          aria-controls={bodyId}
+          onClick={toggle}
+        >
+          {index !== undefined && (
+            <span className="mono studio-rep__index">#{String(index + 1).padStart(2, '0')}</span>
+          )}
+          {tag && <span className="mono studio-media-card__kind">{tag}</span>}
+          <span className={cx('studio-rep__label', summary && 'studio-fold__title')}>{title}</span>
+          {summary && <span className="studio-fold__summary">{summary}</span>}
+        </button>
+        <div className="studio-rep__tools">
+          {actions}
+          <IconBtn label={expanded ? 'Collapse' : 'Expand'} onClick={toggle}>
+            {expanded ? <ChevronDown strokeWidth={1.5} /> : <ChevronRight strokeWidth={1.5} />}
+          </IconBtn>
+        </div>
+      </header>
+      {expanded && (
+        <div className="studio-rep__body" id={bodyId}>
+          {hint && <p className="studio-section__hint">{hint}</p>}
+          <StudioBoundary what={title}>{children}</StudioBoundary>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/**
+ * A titled block of fields.
+ *
+ * Pass `onToggle` and it becomes a `Collapsible` card, with `summary` as its
+ * one-line digest. The caller owns `open`, so a panel can offer Expand all /
+ * Collapse all.
+ */
 export function Section({
   title,
   hint,
   children,
+  open,
+  onToggle,
+  summary,
 }: {
   title: string;
   hint?: string;
   children: ReactNode;
+  open?: boolean;
+  onToggle?: () => void;
+  summary?: string;
 }) {
+  if (onToggle) {
+    return (
+      <Collapsible title={title} hint={hint} summary={summary} open={open} onToggle={onToggle}>
+        {children}
+      </Collapsible>
+    );
+  }
+
   return (
     <section className="studio-section">
       <h3 className="mono studio-section__title">{title}</h3>
@@ -596,6 +784,11 @@ interface RepeaterProps<T> {
   duplicable?: boolean;
   /** Names the list when it sits inside a larger form (gallery images, screenshots). */
   label?: string;
+  /**
+   * Draws every row as a `Collapsible` card, keyed by `id(item)` in the
+   * caller's `folds`. Without it, rows are always open.
+   */
+  fold?: { folds: Folds; id: (item: T) => string };
 }
 
 /**
@@ -612,6 +805,7 @@ export function Repeater<T extends object>({
   empty,
   duplicable = true,
   label,
+  fold,
 }: RepeaterProps<T>) {
   const patchAt = (index: number) => (changes: Partial<T>) =>
     onChange(items.map((item, i) => (i === index ? { ...item, ...changes } : item)));
@@ -621,69 +815,92 @@ export function Repeater<T extends object>({
     return typeof id === 'string' && id ? `${id}-${index}` : `row-${index}`;
   };
 
+  const tools = (item: T, index: number) => (
+    <>
+      <IconBtn
+        label="Move up"
+        disabled={index === 0}
+        onClick={() => onChange(moveItem(items, index, index - 1))}
+      >
+        <ArrowUp strokeWidth={1.5} />
+      </IconBtn>
+      <IconBtn
+        label="Move down"
+        disabled={index === items.length - 1}
+        onClick={() => onChange(moveItem(items, index, index + 1))}
+      >
+        <ArrowDown strokeWidth={1.5} />
+      </IconBtn>
+      {duplicable && (
+        <IconBtn
+          label="Duplicate"
+          onClick={() => {
+            const copy = structuredClone(item);
+            // A copy must not inherit the original's id. Two rows sharing
+            // one id is invalid content, it makes every reference to that
+            // id ambiguous, and it puts duplicate values into every
+            // dropdown built from this list.
+            const id = (copy as { id?: unknown }).id;
+            if (typeof id === 'string' && id) {
+              const taken = items
+                .map((other) => (other as { id?: unknown }).id)
+                .filter((other): other is string => typeof other === 'string');
+              (copy as { id?: unknown }).id = uniqueSlug(taken, `${id}-copy`);
+            }
+            const next = [...items];
+            next.splice(index + 1, 0, copy);
+            onChange(next);
+          }}
+        >
+          <Copy strokeWidth={1.5} />
+        </IconBtn>
+      )}
+      <IconBtn label="Delete" danger onClick={() => onChange(items.filter((_, i) => i !== index))}>
+        <Trash2 strokeWidth={1.5} />
+      </IconBtn>
+    </>
+  );
+
   return (
     <div className="studio-rep">
       {label && <span className="mono studio-rep__title">{label}</span>}
       {items.length === 0 && empty && <p className="studio-rep__empty">{empty}</p>}
 
-      {items.map((item, index) => (
-        <section className="studio-rep__item" key={keyOf(item, index)}>
-          <header className="studio-rep__head">
-            <span className="mono studio-rep__index">{String(index + 1).padStart(2, '0')}</span>
-            <span className="studio-rep__label">{labelOf(item, index)}</span>
-            <div className="studio-rep__tools">
-              <IconBtn
-                label="Move up"
-                disabled={index === 0}
-                onClick={() => onChange(moveItem(items, index, index - 1))}
-              >
-                <ArrowUp strokeWidth={1.5} />
-              </IconBtn>
-              <IconBtn
-                label="Move down"
-                disabled={index === items.length - 1}
-                onClick={() => onChange(moveItem(items, index, index + 1))}
-              >
-                <ArrowDown strokeWidth={1.5} />
-              </IconBtn>
-              {duplicable && (
-                <IconBtn
-                  label="Duplicate"
-                  onClick={() => {
-                    const copy = structuredClone(item);
-                    // A copy must not inherit the original's id. Two rows sharing
-                    // one id is invalid content, it makes every reference to that
-                    // id ambiguous, and it puts duplicate values into every
-                    // dropdown built from this list.
-                    const id = (copy as { id?: unknown }).id;
-                    if (typeof id === 'string' && id) {
-                      const taken = items
-                        .map((other) => (other as { id?: unknown }).id)
-                        .filter((other): other is string => typeof other === 'string');
-                      (copy as { id?: unknown }).id = uniqueSlug(taken, `${id}-copy`);
-                    }
-                    const next = [...items];
-                    next.splice(index + 1, 0, copy);
-                    onChange(next);
-                  }}
-                >
-                  <Copy strokeWidth={1.5} />
-                </IconBtn>
-              )}
-              <IconBtn
-                label="Delete"
-                danger
-                onClick={() => onChange(items.filter((_, i) => i !== index))}
-              >
-                <Trash2 strokeWidth={1.5} />
-              </IconBtn>
-            </div>
-          </header>
-          <div className="studio-rep__body">{children(item, patchAt(index), index)}</div>
-        </section>
-      ))}
+      {items.map((item, index) =>
+        fold ? (
+          <Collapsible
+            key={keyOf(item, index)}
+            index={index}
+            title={labelOf(item, index)}
+            actions={tools(item, index)}
+            open={fold.folds.isOpen(fold.id(item))}
+            onToggle={() => fold.folds.toggle(fold.id(item))}
+          >
+            {children(item, patchAt(index), index)}
+          </Collapsible>
+        ) : (
+          <section className="studio-rep__item" key={keyOf(item, index)}>
+            <header className="studio-rep__head">
+              <span className="mono studio-rep__index">{String(index + 1).padStart(2, '0')}</span>
+              <span className="studio-rep__label">{labelOf(item, index)}</span>
+              <div className="studio-rep__tools">{tools(item, index)}</div>
+            </header>
+            <div className="studio-rep__body">{children(item, patchAt(index), index)}</div>
+          </section>
+        ),
+      )}
 
-      <Btn variant="quiet" size="sm" icon={<Plus />} onClick={() => onChange([...items, create()])}>
+      <Btn
+        variant="quiet"
+        size="sm"
+        icon={<Plus />}
+        onClick={() => {
+          const item = create();
+          onChange([...items, item]);
+          // A new row is empty and needs filling in, so a folded one opens itself.
+          if (fold) fold.folds.reveal(fold.id(item));
+        }}
+      >
         {addLabel}
       </Btn>
     </div>

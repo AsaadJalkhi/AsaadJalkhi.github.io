@@ -37,9 +37,11 @@ export function screenshotItems(media: MediaItem): MediaSubItem[] {
 /**
  * Promote sub-items to full media items so the lightbox can show them.
  *
- * The parent's credit and demo flag ride along: a screenshot of a site built
- * for a client is still that client's work, and a sample gallery is still a
- * sample when you open one of its pictures.
+ * The parent's credit, tools, date and demo flag ride along: a screenshot of a
+ * site built for a client is still that client's work, a gallery shot on one
+ * camera in one week was still shot on that camera in that week, and a sample
+ * gallery is still a sample when you open one of its pictures. Each picture keeps
+ * its **own** caption, alt text and shape, because those are about the picture.
  */
 export function asMediaItems(parent: MediaItem, items: MediaSubItem[]): MediaItem[] {
   return items.map((item, index) => ({
@@ -50,6 +52,8 @@ export function asMediaItems(parent: MediaItem, items: MediaSubItem[]): MediaIte
     alt: item.alt ?? parent.alt,
     caption: item.caption,
     credit: parent.credit,
+    tools: parent.tools,
+    date: parent.date,
     aspect: item.aspect,
     demo: parent.demo,
   }));

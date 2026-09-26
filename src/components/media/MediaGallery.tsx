@@ -8,11 +8,16 @@
  * every item in a row is as tall as the tallest, and a page of mixed portrait
  * and landscape work turned into a column of gaps.
  *
+ * The packing itself is `lib/masonry.ts` and the column count is
+ * `hooks/useColumnCount.ts` — shared with the Work grid, which had the identical
+ * problem for the identical reason. Only the height estimate below is local,
+ * because only this file knows an item is a picture plus a caption.
+ *
  * The packing is done from the data, not from measurement: each item's height
  * is estimated from its aspect ratio before anything loads (`estimateRatio`),
  * columns are filled shortest-first, and the DOM is then static. No layout
- * observers, no reflow loop, no jump when the images arrive. Being a little
- * wrong about a caption's height costs slightly uneven columns and nothing else.
+ * observers per item, no reflow loop, no jump when the images arrive. Being a
+ * little wrong about a caption's height costs slightly uneven columns only.
  *
  * **An item and its caption are one block.** The caption is inside the column,
  * under its own image, and counts towards that column's height — so a long
@@ -23,7 +28,13 @@
  * **`featured` breaks out.** A featured item spans the full width on its own
  * row, and the masonry resumes underneath it. That is now `featured`'s only
  * job — it used to secretly also decide the project hero, which is why nobody
- * could have a full-width item that was not the hero. See `project.heroMediaId`.
+ * could have a full-width item that was not the hero. The lead visual is now
+ * `project.banner`, which is not in this list at all.
+ *
+ * **Nothing here is cropped.** Every item in this layout is a piece of work and
+ * is shown whole, at its own resolved ratio; a tall one stops growing rather
+ * than being cut. That ceiling lives in `MediaFrame` and `media.css`, not here,
+ * so it applies to a featured breakout and a packed column alike.
  *
  * Narrow windows collapse to one column, in the original content order.
  *
@@ -32,15 +43,17 @@
  * invalid nesting and swallows every click meant for the player's own controls.
  * Focus Mode is entered through each adapter's own explicit affordance.
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import type { Discipline, MediaItem } from '@/types/content';
+import { useColumnCount } from '@/hooks/useColumnCount';
+import { packColumns } from '@/lib/masonry';
 import { MediaRenderer } from './MediaRenderer';
 import { MediaFocus, type FocusContext } from './MediaFocus';
 import { estimateRatio } from './aspect';
 import './media.css';
 
-/** Below this the two-up masonry becomes a single column. */
-const TWO_COLUMN_MIN = 620;
+/** At or above this container width the masonry is two-up; below it, one. */
+const COLUMN_STEPS = [620] as const;
 
 interface Placed {
   item: MediaItem;
@@ -56,7 +69,14 @@ interface Placed {
  * being treated as free is.
  */
 function estimateHeight(item: MediaItem): number {
-  const picture = 1 / estimateRatio(item);
+  /*
+   * Clamped, because a tall item no longer grows without limit: `--media-cap`
+   * stops it, and packing a 9:16 as though it were 1.78 column-widths tall when
+   * it will render nearer one leaves the other column badly short. The exact
+   * cap depends on the window's height, which this pass deliberately does not
+   * measure — so this is a bound, not a calculation.
+   */
+  const picture = Math.min(1 / estimateRatio(item), 2.2);
   const caption = item.caption?.trim();
   if (!caption) return picture + 0.03;
   const lines = Math.ceil(caption.length / 48) + caption.split('\n').length - 1;
@@ -65,45 +85,7 @@ function estimateHeight(item: MediaItem): number {
 
 /** Fill `count` columns shortest-first, preserving order within each column. */
 function pack(items: Placed[], count: number): Placed[][] {
-  const columns: Placed[][] = Array.from({ length: count }, () => []);
-  if (count === 1) return [items];
-
-  const heights = new Array(count).fill(0);
-  for (const placed of items) {
-    let shortest = 0;
-    for (let i = 1; i < count; i += 1) {
-      if (heights[i] < heights[shortest]) shortest = i;
-    }
-    columns[shortest].push(placed);
-    heights[shortest] += estimateHeight(placed.item);
-  }
-  return columns;
-}
-
-/**
- * One or two columns, decided by the container rather than the viewport.
- *
- * A case study lives inside a draggable, resizable window — the viewport tells
- * us nothing useful about how wide it actually is.
- */
-function useColumnCount(ref: React.RefObject<HTMLElement | null>): number {
-  const [columns, setColumns] = useState(2);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    // No ResizeObserver (very old browsers): fail open at two columns rather
-    // than pinning everything to one.
-    if (typeof ResizeObserver === 'undefined') return;
-
-    const observer = new ResizeObserver(([entry]) => {
-      setColumns(entry.contentRect.width >= TWO_COLUMN_MIN ? 2 : 1);
-    });
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [ref]);
-
-  return columns;
+  return packColumns(items, count, (placed) => estimateHeight(placed.item));
 }
 
 interface MediaGalleryProps {
@@ -113,10 +95,12 @@ interface MediaGalleryProps {
   /** Allow tiles to open in Focus Mode. */
   lightbox?: boolean;
   /**
-   * Project context for Focus Mode — title, company, year, tools.
+   * Project context for Focus Mode — title, company, year.
    *
    * Existing fields only; Focus Mode renders a section only when it has
-   * something to put in it, so an absent context simply shows less.
+   * something to put in it, so an absent context simply shows less. Tools are
+   * not part of it: each item carries its own `media.tools`, and the project's
+   * list stays in the project footer.
    */
   context?: FocusContext;
 }
@@ -129,7 +113,7 @@ export function MediaGallery({
   context,
 }: MediaGalleryProps) {
   const host = useRef<HTMLDivElement>(null);
-  const columns = useColumnCount(host);
+  const columns = useColumnCount(host, COLUMN_STEPS);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const close = useCallback(() => setOpenIndex(null), []);

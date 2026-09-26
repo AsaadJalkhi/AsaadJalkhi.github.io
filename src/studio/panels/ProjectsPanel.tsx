@@ -2,22 +2,27 @@
  * Projects panel — the main editing surface.
  *
  * Master list on the left (add / duplicate / reorder / delete), full editor on
- * the right: metadata, case study, media, links and credits.
+ * the right: metadata, case study, media, links and credits. Each top-level
+ * section is collapsed until opened, with a one-line summary, and Preview draws
+ * the unsaved draft with the live renderers (see ProjectPreview).
  */
 import { useState } from 'react';
-import { ArrowDown, ArrowUp, Copy, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Copy, Eye, Plus, Trash2 } from 'lucide-react';
 import { Btn, Empty, Toggle } from '@/components/ui/Ui';
 import type { CaseStudy, MediaItem, Project } from '@/types/content';
 import { uid } from '@/lib/utils';
-import { MediaRenderer, MEDIA_LABELS } from '@/components/media/MediaRenderer';
 import type { PanelProps } from '../useDraft';
 import { MediaFields } from './MediaFields';
+import { MediaList } from './MediaList';
+import { ProjectPreview } from './ProjectPreview';
+import { BannerSource, SourceField } from './SourceField';
 import {
   Advanced,
   IdField,
   Area,
   Choice,
   DisciplinePicker,
+  FoldBar,
   Grid,
   IconBtn,
   IconFields,
@@ -31,6 +36,7 @@ import {
   Text,
   opts,
   uniqueSlug,
+  useFolds,
 } from './parts';
 
 /** Mirrors LinkSchema in types/content.ts. Aspect and scene lists live in MediaFields. */
@@ -86,80 +92,120 @@ function withHero(project: Project, media: MediaItem[]): Partial<Project> {
 }
 
 /**
- * Which media item opens the case study.
+ * The banner editor.
  *
- * Before this, the hero was implicit: whichever item happened to be `featured`,
- * or failing that whichever happened to be first. That made two unrelated
- * decisions share one switch — "give this a full-width row in the body" also
- * silently meant "put it at the top" — and it meant reordering the media list
- * could change the top of the page by accident.
+ * Not a picker any more. The old control asked you to choose one of the
+ * project's media items to act as the lead visual, which meant you could not
+ * have a lead visual unless it was also a piece of work in the list, and you
+ * could not have a piece of work in the list without deciding whether it was
+ * also the lead visual. Those are two questions and they now have two answers:
+ * `project.banner` is its own field with its own file, and the media list below
+ * is just the work.
  *
- * None is a real answer, not an empty state. A case study that opens on its
- * title is a legitimate piece of art direction, and it is what several
- * text-led projects want.
+ * Local only, and image or video only. A banner is cropped to a fixed shallow
+ * band — an Instagram embed, a YouTube player or a PDF cannot be cropped to a
+ * band, so offering them would be offering something that cannot work.
  */
-function HeroPicker({
+function BannerFields({
   project,
   patch,
 }: {
   project: Project;
   patch: (changes: Partial<Project>) => void;
 }) {
-  const options = [
-    { value: '', label: 'None — start with the title' },
-    ...project.media.map((item, i) => ({
-      value: item.id,
-      label: `${String(i + 1).padStart(2, '0')} · ${MEDIA_LABELS[item.type] ?? item.type} — ${
-        item.caption ?? item.alt ?? item.id
-      }`,
-    })),
-  ];
+  const banner = project.banner;
 
-  const hero = project.media.find((item) => item.id === project.heroMediaId);
+  /*
+   * The old hero, if this project still has one and has not been converted.
+   *
+   * It is still rendering — `resolveBanner` falls back to it, so nothing went
+   * blank when the field changed — and it is converted only when asked. A
+   * migration that runs on its own, over content someone spent a long time on,
+   * while they are looking at a different panel, is exactly the kind of thing
+   * that cost this project a portfolio once already.
+   */
+  const legacy = project.heroMediaId
+    ? project.media.find((item) => item.id === project.heroMediaId)
+    : undefined;
+  const convertible =
+    legacy && (legacy.type === 'image' || legacy.type === 'video') && (legacy.src ?? legacy.url);
 
-  if (!project.media.length) {
-    return (
-      <p className="studio-rep__empty">
-        Add some media above and you can choose one of them to open the case study.
-      </p>
-    );
-  }
+  const adopt = () => {
+    if (!legacy || !convertible) return;
+    patch({
+      banner: { type: legacy.type as 'image' | 'video', src: convertible, alt: legacy.alt },
+      heroMediaId: undefined,
+      showHeroInMedia: undefined,
+    });
+  };
 
   return (
     <>
-      <Grid>
-        <Choice
-          label="Hero media"
-          value={project.heroMediaId ?? ''}
-          options={options}
-          hint="Shown full-bleed at the top of the case study, at its own aspect ratio."
-          onChange={(v) => patch({ heroMediaId: v || undefined })}
-        />
-        <div className="studio-hero-preview">
-          {hero ? (
-            <MediaRenderer
-              media={hero}
-              seed={`${project.id}-hero-preview`}
-              discipline={project.disciplines[0]}
-              mode="card"
-            />
+      {!banner && legacy && (
+        <div className="studio-note">
+          <p>
+            This project still uses the old <span className="mono">Project hero</span> —{' '}
+            <strong>{legacy.caption ?? legacy.alt ?? legacy.id}</strong>. It is still being shown at
+            the top of the case study, so nothing is broken and nothing has been changed.
+          </p>
+          {convertible ? (
+            <Btn size="sm" variant="outline" onClick={adopt}>
+              Use it as the banner
+            </Btn>
           ) : (
-            <span className="studio-hero-preview__none mono">no hero</span>
+            <p className="studio-hint">
+              It is not a local image or video, so it cannot become a banner. Set a banner file
+              below and the old hero goes back to being an ordinary media item.
+            </p>
           )}
         </div>
-      </Grid>
-      {hero && (
-        <div className="studio-toggles">
-          <Toggle
-            label="Also show the hero in the media below"
-            hint="Off by default — the hero is already at the top, and repeating it makes the page look like a mistake."
-            checked={project.showHeroInMedia ?? false}
-            onChange={(v) => patch({ showHeroInMedia: v || undefined })}
-          />
-        </div>
       )}
+
+      <BannerSource banner={banner} onChange={(next) => patch({ banner: next })} />
     </>
   );
+}
+
+/** The collapsible top-level sections of the project editor, in page order. */
+const FOLDS = ['identity', 'tile', 'case', 'media', 'banner', 'links', 'credits'] as const;
+type Fold = (typeof FOLDS)[number];
+
+const SPAN_SHORT: Record<string, string> = { sm: 'Small', md: 'Medium', lg: 'Large', xl: 'Extra large' };
+
+const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+/**
+ * The one-line digest beside each collapsed section title. Short values only —
+ * counts and names, never a URL or a paragraph; CSS truncates what is left.
+ */
+function foldSummaries(project: Project): Record<Fold, string> {
+  const cs = project.caseStudy;
+  const written = cs
+    ? [cs.context, cs.challenge, cs.objective, cs.approach, cs.execution, cs.results].filter(
+        (text) => text?.trim(),
+      ).length
+    : 0;
+  const banner = project.banner
+    ? project.banner.type === 'video'
+      ? 'Video'
+      : 'Image'
+    : project.heroMediaId
+      ? 'Legacy hero'
+      : 'None';
+
+  return {
+    identity: [project.title, project.company, project.year].filter(Boolean).join(' · '),
+    tile: `${SPAN_SHORT[project.tile?.span ?? 'md']} · ${project.tile?.aspect ?? '4:3'}`,
+    case: cs
+      ? [count(written, 'field'), count(cs.metrics.length, 'metric'), count(cs.sections.length, 'section')].join(
+          ' · ',
+        )
+      : 'None',
+    media: count(project.media.length, 'item'),
+    banner,
+    links: count(project.links.length, 'link'),
+    credits: count(project.credits.length, 'credit'),
+  };
 }
 
 function blankProject(id: string, folder: string): Project {
@@ -183,10 +229,27 @@ function blankProject(id: string, folder: string): Project {
 
 export function ProjectsPanel({ draft, update }: PanelProps) {
   const [selected, setSelected] = useState<string | null>(draft.projects[0]?.id ?? null);
+  /*
+   * Which sections are open, and whether the preview is. UI state only — never
+   * in the draft. Folds are reset when a *different project* is chosen (see
+   * `choose`), not whenever the id changes: typing a new project's title
+   * renames its id, and collapsing Identity under the cursor would be absurd.
+   */
+  const folds = useFolds<Fold>();
+  const [previewing, setPreviewing] = useState(false);
 
   const index = draft.projects.findIndex((project) => project.id === selected);
   const project = index >= 0 ? draft.projects[index] : draft.projects[0];
   const activeIndex = project ? draft.projects.findIndex((p) => p.id === project.id) : -1;
+
+  const choose = (id: string | null, open: Fold[] = []) => {
+    setSelected(id);
+    folds.set(open);
+  };
+
+  /** Props for one collapsible section. */
+  const summaries = project ? foldSummaries(project) : undefined;
+  const fold = (id: Fold) => folds.props(id, summaries?.[id]);
 
   const folderOptions = draft.folders.map((folder) => ({ value: folder.id, label: folder.name }));
 
@@ -212,7 +275,8 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
     update((next) => {
       next.projects.push(blankProject(id, next.folders[0]?.id ?? 'web'));
     });
-    setSelected(id);
+    // A new project is empty, so it opens on the section that needs filling in.
+    choose(id, ['identity']);
   };
 
   const duplicateProject = () => {
@@ -229,7 +293,7 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
       clone.title = `${source.title} (copy)`;
       next.projects.splice(activeIndex + 1, 0, clone);
     });
-    setSelected(id);
+    choose(id);
   };
 
   const deleteProject = () => {
@@ -238,7 +302,7 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
     update((next) => {
       next.projects = next.projects.filter((p) => p.id !== project.id);
     });
-    setSelected(fallback);
+    choose(fallback);
   };
 
   const moveProject = (direction: -1 | 1) => {
@@ -272,7 +336,9 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
                 key={item.id}
                 type="button"
                 className={`studio-list__item${item.id === project?.id ? ' studio-list__item--active' : ''}`}
-                onClick={() => setSelected(item.id)}
+                onClick={() => {
+                  if (item.id !== project?.id) choose(item.id);
+                }}
               >
                 <span className="studio-list__title">
                   {item.title}
@@ -322,7 +388,22 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
                 </div>
               </header>
 
-              <Section title="Identity">
+              <FoldBar folds={folds} ids={FOLDS}>
+                <Btn size="sm" variant="outline" icon={<Eye />} onClick={() => setPreviewing(true)}>
+                  Preview
+                </Btn>
+              </FoldBar>
+
+              {/* Mounted only while open, so no preview media loads behind the editor. */}
+              {previewing && (
+                <ProjectPreview
+                  draft={draft}
+                  projectId={project.id}
+                  onClose={() => setPreviewing(false)}
+                />
+              )}
+
+              <Section title="Identity" {...fold('identity')}>
                 <Grid>
                   <Text
                     label="Title"
@@ -375,13 +456,16 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
                     hint="Lower sorts first inside the folder"
                     onChange={(v) => patch({ order: v })}
                   />
-                  <Text
-                    label="Thumbnail"
-                    value={project.thumbnail}
-                    hint="Falls back to the first media item"
-                    onChange={(v) => patch({ thumbnail: v })}
-                  />
                 </Grid>
+
+                {/* Same source field as media and banners, so "Copy as path" is cleaned the same way. */}
+                <SourceField
+                  label="Thumbnail"
+                  value={project.thumbnail}
+                  placeholder="media/gaf/thumbnail.jpg"
+                  hint="The card image in the Work grid. Falls back to the first media item."
+                  onChange={(v) => patch({ thumbnail: v })}
+                />
 
                 <Area
                   label="Summary"
@@ -437,6 +521,7 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
               <Section
                 title="Tile in the Work grid"
                 hint="How big this project is and what shape it takes. Vary these across projects so the grid reads as composed rather than as a wall of identical cards."
+                {...fold('tile')}
               >
                 <Grid>
                   <Choice
@@ -493,6 +578,7 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
               <Section
                 title="Case study"
                 hint="Leave a field empty to hide that section entirely."
+                {...fold('case')}
               >
                 {!project.caseStudy ? (
                   <Btn
@@ -597,29 +683,28 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
               <Section
                 title="Media"
                 hint="Choose a media type first, then fill in the fields it asks for. A project with no media at all is completely valid — only add an item when you have something to show."
+                {...fold('media')}
               >
-                <Repeater
+                {/* Keyed by project, so opening another project starts with every card collapsed. */}
+                <MediaList
+                  key={project.id}
                   items={project.media}
                   onChange={(media) => patch(withHero(project, media))}
                   create={(): MediaItem => ({ id: uid('m'), type: 'image' })}
-                  labelOf={(item) =>
-                    `${item.type} — ${item.title ?? item.caption ?? item.alt ?? item.id}`
-                  }
-                  addLabel="Add media"
-                  empty="No media yet — that is fine. Add one when you have a file or a link."
                 >
                   {(item, patchMedia) => <MediaFields item={item} patch={patchMedia} />}
-                </Repeater>
+                </MediaList>
               </Section>
 
               <Section
-                title="Project hero"
-                hint="The single piece of media that opens the case study, above the writing. This is a different thing from the tile in the Work grid and from the media further down the page — one project can want a still on the grid, a Reel at the top, and neither of them repeated in the body."
+                title="Project banner"
+                hint="The wide strip that opens the case study. Its own file — an image or a silent looping video from public/ — not one of the media items below. Every project's banner is the same height, so any shape of file is fine; it is cropped to fit. 1920 × 700 is what the band was designed around. Leave it as None and the case study opens on its title, with no empty space."
+                {...fold('banner')}
               >
-                <HeroPicker project={project} patch={patch} />
+                <BannerFields project={project} patch={patch} />
               </Section>
 
-              <Section title="Links">
+              <Section title="Links" {...fold('links')}>
                 <Repeater
                   items={project.links}
                   onChange={(links) => patch({ links })}
@@ -647,7 +732,7 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
                 </Repeater>
               </Section>
 
-              <Section title="Credits">
+              <Section title="Credits" {...fold('credits')}>
                 <Repeater
                   items={project.credits}
                   onChange={(credits) => patch({ credits })}

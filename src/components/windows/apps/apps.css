@@ -19,8 +19,8 @@
 /* ── Project ─────────────────────────────────────────────────────────── */
 
 /*
- * The lead image runs edge to edge before any text, then the writing settles
- * into a single readable measure. Nothing here is boxed in a card.
+ * The banner runs edge to edge before any text, then the writing settles into
+ * a single readable measure. Nothing here is boxed in a card.
  */
 .case {
   padding-bottom: var(--s-16);
@@ -31,48 +31,52 @@
 }
 
 /*
- * The hero is sized by its media, not by a rectangle decided in advance.
- *
- * This was a hard `aspect-ratio: 16 / 9` with `> * { height: 100% }`, so a
- * portrait Reel opened a case study as a thin sliver marooned in a wide grey
- * band, and a square photograph got the same treatment. The only constraint
- * that belongs here is a ceiling: a very tall image must not push the writing
- * two screens down the window.
+ * Without a banner the title would sit flush under the title bar. The inset is
+ * for that case only — a banner is already the space above the title, so a
+ * project that has one gets nothing added.
  */
-.case__hero {
+.case[data-bannerless] {
+  padding-top: var(--s-8);
+}
+
+/*
+ * The banner is a band, and the band is the same height in every project.
+ *
+ * This is the one place in the whole system where the container decides the
+ * size before asking the content — and it is deliberate, not an oversight. The
+ * rule everywhere else ("containers do not decide sizes before asking the
+ * content") exists so that a piece of WORK is never cropped or letterboxed to
+ * fit a rectangle someone picked in advance. A banner is not a piece of work.
+ * It is the masthead of the page, so a project with a 1920×700 strip and a
+ * project whose author had only a square photograph to hand must open
+ * identically, or the archive reads as a stack of unrelated pages.
+ *
+ * Hence: a fixed band, `cover`, centred. No source ratio is ever consulted, so
+ * there is no shape of file that can produce a letterbox bar or a band of a
+ * different height. The ceiling is shallow on purpose — the title and the first
+ * lines of the intro are visible under it without scrolling.
+ */
+.case__banner {
+  height: clamp(190px, 30vh, 280px);
   margin: 0 0 var(--s-8);
   overflow: hidden;
   background: var(--c-sunken);
 }
 
-.case__hero > * {
+.case__banner-media {
+  display: block;
   width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
-/* A still at its own shape: shrink-wrapped and centred, never letterboxed. */
-.case__hero .smart-image--natural .smart-image__img {
-  width: auto;
-  max-width: 100%;
-  max-height: 72dvh;
-  margin-inline: auto;
-}
-
-/* Anything with a declared ratio (video, embed, a forced aspect) keeps it
-   until it would be taller than the ceiling. */
-.case__hero .media-frame__stage {
-  max-height: 78dvh;
-}
-
-.case[data-compact] .case__hero {
+.case[data-compact] .case__banner {
+  height: clamp(170px, 24vh, 190px);
   border-radius: var(--r-md);
 }
 
-.case[data-compact] .case__hero .smart-image--natural .smart-image__img,
-.case[data-compact] .case__hero .media-frame__stage {
-  max-height: 52dvh;
-}
-
-/* Everything after the hero shares one centred column. */
+/* Everything after the banner shares one centred column. */
 .case__head,
 .case__facts,
 .case__lede,
@@ -331,21 +335,11 @@
   flex-direction: column;
 }
 
-.note__head {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--s-3);
-  padding: var(--s-2) var(--s-4);
-  border-bottom: 1px solid var(--c-line);
-  font-size: var(--fs-3xs);
-  color: var(--c-faint);
-}
-
 .note__body {
   flex: 1;
   margin: 0;
   padding: var(--s-5);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--fs-sm);
   line-height: 1.8;
   color: var(--c-text);
@@ -830,7 +824,7 @@
 }
 
 .contact__email-address {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--fs-md);
   color: var(--c-bone);
   word-break: break-all;
@@ -1110,6 +1104,10 @@
   .skills,
   .experience {
     padding: var(--s-5) var(--s-4) var(--s-8);
+  }
+
+  .case[data-bannerless] {
+    padding-top: var(--s-5);
   }
 
   .case__block,

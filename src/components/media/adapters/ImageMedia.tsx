@@ -15,7 +15,7 @@ import { useCallback, useState } from 'react';
 import type { Discipline, MediaItem } from '@/types/content';
 import { SmartImage } from '@/components/ui/SmartImage';
 import { MediaFrame } from '../MediaFrame';
-import { isAuto } from '../aspect';
+import { isAuto, useImageRatio } from '../aspect';
 import { MediaFocus } from '../MediaFocus';
 import { asMediaItems, galleryItems } from '../subitems';
 import type { AdapterProps } from '../types';
@@ -25,6 +25,15 @@ export function ImageMedia({ media, seed, discipline, mode, priority, onFocus }:
   // In `card` and `focus` the container has already decided the box, so the
   // image fills it. In `full` with Auto it is the other way round.
   const natural = auto && mode === 'full';
+
+  /*
+   * A natural image still sizes its own frame — but the frame is told what
+   * shape it turned out to be, so it can apply the same height ceiling every
+   * other piece of body media gets. Measuring does not constrain the picture;
+   * it is what lets a 9:16 still be shown whole without being three screens
+   * tall. See the `data-shape` rules in media.css.
+   */
+  const measured = useImageRatio(natural ? (media.src ?? media.thumbnail ?? media.url) : undefined);
 
   const body = (
     <SmartImage
@@ -47,10 +56,10 @@ export function ImageMedia({ media, seed, discipline, mode, priority, onFocus }:
   return (
     <MediaFrame
       aspect={media.aspect}
+      ratio={measured}
       fill={natural}
       title={media.title}
       caption={media.caption}
-      credit={media.credit}
       demo={media.demo}
     >
       {onFocus ? (
@@ -112,7 +121,6 @@ export function GalleryMedia({ media, seed, discipline, mode, priority }: Adapte
         fill
         title={media.title}
         caption={media.caption}
-        credit={media.credit}
         demo={media.demo}
         kindLabel={items.length > 1 ? `${items.length} images` : undefined}
       >

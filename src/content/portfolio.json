@@ -4,57 +4,60 @@
     "name": "Asaad Jalkhi",
     "osName": "AsaaD.OS",
     "positioning": "Marketing / Creative / Digital",
-    "headline": "Marketing, creative and digital.",
-    "subheadline": "Campaigns, content production, and the digital systems underneath them.",
+    "headline": "Marketing, creative and digital",
+    "subheadline": "content, production, and the digital things nobody planned for.",
     "location": "Dubai, UAE",
-    "availability": "Open to marketing, creative and digital roles",
+    "availability": "Open to the right role, freelance project, or interesting problem.",
     "about": [
-      "Asaad works across marketing, creative and digital — connecting strategy, content, technology and execution."
+      "I work across marketing, creative and digital, usually somewhere between the idea and the thing that actually has to work."
     ],
     "principles": [],
     "aboutPage": {
-      "lede": "I plan the campaign, cut the film, and build the thing it lands on.",
-      "statement": "Marketing, creative and digital - usually all three on the same brief. Based in Dubai.",
+      "lede": "I have a habit of turning one job into four.",
+      "statement": "Marketing, creative and digital , usually all three on the same brief. Based in Dubai.",
       "paragraphs": [
-        "I started in edit suites and IT rooms, which turns out to be a useful pair of habits. One taught me that an idea only counts once it is actually finished; the other taught me that most things break at the join, not in the middle.",
-        "These days that means I can sit in the strategy conversation, direct the shoot, do the edit, and then build the landing page and the automation behind it. Not because I want to do everything - because a lot of good work dies in the handover between people who each only do one part of it.",
-        "I like briefs with a real constraint in them: a deadline, a budget, a channel that behaves badly. Constraints make decisions fast. I would rather ship something specific and sharp this month than something perfect and theoretical next quarter.",
-        "Work has taken me from Syria to the UAE, from freelance edits to founding a small agency to running marketing in-house. The through-line has not changed: figure out what is worth saying, make it properly, and put it somewhere it can work."
+        "I started with video editing. And I studied Informatics Engineering at university. One gave me a creative foundation, the other a technical one. Somewhere along the way, those two worlds started overlapping with design, websites, 3D, marketing, production, and a growing habit of learning whatever the next project needed.",
+        "These days I might help shape the idea, plan the content, direct the shoot, edit the film, build the page it lands on, and then open the backend because something decided not to work five minutes before launch.",
+        "I am not trying to be the world's greatest specialist at every one of those things. I like understanding enough of the whole picture to connect the pieces, make better decisions, and actually get things finished.",
+        "My work has moved from freelance editing to agency work, building my own small agency, and eventually running marketing in-house in Dubai. Different titles, same recurring problem: figure out what needs to happen, make it good, and somehow get it out the door.",
+        "I still like experimenting. New software, AI tools, strange workflows, and things that absolutely did not need automating. Occasionally they even become useful."
       ],
+      "portrait": "media/general/iamge.png",
       "images": [],
       "lists": [
         {
           "title": "Currently",
           "items": [
-            "Marketing Executive at GAF and The Good Moon",
-            "Building internal systems that stop work getting lost",
-            "Still taking freelance edits when the brief is good"
+            "Marketing Executive at GAF & The Good Moon",
+            "Building whatever sits between marketing, creative, systems, and \"can you also fix this?\"",
+            "Still taking freelance projects when the idea is worth it"
           ]
         },
         {
           "title": "Tools I live in",
           "items": [
             "Premiere Pro and After Effects",
-            "Photoshop and Illustrator",
-            "Blender, when a shot needs something real",
-            "VS Code - React, TypeScript, WordPress, Shopify",
-            "Meta and Google ad platforms, Zapier and Make"
+            "Photoshop and Illustrator \"a little bit\"",
+            "Blender, when reality needs a little assistance",
+            "VS Code, WordPress, Shopify",
+            "ChatGPT, Claude..., and more browser tabs than I am willing to defend"
           ]
         },
         {
           "title": "Off the clock",
           "items": [
-            "Film, mostly for the cuts rather than the plot",
-            "Taking apart software that has no business being this well made",
-            "Long walks that are secretly just thinking about a timeline"
+            "Watching films for the cuts more than the plot",
+            "Taking apart software that was working perfectly fine",
+            "Starting side projects that were supposed to take one evening",
+            "Walking until an idea finally decides to cooperate"
           ]
         }
       ],
-      "footnote": "This portfolio is a small operating system because a scrolling page felt like a waste of a good excuse."
+      "footnote": "This became an operating system because apparently a normal portfolio was too easy."
     },
     "contact": {
-      "headline": "Open to marketing, creative and digital roles.",
-      "note": "Email is the fastest way to reach me - I answer everything within a day or two."
+      "headline": "Open to the right role, freelance project, or interesting problem.",
+      "note": "WhatsApp is the fastest way to reach me. I usually reply the same day"
     },
     "email": "asaadjalkhi01@gmail.com",
     "phone": "+971 54 378 3607",
@@ -76,11 +79,17 @@
         "handle": "@eng.asaadjalkhi",
         "url": "https://www.instagram.com/eng.asaadjalkhi/",
         "icon": "instagram"
+      },
+      {
+        "label": "WhatsApp Me",
+        "handle": "+971543783607",
+        "url": "https://wa.me/+971543783607"
       }
     ],
     "cv": {
       "file": "cv/Asaad_CV.pdf",
       "label": "Download CV (PDF)",
+      "updated": "September 2026",
       "sections": [
         {
           "heading": "Profile",
@@ -94,7 +103,7 @@
           "heading": "Experience",
           "lines": [
             "Marketing Executive — GAF and The Good Moon, Dubai, UAE · Jul 2025 – Present",
-            "Founder and Creative Lead — DASH Digital Marketing Agency FZC, UAE · Dec 2024 – Jul 2026",
+            "Founder and Creative Lead — DASH Digital Marketing Agency FZC, UAE · Dec 2024 – Jan 2026",
             "Video Editor and Web Developer — Octoboss Marketing Agency, UAE · Dec 2023 – Dec 2024",
             "IT Assistant — Saleha Trading Company · 2022 – 2023",
             "Video Editor and IT Support — Magenta Studio, Syria · 2020 – 2022",
@@ -105,7 +114,7 @@
         {
           "heading": "Full CV",
           "lines": [
-            "The complete CV is attached as a PDF — open or download it above."
+            "The complete CV is attached as a PDF , open or download it above."
           ]
         }
       ]
@@ -114,7 +123,7 @@
   "settings": {
     "boot": {
       "enabled": true,
-      "duration": 900,
+      "duration": 1500,
       "shortenAfterFirstVisit": true
     },
     "theme": {
@@ -154,7 +163,8 @@
     "studioPin": "5729",
     "seo": {
       "title": "Asaad Jalkhi — Marketing, Creative & Digital",
-      "description": "Portfolio of Asaad Jalkhi. Marketing and campaigns, creative production, and digital systems."
+      "description": "Portfolio of Asaad Jalkhi. Marketing, creative production, and digital systems.",
+      "url": "https://asaadjalkhi.github.io/"
     }
   },
   "desktop": {
@@ -390,20 +400,12 @@
     ],
     "autoOpen": [
       {
-        "app": "projects",
-        "x": 0.26,
-        "y": 0.11,
-        "width": 1120,
-        "height": 700,
-        "order": 2
-      },
-      {
         "app": "note",
         "payloadId": "read-me",
-        "x": 0.04,
+        "x": 0.55,
         "y": 0.62,
         "width": 340,
-        "height": 260,
+        "height": 300,
         "order": 1
       }
     ]
@@ -414,7 +416,12 @@
       "name": "GAF",
       "caption": "Brand marketing and campaigns",
       "discipline": "marketing",
-      "order": 1
+      "order": 1,
+      "description": "From launching the brand to figuring out what it should look, sound, and feel like every day. My work with GAF spanned creative direction, content production, campaigns, web, social, and the occasional idea that probably sounded questionable before we made it.",
+      "banner": {
+        "type": "image",
+        "src": "media/gaf/Thumbnails/folder banner.jpg"
+      }
     },
     {
       "id": "good-moon",
@@ -454,137 +461,1012 @@
   ],
   "projects": [
     {
-      "id": "gaf-brand-marketing",
-      "title": "Brand Marketing & Campaigns",
-      "shortTitle": "GAF Brand",
+      "id": "gaf-brand-launch-and-introduction",
+      "title": "GAF brand launch and introduction",
+      "shortTitle": "brand launch",
       "folder": "gaf",
       "company": "GAF",
-      "year": "2025 — Present",
-      "role": "Marketing Executive",
-      "location": "Dubai",
-      "summary": "Brand, campaigns, content and channel growth for a hospitality and F&B concept.",
-      "description": "testing this feield \n\ntest \n\n\ntext ",
+      "year": "2024",
+      "role": "concept development, video production, editing, 3D CGI",
+      "location": "Dubai - One Central",
+      "summary": "Setting the tone for GAF through teasers, launch content, and opening day visuals, introducing the brand, space, and identity for the first time.",
+      "description": "GAF before it had a feed full of food and coffee. This project brings together the content created around the brand's introduction and opening, from early teasers and CGI experiments to the opening event, brand film, and first food and space visuals. The goal was to introduce GAF and establish how it should feel before explaining too much about it. That first visual chapter sets the foundation for everything that followed.",
       "disciplines": [
-        "marketing",
         "creative",
-        "digital"
+        "marketing"
       ],
       "categories": [
-        "Brand",
-        "Campaigns",
-        "Hospitality"
+        "Content Creation",
+        "Creative Production",
+        "Video Editing",
+        "3D/CGI",
+        "Social Media."
       ],
-      "tags": [
-        "brand",
-        "social",
-        "content",
-        "campaigns"
-      ],
-      "responsibilities": [
-        "also tesitng this ahsldkfjklsadjfkladsfkldsajkljf"
-      ],
+      "tags": [],
+      "responsibilities": [],
       "tools": [
-        "Meta Business Suite",
-        "Premiere Pro",
-        "Photoshop",
-        "Mailchimp"
+        "Adobe Premiere Pro",
+        "Adobe Aftereffects",
+        "Adobe Photoshop",
+        "Blender."
       ],
-      "credits": [],
-      "caseStudy": {
-        "context": "what is this how it looks , why sjdfkl",
-        "challenge": "sdfsdf lets seeeeeeeeee",
-        "objective": "ok ok ok ",
-        "approach": "Sample placeholder text. A one-page brand platform turned into a practical content system: a small set of recurring formats, a monthly shoot day, and a shared calendar the whole team can read.",
-        "execution": "Sample placeholder text. Rebuilt the feed around those formats and moved production to a single monthly session that banks several weeks of content at once.",
-        "results": "no results at all '",
-        "metrics": [
-          {
-            "label": "folowers ",
-            "value": "50% ",
-            "note": "increees"
-          }
-        ],
-        "sections": [
-          {
-            "label": "testing extra sections ",
-            "body": "this is the body "
-          }
-        ]
-      },
+      "credits": [
+        {
+          "role": "Graphic Designer",
+          "name": "Daniel Alkontar"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Adib Chanwawani"
+        }
+      ],
       "media": [
         {
-          "id": "gaf-hero",
+          "id": "m-6j16yy1",
           "type": "image",
-          "src": "media/gaf/gaf-hero.jpg",
-          "alt": "GAF campaign key visual",
-          "caption": "Seasonal campaign key visual",
-          "aspect": "16:9",
-          "demo": false,
-          "featured": true
+          "src": "media/gaf/local_images/Screenshot 2026-09-20233352.png",
+          "title": "GAF launch grid",
+          "caption": "The opening snapshot, where the brand's look and mood first came together.",
+          "credit": "Daniel Alkontar - Graphic Designer | Adib Chanwawani - Photographer"
         },
         {
-          "id": "gaf-grid",
-          "type": "image",
-          "src": "media/gaf/Thumbnails/steve_example.jpeg",
-          "alt": "Social grid layout",
-          "caption": "Feed system — recurring formats",
-          "demo": false
+          "id": "m-asvpjqv",
+          "type": "video",
+          "src": "media/gaf/local_videos/G1.mp4",
+          "title": "GAF at first light",
+          "alt": "GAF at first light",
+          "caption": "The Ghaf sun rises over the sand, a quiet hint at the story to come.",
+          "credit": "Adib Chanwawani - Photographer"
         },
         {
-          "id": "gaf-reel",
-          "type": "instagram",
-          "instagramUrl": "https://www.instagram.com/p/DcL65A_N8Ie/",
-          "thumbnail": "media/gaf/Thumbnails/steve_example.jpeg",
-          "title": "Steeve decide to show us how to make french toast ",
-          "caption": "tjjdflksdjfkljdslkfjdslkfjldsjflkdsjklfjsdlkfjlkdsjfklsdjflkdsjafkljadsklfjklsadfjlkdsjfkldsajflkdsjflkjdsaklfjsdklfjklasdfjlkadsjfkldsjfkldsjaklfkladsfjdsklfjsadklfjds",
-          "aspect": "4:5",
-          "demo": false
-        },
-        {
-          "id": "m-rf04a7y",
-          "type": "drive",
-          "url": "https://drive.google.com/file/d/1mBEhGhpsNX1acLlhXmxslJhpVW7nTITB/view?usp=sharing",
-          "caption": "mohsen social media account ",
+          "id": "m-xjgw155",
+          "type": "video",
+          "src": "media/gaf/local_videos/Video-21585.mp4",
+          "title": "The Ghaf Takes Root",
+          "caption": "A CGI teaser bringing the brand symbol to life, a Ghaf tree growing through Dubai’s urban landscape, introducing GAF before the doors even opened.",
+          "tools": "Adobe Premiere Pro, Adobe Photoshop, Blender.",
           "aspect": "9:16"
         },
         {
-          "id": "m-h5n20qa",
-          "type": "youtube",
-          "url": "https://www.youtube.com/watch?v=A5aGYitlySc&t=3s",
-          "caption": "me as harry potter",
-          "aspect": "16:9"
+          "id": "m-hn7r7ln",
+          "type": "gallery",
+          "title": "GAF - The Place",
+          "caption": "Details designed to feel both grounded and modern.",
+          "items": [
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 033538.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 002804.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 0.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 040553 Firefly Up.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 033600.png"
+            }
+          ]
         },
         {
-          "id": "m-0ez3g67",
-          "type": "website",
-          "url": "https://designersandus.com/",
+          "id": "m-3fws74h",
+          "type": "video",
+          "src": "media/gaf/local_videos/V1.mp4",
+          "title": "Opening at GAF",
+          "caption": "GAF officially opens its doors, bringing together local faces, food, drinks, and the energy the brand was built to create.",
           "aspect": "16:9",
-          "iframe": true,
           "featured": true
         },
         {
-          "id": "m-png89th",
-          "type": "drive",
-          "url": "https://drive.google.com/file/d/1qptRm6_toN71L1X22bCZ6sK_Kw53Vh46/view?usp=sharing"
+          "id": "m-5g7v5i6",
+          "type": "gallery",
+          "title": "Signature Sips",
+          "caption": "A first taste of the drinks side of GAF.",
+          "items": [
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 003156.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 003044.png"
+            }
+          ]
         },
         {
-          "id": "m-96eftvt",
+          "id": "m-u6va3mf",
+          "type": "gallery",
+          "title": "First on the Table",
+          "caption": "Early plates that set the tone for GAF's mix of comfort and craft",
+          "items": [
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 002840.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 003100.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 003033.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 002826.png"
+            }
+          ]
+        },
+        {
+          "id": "m-2qrcbs7",
           "type": "video",
-          "src": "media/gaf/local_videos/al_amakin.mp4"
+          "src": "media/gaf/local_videos/Video-36710.mp4",
+          "title": "A Taste of GAF",
+          "caption": "Introducing GAF through the table, food, coffee, and the small rituals that shape the experience.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-glwro0s",
+          "type": "video",
+          "src": "media/gaf/local_videos/Video-86331.mp4",
+          "title": "Setting the Scene",
+          "caption": "A closer look at the details behind GAF’s opening , where atmosphere, craft, and hospitality start coming together.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-rijnvzs",
+          "type": "gallery",
+          "title": "A Ritual of Coffee",
+          "caption": "GAF’s take on coffee, and showing its elegance with the common local",
+          "credit": "Daniel Alkontar - Graphic Designer | Adib Chanwawani - Photographer",
+          "items": [
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 033438.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 002752.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 003018.png"
+            },
+            {
+              "src": "media/gaf/local_images/Screenshot 2026-09-21 034430.png"
+            }
+          ]
         }
       ],
-      "heroMediaId": "gaf-hero",
-      "links": [],
-      "icon": {
-        "text": "GGG"
+      "banner": {
+        "type": "video",
+        "src": "media/gaf/Thumbnails/banner1.mp4"
       },
+      "links": [],
+      "thumbnail": "media/gaf/Thumbnails/P1hero.jpg",
+      "icon": {
+        "imageLight": "icons/GAF-light.png"
+      },
+      "featured": false,
+      "demo": false,
+      "order": 5
+    },
+    {
+      "id": "a-certain-kind-of-crowd",
+      "title": "GAF in Character",
+      "shortTitle": "In Character",
+      "folder": "gaf",
+      "company": "GAF",
+      "year": "2025 - 2026",
+      "role": "Creative direction, video production",
+      "location": "Dubai - One Central",
+      "summary": "Exploring GAF through people, styling, and atmosphere, using model-led shoots and lifestyle content to shape the brand’s personality beyond food and interiors.",
+      "description": "A series of lifestyle-driven shoots created to give GAF a stronger personality on social media. Through models, styling, mood, and setting, the content moved beyond standard restaurant visuals and helped present GAF as a place with character, taste, and a distinct point of view.",
+      "disciplines": [
+        "marketing",
+        "creative"
+      ],
+      "categories": [
+        "Lifestyle Content",
+        "Creative Direction",
+        "Brand Storytelling",
+        "Content Creation",
+        "Photography",
+        "Video Editing",
+        "Social Media"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe Aftereffects",
+        "Adobe Photoshop"
+      ],
+      "credits": [
+        {
+          "role": "Graphic Designer",
+          "name": "Daniel Alkontar"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Adib Chanwawani"
+        }
+      ],
+      "media": [
+        {
+          "id": "m-kum9v2m",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/p/DFAqjWSqGHq/"
+        },
+        {
+          "id": "m-womtf34-copy",
+          "type": "instagram",
+          "src": "https://www.instagram.com/p/DGTHnsBTH0X/",
+          "instagramUrl": "https://www.instagram.com/p/DGTHnsBTH0X/"
+        },
+        {
+          "id": "m-womtf34",
+          "type": "instagram",
+          "src": "https://www.instagram.com/p/DGTHnsBTH0X/",
+          "instagramUrl": "https://www.instagram.com/p/DKFJYy3oXFT/"
+        },
+        {
+          "id": "m-ve9am7i",
+          "type": "gallery",
+          "title": "Sips in Style ",
+          "items": [
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 033818.png"
+            },
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 041910.png"
+            },
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 044442.png"
+            },
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 041942.png"
+            }
+          ]
+        },
+        {
+          "id": "m-ohcmkvp",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/p/DPtk7JCE4fX/"
+        },
+        {
+          "id": "m-9odvzds",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DP9CIESkxdP/"
+        },
+        {
+          "id": "m-amn91bf",
+          "type": "gallery",
+          "title": "On the Table",
+          "items": [
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 033838.png"
+            },
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 041923.png"
+            },
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 041959.png"
+            },
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 042030.png"
+            },
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 044148.png"
+            },
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 044158.png"
+            },
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 044224.png"
+            },
+            {
+              "src": "media/gaf/local_images/P2/Screenshot 2026-09-23 044358.png"
+            }
+          ]
+        },
+        {
+          "id": "m-pbx5nbg",
+          "type": "instagram",
+          "src": "https://www.instagram.com/reel/DXg9VCBlKV2/",
+          "instagramUrl": "https://www.instagram.com/reel/DXg9VCBlKV2/"
+        }
+      ],
+      "links": [],
+      "thumbnail": "media/gaf/local_images/P2/Screenshot 2026-09-23 033838.png",
       "tile": {
-        "span": "xl",
+        "span": "md",
+        "aspect": "4:5"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 2
+    },
+    {
+      "id": "speaking-local",
+      "title": "Speaking Local",
+      "shortTitle": "Local",
+      "folder": "gaf",
+      "company": "GAF",
+      "year": "2025-2026",
+      "role": "Creative Direction, Video Production",
+      "location": "Dubai",
+      "summary": "A collection of content exploring GAF through a more local lens, using familiar faces, cultural cues, Arabic-led moments, and everyday references to speak closer to its local audience.",
+      "disciplines": [
+        "creative",
+        "marketing"
+      ],
+      "categories": [
+        "Brand Content",
+        "Cultural Storytelling",
+        "Content Creation",
+        "Video Production",
+        "Social Media"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [],
+      "credits": [
+        {
+          "role": "Graphic Designer",
+          "name": "Daniel Alkontar"
+        },
+        {
+          "role": "Graphic Designer",
+          "name": "Rana Abou Saada"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Adib Chanwawani"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Hussm Abou Saada"
+        }
+      ],
+      "media": [
+        {
+          "id": "m-scdida9",
+          "type": "video",
+          "src": "media/gaf/local_videos/al amakin.mp4"
+        },
+        {
+          "id": "m-ges46sl",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DJrdb8zzShZ/"
+        },
+        {
+          "id": "m-j5oc0aa",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/gaf/local_images/local/post3.jpg"
+            },
+            {
+              "src": "media/gaf/local_images/local/post5.jpg"
+            },
+            {
+              "src": "media/gaf/local_images/local/post6 (1).jpg"
+            },
+            {
+              "src": "media/gaf/local_images/local/post6.jpg"
+            }
+          ]
+        },
+        {
+          "id": "m-xeksmnf",
+          "type": "video",
+          "src": "media/gaf/local_videos/Video-38971.mp4"
+        },
+        {
+          "id": "m-3qmqqa0",
+          "type": "video",
+          "src": "media/gaf/local_videos/Video-27611.mp4"
+        },
+        {
+          "id": "m-gbkkgr8",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/gaf/local_images/local/post4A.jpg"
+            },
+            {
+              "src": "media/gaf/local_images/local/post 4.jpg"
+            },
+            {
+              "src": "media/gaf/local_images/local/Screenshot 2026-09-24 075042.png"
+            },
+            {
+              "src": "media/gaf/local_images/local/Screenshot 2026-09-24 075144.png"
+            }
+          ]
+        },
+        {
+          "id": "m-83djipe",
+          "type": "video",
+          "src": "media/gaf/local_videos/Video-20867.mp4",
+          "instagramUrl": "https://www.instagram.com/reel/DK4qzvktk7j/",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-vw57pe5",
+          "type": "image",
+          "src": "media/gaf/local_images/local/reel-cover1.jpg"
+        },
+        {
+          "id": "m-xay31jc",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/gaf/local_images/local/056A2742 copy.jpg"
+            },
+            {
+              "src": "media/gaf/local_images/local/Screenshot 2026-09-24 075007.png"
+            },
+            {
+              "src": "media/gaf/local_images/local/L11.png"
+            },
+            {
+              "src": "media/gaf/local_images/local/Screenshot 2026-09-24 075016.png"
+            }
+          ]
+        },
+        {
+          "id": "m-je61pkn",
+          "type": "instagram",
+          "src": "https://www.instagram.com/reel/DK9uTUnREE3/",
+          "instagramUrl": "https://www.instagram.com/reel/DK9uTUnREE3/"
+        },
+        {
+          "id": "m-ld1kkel",
+          "type": "video",
+          "src": "media/gaf/local_videos/Video-80022.mp4"
+        },
+        {
+          "id": "m-cd3qozo",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DTF6GuRCLZm/"
+        },
+        {
+          "id": "m-6hfw55g",
+          "type": "image",
+          "src": "media/gaf/local_images/local/Screenshot 2026-09-24 075216.png"
+        },
+        {
+          "id": "m-smvdpv0",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/gaf/local_images/local/POST-7.jpg"
+            },
+            {
+              "src": "media/gaf/local_images/local/Screenshot 2026-09-24 075307.png"
+            },
+            {
+              "src": "media/gaf/local_images/local/34.png"
+            },
+            {
+              "src": "media/gaf/local_images/local/Screenshot 2026-09-24 084920.png"
+            }
+          ]
+        }
+      ],
+      "banner": {
+        "type": "image",
+        "src": "media/gaf/Thumbnails/speaking local .jpg"
+      },
+      "links": [],
+      "thumbnail": "media/gaf/local_images/local/L44.png",
+      "tile": {
+        "span": "lg",
+        "aspect": "3:2"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 3
+    },
+    {
+      "id": "french-chef-with-attitude",
+      "title": "A French chef with attitude",
+      "shortTitle": "Chef Steeve Series",
+      "folder": "gaf",
+      "company": "GAF",
+      "year": "2026",
+      "role": "Creative Direction, Concept Development, Video Production & Editing",
+      "location": "Dubai",
+      "summary": "Chef Steeve, a camera, and a suspicious amount of opinions about how food should be made.",
+      "description": "Chef Steeve is French. He has opinions. I decided that was enough of a content strategy.\nA recurring series following Steeve in the kitchen as he takes on different dishes, explains how he makes them, questions certain decisions along the way, and inevitably does things his way. Part recipe, part personality, and occasionally an argument with the menu.",
+      "disciplines": [
+        "creative",
+        "marketing"
+      ],
+      "categories": [
+        "Food Content",
+        "Creative Direction",
+        "Video Production",
+        "Content Creation",
+        "Brand Storytelling"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop"
+      ],
+      "credits": [
+        {
+          "role": "Videographer",
+          "name": "Rohan Rathod"
+        },
+        {
+          "role": "Videographer",
+          "name": "Hussm Abou Saada"
+        }
+      ],
+      "media": [
+        {
+          "id": "m-48fx88f",
+          "type": "video",
+          "src": "media/gaf/local_videos/Video-8232.mp4",
+          "title": "You Know French Toast?",
+          "caption": "Chef Steeve takes on a classic he knows very well. From the first slice to his favorite part, the plating, French toast done the French way, obviously.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-8fque2o",
+          "type": "video",
+          "src": "media/gaf/local_videos/Steeve VS Milkcake.mp4",
+          "title": "Milk Cake? Seriously?",
+          "caption": "Chef Steeve wasn’t exactly thrilled about making a saffron milk cake. So naturally, he made one anyway, just on his terms.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-mvv1yai",
+          "type": "video",
+          "src": "media/gaf/local_videos/Video-83616.mp4",
+          "title": "The Macaron Situation",
+          "caption": "Chef Steeve takes on macarons. French territory this time, so thankfully, fewer complaints.",
+          "aspect": "9:16"
+        }
+      ],
+      "banner": {
+        "type": "video",
+        "src": "media/gaf/Thumbnails/banner S.mp4"
+      },
+      "links": [],
+      "thumbnail": "media/gaf/Thumbnails/steeve cover.jpg",
+      "tile": {
+        "span": "md",
+        "aspect": "4:5"
+      },
+      "featured": true,
+      "demo": false
+    },
+    {
+      "id": "where-gaf-begins",
+      "title": "Where GAF Begins",
+      "shortTitle": "Origins",
+      "folder": "gaf",
+      "company": "GAF",
+      "year": "2025",
+      "role": "Creative Direction, Video Production",
+      "location": "Dubai - The Desert",
+      "summary": "Taking GAF back to where its story begins, a desert-led visual series connecting the brand’s contemporary identity with its Emirati roots.",
+      "description": "A visual series built around the contrast between GAF’s polished, contemporary character and the landscape behind its identity. We took the brand into the desert and let the setting do most of the talking, people, food, coffee, and GAF against a landscape that already carries the story.",
+      "disciplines": [
+        "creative",
+        "marketing"
+      ],
+      "categories": [
+        "Creative Direction",
+        "Brand Content",
+        "Video Production"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop"
+      ],
+      "credits": [
+        {
+          "role": "Graphic Designer",
+          "name": "Daniel Alkontar"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Adib Chanwawani"
+        }
+      ],
+      "media": [
+        {
+          "id": "m-mh3ntsj",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/gaf/local_images/desert/3 (2).jpg"
+            },
+            {
+              "src": "media/gaf/local_images/desert/1 (2).jpg"
+            },
+            {
+              "src": "media/gaf/local_images/desert/2.jpg"
+            },
+            {
+              "src": "media/gaf/local_images/desert/1.jpg"
+            }
+          ]
+        },
+        {
+          "id": "m-9bqey18",
+          "type": "video",
+          "src": "media/gaf/local_videos/d1.mp4",
+          "title": "A Return to the Roots",
+          "caption": "A first glimpse into the desert",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-fji8usu",
+          "type": "video",
+          "src": "media/gaf/local_videos/d2.mp4",
+          "title": "Under the Same Tree",
+          "caption": "A story of familiar gatherings, coffee under the trees, and memories carried forward, the same roots and heritage, finding their place in modern life.",
+          "aspect": "16:9",
+          "featured": true
+        },
+        {
+          "id": "m-7bivyo2",
+          "type": "gallery",
+          "title": "Al Majles",
+          "items": [
+            {
+              "src": "media/gaf/local_images/desert/1 (1).jpg"
+            },
+            {
+              "src": "media/gaf/local_images/desert/2 (1).jpg"
+            },
+            {
+              "src": "media/gaf/local_images/desert/3.jpg"
+            },
+            {
+              "src": "media/gaf/local_images/desert/4.jpg"
+            },
+            {
+              "src": "media/gaf/local_images/desert/reel-cover.jpg"
+            },
+            {
+              "src": "media/gaf/local_images/desert/3 (1).jpg"
+            }
+          ]
+        },
+        {
+          "id": "m-tlzfve0",
+          "type": "video",
+          "src": "media/gaf/local_videos/d3.mp4",
+          "title": "And Here We Are",
+          "caption": "The story comes full circle. The gathering, the coffee, the food, and the people, now experienced at GAF."
+        }
+      ],
+      "banner": {
+        "type": "video",
+        "src": "media/gaf/Thumbnails/banner D.mp4"
+      },
+      "links": [],
+      "thumbnail": "media/gaf/local_images/desert/3 (2).jpg",
+      "tile": {
+        "span": "lg",
         "aspect": "16:9"
       },
       "featured": true,
       "demo": false,
       "order": 1
+    },
+    {
+      "id": "project",
+      "title": "Meanwhile, at GAF",
+      "shortTitle": "Every Day",
+      "folder": "gaf",
+      "company": "GAF",
+      "year": "2024-2026",
+      "role": "Creative Direction, Content Creation, Video Production & Editing",
+      "location": "Dubai",
+      "summary": "The everyday side of GAF. Food, drinks, atmosphere, trends, and everything in between, created to keep the brand active, varied, and recognizably GAF.",
+      "description": "This is the ongoing content that filled GAF’s feed between the bigger ideas. Food being made, drinks being poured, people enjoying the space, trending formats, quick concepts, and whatever felt worth pointing a camera at that week.\nDifferent formats and different moods, all living within the same visual world.",
+      "disciplines": [
+        "marketing",
+        "creative"
+      ],
+      "categories": [
+        "Content Creation",
+        "Social Media Content",
+        "Food & Beverage",
+        "Video Production",
+        "Creative Direction"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop",
+        "Blender"
+      ],
+      "credits": [
+        {
+          "role": "Graphic Designer",
+          "name": "Daniel Alkontar"
+        },
+        {
+          "role": "Graphic Designer",
+          "name": "Rana Abou Saada"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Hussm Abou Saada"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Adib Chanwawani"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Rohan Rathod"
+        }
+      ],
+      "media": [
+        {
+          "id": "m-y0liae0",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-33856.mp4",
+          "instagramUrl": "https://www.instagram.com/reel/DdrIBZvgazR/",
+          "title": "2025 New Year's CGI",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-qgqk7ca-copy-9",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-80734.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-y0liae0-copy-10",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DdrIBZvgazR/"
+        },
+        {
+          "id": "m-qgqk7ca-copy-8",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-77281.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-qgqk7ca-copy-13-copy",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-60205.mp4",
+          "featured": true
+        },
+        {
+          "id": "m-y0liae0-copy-8",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DdV_ugGACvK/"
+        },
+        {
+          "id": "m-qgqk7ca-copy",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-19167.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-y0liae0-copy-9",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DdYywIKAOQs/"
+        },
+        {
+          "id": "m-y0liae0-copy-copy-4",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DKKYlIhT8C8/",
+          "title": "4M organic views"
+        },
+        {
+          "id": "m-qgqk7ca",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-87466.mp4",
+          "aspect": "16:9",
+          "featured": true
+        },
+        {
+          "id": "m-qgqk7ca-copy-2",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-20559.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-y0liae0-copy-4",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DWeZQXACFpq/"
+        },
+        {
+          "id": "m-qgqk7ca-copy-7",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-73764.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-y0liae0-copy-2",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DF5a_T5TWNO/"
+        },
+        {
+          "id": "m-qgqk7ca-copy-5",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-39163.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-y0liae0-copy-5",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DWy6SGTCC10/"
+        },
+        {
+          "id": "m-y0liae0-copy-copy-6",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DLpqE2XTPwB/"
+        },
+        {
+          "id": "m-qgqk7ca-copy-11",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-98903.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-qgqk7ca-copy-10",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-85701.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-y0liae0-copy-3",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DV33EazCNCT/"
+        },
+        {
+          "id": "m-y0liae0-copy-7",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/Dbycl_YNL_P/"
+        },
+        {
+          "id": "m-qgqk7ca-copy-6",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-70071.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-qgqk7ca-copy-13",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-46591.mp4",
+          "featured": true
+        },
+        {
+          "id": "m-y0liae0-copy-copy-2",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DHRRkyHTjk1/"
+        },
+        {
+          "id": "m-y0liae0-copy-6",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DbnyAbfNSu7/"
+        },
+        {
+          "id": "m-qgqk7ca-copy-4",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-29022.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-y0liae0-copy",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DO1CBfxCFH8/"
+        },
+        {
+          "id": "m-y0liae0-copy-copy-5",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DKM44DXzWvQ/"
+        },
+        {
+          "id": "m-y0liae0-copy-copy-3",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DIL0aK7T5G8/"
+        },
+        {
+          "id": "m-qgqk7ca-copy-3",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-26982.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-qgqk7ca-copy-12",
+          "type": "video",
+          "src": "media/gaf/local_videos/everyday/Video-85769.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-y0liae0-copy-copy",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/reel/DGQlwu2T46w/"
+        }
+      ],
+      "banner": {
+        "type": "image",
+        "src": "media/gaf/Thumbnails/folder banner menwhile.jpg"
+      },
+      "links": [],
+      "thumbnail": "media/gaf/local_images/056A9989 copy.jpg",
+      "tile": {
+        "span": "md",
+        "aspect": "4:5"
+      },
+      "featured": true,
+      "demo": false
+    },
+    {
+      "id": "gaf-website",
+      "title": "GAF Website",
+      "shortTitle": "Website",
+      "folder": "gaf",
+      "company": "GAF",
+      "year": "2025",
+      "role": "Web Development ",
+      "summary": " Translating GAF’s identity into a digital experience, from the visual direction and page structure to the final responsive website.",
+      "description": "GAF already had a strong physical identity, so the challenge was making sure the website felt like the same brand rather than a separate digital template. I worked on the structure, visual presentation, content placement, and website build, carrying the brand’s atmosphere from the restaurant into a clean and functional online experience.",
+      "disciplines": [
+        "digital",
+        "creative",
+        "marketing"
+      ],
+      "categories": [
+        "Web Design",
+        "Web Development",
+        "Digital Experience",
+        "Brand Implementation"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "WordPress",
+        "Elementor",
+        "Adobe Photoshop"
+      ],
+      "credits": [],
+      "media": [
+        {
+          "id": "m-nsxu17s",
+          "type": "website",
+          "url": "https://www.gafofficial.ae/",
+          "aspect": "16:9",
+          "screenshots": [
+            {
+              "src": "media/gaf/local_images/website/FireShot Capture 013 - GAF - [www.gafofficial.ae].png"
+            }
+          ],
+          "featured": true
+        }
+      ],
+      "banner": {
+        "type": "image",
+        "src": "media/gaf/local_images/website/012 - GAF - [www.gafofficial.ae].png"
+      },
+      "links": [],
+      "thumbnail": "media/gaf/local_images/website/012 - GAF - [www.gafofficial.ae].png",
+      "tile": {
+        "span": "md",
+        "aspect": "16:9"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 4
     },
     {
       "id": "gaf-guest-systems",
@@ -594,7 +1476,7 @@
       "company": "GAF",
       "year": "2025 — Present",
       "role": "Marketing Executive",
-      "summary": "Connecting bookings, POS and email so guest data actually reaches marketing.",
+      "summary": "CRM, reservations, automation, reporting",
       "disciplines": [
         "digital",
         "marketing"
@@ -611,30 +1493,14 @@
         "reporting"
       ],
       "responsibilities": [],
-      "tools": [
-        "Zapier / Make",
-        "Mailchimp",
-        "Google Sheets"
-      ],
+      "tools": [],
       "credits": [],
       "caseStudy": {
-        "approach": "Sample placeholder text. Rather than buying another platform, connect the ones already paid for — one automation moves completed bookings into the CRM, one dashboard puts covers, spend and content performance on the same page.",
+        "approach": "",
         "metrics": [],
         "sections": []
       },
-      "media": [
-        {
-          "id": "gaf-flow",
-          "type": "image",
-          "src": "media/gaf/gaf-systems.jpg",
-          "alt": "Guest data flow diagram",
-          "caption": "Booking to CRM to report",
-          "aspect": "4:5",
-          "demo": true,
-          "featured": true
-        }
-      ],
-      "heroMediaId": "gaf-flow",
+      "media": [],
       "links": [],
       "tile": {
         "span": "sm",
@@ -645,87 +1511,6 @@
       "order": 2
     },
     {
-      "id": "good-moon-brand",
-      "title": "Brand, Social & Experience",
-      "shortTitle": "The Good Moon",
-      "folder": "good-moon",
-      "company": "The Good Moon",
-      "year": "2025 — Present",
-      "role": "Marketing Executive",
-      "summary": "A lifestyle hospitality brand built to be felt in the room first and seen on a feed second.",
-      "disciplines": [
-        "marketing",
-        "creative"
-      ],
-      "categories": [
-        "Brand",
-        "Social",
-        "Experience"
-      ],
-      "tags": [
-        "brand identity",
-        "social",
-        "events",
-        "art direction"
-      ],
-      "responsibilities": [],
-      "tools": [
-        "Figma",
-        "Photoshop",
-        "Premiere Pro",
-        "Lightroom"
-      ],
-      "credits": [],
-      "caseStudy": {
-        "approach": "Sample placeholder text. Warmth and sound instead of the daylight-minimal category norm — photography on available light, social that documents rather than announces.",
-        "metrics": [],
-        "sections": [
-          {
-            "label": "Sound as identity",
-            "body": "Sample placeholder text. The playlist is treated as a brand asset with the same care as the logo — published monthly, credited, and used as the soundbed for every piece of video."
-          }
-        ]
-      },
-      "media": [
-        {
-          "id": "moon-poster",
-          "type": "image",
-          "src": "media/good-moon/moon-poster.jpg",
-          "alt": "Event poster",
-          "caption": "Event series poster system",
-          "aspect": "1:1",
-          "demo": true,
-          "featured": true
-        },
-        {
-          "id": "moon-film",
-          "type": "generative",
-          "caption": "Event film — placeholder scene",
-          "aspect": "16:9",
-          "scene": "signal",
-          "demo": true
-        },
-        {
-          "id": "moon-social",
-          "type": "image",
-          "src": "media/good-moon/moon-social.jpg",
-          "alt": "Social grid",
-          "caption": "Documentary-style social direction",
-          "aspect": "1:1",
-          "demo": true
-        }
-      ],
-      "heroMediaId": "moon-poster",
-      "links": [],
-      "tile": {
-        "span": "lg",
-        "aspect": "1:1"
-      },
-      "featured": true,
-      "demo": false,
-      "order": 1
-    },
-    {
       "id": "times-square-film",
       "title": "Times Square Campaign Film",
       "shortTitle": "Times Square",
@@ -734,7 +1519,7 @@
       "year": "2024",
       "role": "Video Editor",
       "summary": "A campaign video for Designers&Us, displayed on a Times Square screen.",
-      "description": "Edited while at Octoboss Marketing Agency. The media shown here is placeholder artwork — replace it with the real film and stills.",
+      "description": "",
       "disciplines": [
         "creative",
         "marketing"
@@ -756,232 +1541,19 @@
         "After Effects",
         "Photoshop"
       ],
-      "credits": [
-        {
-          "role": "Edit & post",
-          "name": "Asaad Jalkhi"
-        }
-      ],
+      "credits": [],
       "caseStudy": {
-        "approach": "Sample placeholder text. A street screen has no audio and a few seconds of attention, so the cut is built as a poster that moves — few holds, large type, no fine detail — while the social version keeps the pacing and sound.",
+        "approach": "",
         "metrics": [],
         "sections": []
       },
-      "media": [
-        {
-          "id": "ts-film",
-          "type": "generative",
-          "caption": "Billboard cut — placeholder scene",
-          "aspect": "16:9",
-          "scene": "marquee",
-          "demo": true,
-          "featured": true
-        },
-        {
-          "id": "ts-stills",
-          "type": "image",
-          "src": "media/designers-us/ts-stills.jpg",
-          "alt": "Film stills",
-          "caption": "Contact sheet — format adaptations",
-          "aspect": "16:9",
-          "demo": true
-        }
-      ],
-      "heroMediaId": "ts-film",
+      "media": [],
       "links": [],
       "tile": {
         "span": "lg",
         "aspect": "16:9"
       },
       "featured": true,
-      "demo": true,
-      "order": 1
-    },
-    {
-      "id": "designers-us-campaign",
-      "title": "Seasonal Campaign & Show Content",
-      "shortTitle": "D&U Campaign",
-      "folder": "designers-us",
-      "company": "Designers&Us / Octoboss",
-      "year": "2024",
-      "role": "Video Editor",
-      "summary": "Campaign and live show coverage, including support for Dubai Fashion Week content.",
-      "disciplines": [
-        "creative"
-      ],
-      "categories": [
-        "Fashion",
-        "Content",
-        "Events"
-      ],
-      "tags": [
-        "campaign",
-        "fashion week",
-        "event content",
-        "editing"
-      ],
-      "responsibilities": [],
-      "tools": [
-        "Premiere Pro",
-        "Lightroom",
-        "Photoshop"
-      ],
-      "credits": [],
-      "media": [
-        {
-          "id": "du-campaign",
-          "type": "image",
-          "src": "media/designers-us/du-campaign.jpg",
-          "alt": "Fashion campaign layout",
-          "caption": "Seasonal campaign",
-          "aspect": "4:5",
-          "demo": true,
-          "featured": true
-        },
-        {
-          "id": "du-ig",
-          "type": "instagram",
-          "instagramUrl": "https://www.instagram.com/",
-          "thumbnail": "media/designers-us/du-social.jpg",
-          "caption": "Show coverage — sample Instagram embed",
-          "aspect": "4:5",
-          "demo": true
-        }
-      ],
-      "heroMediaId": "du-campaign",
-      "links": [],
-      "tile": {
-        "span": "sm",
-        "aspect": "4:5"
-      },
-      "featured": false,
-      "demo": true,
-      "order": 2
-    },
-    {
-      "id": "dash-agency",
-      "title": "Agency Campaigns & Client Accounts",
-      "shortTitle": "DASH",
-      "folder": "dash",
-      "company": "DASH Digital Marketing Agency FZC",
-      "year": "2024 — 2026",
-      "role": "Founder and Creative Lead",
-      "summary": "Campaign and content delivery across client accounts, from brief to reporting.",
-      "disciplines": [
-        "marketing",
-        "creative"
-      ],
-      "categories": [
-        "Agency",
-        "Campaigns",
-        "Content"
-      ],
-      "tags": [
-        "campaigns",
-        "paid social",
-        "client accounts",
-        "production"
-      ],
-      "responsibilities": [],
-      "tools": [
-        "Meta Ads Manager",
-        "Premiere Pro",
-        "Figma",
-        "Notion"
-      ],
-      "credits": [],
-      "caseStudy": {
-        "approach": "Sample placeholder text. Every shoot brief specifies the cutdowns and aspect ratios up front, so a single session produces a campaign's worth of assets instead of one hero film.",
-        "metrics": [],
-        "sections": []
-      },
-      "media": [
-        {
-          "id": "dash-campaign",
-          "type": "image",
-          "src": "media/dash/dash-campaign.jpg",
-          "alt": "Campaign layouts",
-          "caption": "Campaign creative — multi-format delivery",
-          "aspect": "3:2",
-          "demo": true,
-          "featured": true
-        },
-        {
-          "id": "dash-report",
-          "type": "image",
-          "src": "media/dash/dash-report.jpg",
-          "alt": "Report layout",
-          "caption": "Client report format",
-          "aspect": "4:3",
-          "demo": true
-        }
-      ],
-      "heroMediaId": "dash-campaign",
-      "links": [],
-      "tile": {
-        "span": "md",
-        "aspect": "3:2"
-      },
-      "featured": true,
-      "demo": true,
-      "order": 1
-    },
-    {
-      "id": "web-commerce-build",
-      "title": "Storefront & Content System",
-      "shortTitle": "Commerce Build",
-      "folder": "web",
-      "company": "Freelance",
-      "year": "2023",
-      "role": "Web Developer",
-      "summary": "A storefront rebuilt so the marketing team could run it without a developer.",
-      "disciplines": [
-        "digital",
-        "marketing"
-      ],
-      "categories": [
-        "Web",
-        "E-commerce",
-        "Systems"
-      ],
-      "tags": [
-        "Shopify",
-        "WordPress",
-        "performance",
-        "SEO"
-      ],
-      "responsibilities": [],
-      "tools": [
-        "Shopify",
-        "WordPress",
-        "Figma",
-        "Git"
-      ],
-      "credits": [],
-      "caseStudy": {
-        "approach": "Sample placeholder text. Cut the template count down to the few that earn their place, then make every one of them content-driven — layout in the theme, copy in fields.",
-        "metrics": [],
-        "sections": []
-      },
-      "media": [
-        {
-          "id": "web-store",
-          "type": "image",
-          "src": "media/web/web-store.jpg",
-          "alt": "Storefront layouts",
-          "caption": "Template system",
-          "aspect": "4:3",
-          "demo": true,
-          "featured": true
-        }
-      ],
-      "heroMediaId": "web-store",
-      "links": [],
-      "tile": {
-        "span": "md",
-        "aspect": "4:3"
-      },
-      "featured": false,
       "demo": true,
       "order": 1
     },
@@ -1045,63 +1617,6 @@
       "featured": true,
       "demo": false,
       "order": 2
-    },
-    {
-      "id": "experiments-cgi",
-      "title": "Product & Light Studies",
-      "shortTitle": "CGI Studies",
-      "folder": "experiments",
-      "company": "Personal",
-      "year": "2023 — Present",
-      "role": "3D / Motion",
-      "summary": "Ongoing 3D studies: product lighting, material tests and short loops.",
-      "disciplines": [
-        "creative"
-      ],
-      "categories": [
-        "3D",
-        "Motion"
-      ],
-      "tags": [
-        "Blender",
-        "lighting",
-        "motion"
-      ],
-      "responsibilities": [],
-      "tools": [
-        "Blender",
-        "After Effects"
-      ],
-      "credits": [],
-      "media": [
-        {
-          "id": "cgi-1",
-          "type": "image",
-          "src": "media/experiments/cgi-study.jpg",
-          "alt": "Lighting study",
-          "caption": "Lighting study",
-          "aspect": "1:1",
-          "demo": true,
-          "featured": true
-        },
-        {
-          "id": "cgi-loop",
-          "type": "generative",
-          "caption": "Material loop — placeholder scene",
-          "aspect": "1:1",
-          "scene": "grid",
-          "demo": true
-        }
-      ],
-      "heroMediaId": "cgi-1",
-      "links": [],
-      "tile": {
-        "span": "sm",
-        "aspect": "1:1"
-      },
-      "featured": false,
-      "demo": true,
-      "order": 1
     }
   ],
   "experience": [
@@ -1125,7 +1640,7 @@
       "id": "exp-dash",
       "company": "DASH Digital Marketing Agency FZC",
       "role": "Founder and Creative Lead",
-      "period": "Dec 2024 — Jul 2026",
+      "period": "Dec 2024 — Jun 2026",
       "location": "UAE",
       "summary": "Founded and led a digital marketing agency, running creative and campaign delivery for client accounts.",
       "highlights": [],
@@ -1216,8 +1731,7 @@
         "Influencer & partnerships",
         "CRM & lifecycle email",
         "Content strategy",
-        "Events & activations",
-        "Performance reporting"
+        "Events & activations"
       ]
     },
     {
@@ -1243,9 +1757,6 @@
       "items": [
         "Web development",
         "WordPress & Shopify",
-        "React / TypeScript",
-        "CMS architecture",
-        "Automation (Zapier / Make)",
         "CRM & booking systems",
         "Analytics & dashboards",
         "IT support"
@@ -1256,26 +1767,20 @@
     {
       "id": "ideas",
       "title": "ideas.txt",
-      "body": "RUNNING LIST — not briefs, just things worth trying\n\n· A venue newsletter that is actually the playlist\n· Shoot the menu once a season, not once a week\n· Every campaign gets a tracked link before it gets a caption\n· Stop making 30s films nobody watches past 6s\n· The report should fit on one page or it isn't a report\n· If a format works, repeat it until it stops working\n\n(Some of these turned into projects. Most didn't.)",
+      "body": "THINGS I SHOULD PROBABLY TRY\n",
       "tone": "plain"
     },
     {
       "id": "dont-open",
       "title": "dont_open.txt",
-      "body": "You opened it.\n\nFine. Here is the actual secret:\n\nNone of this is complicated. Decide who it's for.\nMake something they'd want. Put it where they are.\nThen check whether it worked and be honest about the answer.\n\nEverything else is production.",
+      "body": "You opened it.\n\nObviously.\n\nSince you're here, here's the secret:\n\nMost of my work starts with\n\"I wonder if I can do that.\"\n\nThen I open six apps,\nmake the problem unnecessarily complicated,\nlearn something I probably should have learned first,\nand eventually get it working.\n\nNot exactly a methodology.\n\nIt has been surprisingly effective though.",
       "tone": "easter-egg"
     },
     {
       "id": "read-me",
       "title": "read_me_first.txt",
-      "body": "Welcome.\n\nThe Work window is the portfolio — open a project to see it full size.\n\nIn a hurry?\n→ Quick View puts everything on one page.\n→ Ctrl/Cmd + K searches projects, companies and files.\n\nProjects marked \"sample\" are placeholder content shipped with the site\nto demonstrate the layout. Real work replaces them in\nsrc/content/portfolio.json.",
+      "body": "Welcome.\n\nThis is a portfolio pretending to be an operating system.\n\nOpen the folders.\nClick things that look clickable.\nSome of them are useful.\nSome of them are just there because I thought it would be funny.\n\nThe Work window has the actual projects.\n\nQuick View is for people\nwho have places to be.\n\nSearch works too.\nCtrl / Cmd + K.\n\nAnd yes,\nI spent more time building this\nthan a normal portfolio probably required.\n\nThat was kind of the point.",
       "tone": "accent"
-    },
-    {
-      "id": "scratch",
-      "title": "scratch.txt",
-      "body": "shot list — monthly\n\n01  dish, close, hard light\n02  room, golden hour, wide\n03  the person who made it\n04  guest moment, unposed\n05  what's on this week\n\nrepeat. that's the whole system.",
-      "tone": "plain"
     }
   ],
   "alerts": [
@@ -1313,7 +1818,7 @@
       "id": "blender",
       "app": "Blender",
       "title": "Blender quit unexpectedly",
-      "body": "You pressed a key. It was a shortcut for something. That something is gone now.",
+      "body": "You pressed a key. It was a shortcut for something. Blender interpreted that as a major creative decision, and that something is gone now.",
       "tone": "error",
       "buttons": [
         {

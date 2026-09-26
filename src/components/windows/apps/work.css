@@ -4,10 +4,15 @@
  * Rules that keep it from turning back into a dashboard:
  *   · media is the object; there are no cards, borders or panels around it
  *   · text is small, quiet and sits under the image like a caption
- *   · tiles vary in width and ratio, driven by `project.tile` in the content
+ *   · tiles keep their own ratio, driven by `project.tile.aspect`
  *   · the only chrome is a thin filter row
  *
- * Sized with container queries so it reflows to the *window*, not the viewport.
+ * The grid is masonry: equal-width columns filled shortest-first in JSX, so a
+ * short card does not hold a tall neighbour's white space open underneath it.
+ * Column count is decided from the container's width in `useColumnCount`, which
+ * is why nothing here counts columns — this file only draws them. Spacing still
+ * reflows with container queries, so it answers to the *window*, not the
+ * viewport.
  */
 
 .work {
@@ -84,12 +89,79 @@
   overscroll-behavior: contain;
 }
 
+/*
+ * Maximised, this is the scroller that meets the dock, so the clearance spacer
+ * from window.css moves here. The body's own spacer would only make a second,
+ * empty scroll under a full-height layout.
+ */
+.window--maximized .work__scroll::after {
+  content: '';
+  display: block;
+  height: var(--window-clear);
+}
+
+.window--maximized .window__body:has(> .work)::after {
+  content: none;
+}
+
+/*
+ * An opened folder's intro: the case study's banner band and display title,
+ * then room before the cards. The heading lines up with the grid's edge rather
+ * than the case study's centred column, since the cards below span the window.
+ * A bannerless intro takes the same top inset a bannerless project does.
+ */
+/* No bottom padding: the divider below carries the gap to the cards. */
+.work__intro {
+  padding-bottom: 0;
+}
+
+/*
+ * A hairline between the intro and the cards, inset to the grid's edges.
+ * 32px above it, and below it the grid's own top padding (24px). A margin is
+ * added in the narrower container sizes, where that padding shrinks.
+ */
+.work__intro::after {
+  content: '';
+  display: block;
+  height: 1px;
+  margin: var(--s-8) var(--s-6) 0;
+  background: var(--c-hairline);
+}
+
+.work__intro[data-bannerless] {
+  padding-top: var(--s-8);
+}
+
+.work__intro .case__head {
+  max-width: none;
+  margin: 0;
+  padding: 0 var(--s-6);
+}
+
+/* Secondary to the title: smaller and muted. The case study's own intro is not touched. */
+.work__intro .case__intro {
+  max-width: 720px;
+  font-size: var(--fs-md);
+  line-height: 1.55;
+  color: var(--c-mute);
+  white-space: pre-line;
+}
+
+/* The columns sit side by side; each one stacks its own cards. */
 .work__grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: var(--s-8) var(--s-5);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-5);
   padding: var(--s-6) var(--s-6) var(--s-16);
-  align-items: start;
+}
+
+.work__col {
+  display: flex;
+  min-width: 0;
+  /* Equal widths — unequal ones turn packing back into rows. */
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--s-8);
 }
 
 /* ── One project ─────────────────────────────────────────────────────── */
@@ -98,7 +170,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--s-3);
-  grid-column: span var(--span, 4);
   text-align: left;
   color: inherit;
   cursor: pointer;
@@ -225,28 +296,42 @@
 
 @container (max-width: 900px) {
   .work__grid {
-    gap: var(--s-6) var(--s-4);
+    gap: var(--s-4);
     padding: var(--s-5) var(--s-5) var(--s-12);
   }
-  /* Collapse the fine-grained spans into halves and wholes. */
-  .tile {
-    grid-column: span min(12, max(6, var(--span, 4)));
+  .work__col {
+    gap: var(--s-6);
+  }
+  .work__intro .case__head {
+    padding: 0 var(--s-5);
+  }
+  .work__intro::after {
+    margin: var(--s-8) var(--s-5) var(--s-1);
   }
 }
 
 @container (max-width: 560px) {
-  .tile {
-    grid-column: span 12;
-  }
   .work__bar {
     padding: var(--s-3) var(--s-4);
+  }
+  .work__intro[data-bannerless] {
+    padding-top: var(--s-5);
+  }
+  .work__intro .case__banner {
+    height: clamp(170px, 24vh, 190px);
+    margin-bottom: var(--s-6);
+  }
+  .work__intro .case__head {
+    padding: 0 var(--s-4);
+  }
+  .work__intro .case__intro {
+    font-size: var(--fs-base);
+  }
+  .work__intro::after {
+    margin: var(--s-6) var(--s-4) var(--s-2);
   }
   .work__grid {
     padding: var(--s-4) var(--s-4) var(--s-10);
   }
 }
 
-.work__empty {
-  padding: var(--s-16) var(--s-6);
-  text-align: center;
-}

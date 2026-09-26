@@ -185,6 +185,8 @@ check('7. content without any of the new fields still validates', () => {
   }
   for (const media of legacy.projects.flatMap((project) => project.media ?? [])) {
     delete media.title;
+    delete media.tools;
+    delete media.date;
   }
   delete legacy.settings?.typography;
   const result = validatePortfolio(legacy);
@@ -194,7 +196,13 @@ check('7. content without any of the new fields still validates', () => {
   // the OLD two-font typography shape still is too. Nothing needs migrating.
   const modern = JSON.parse(JSON.stringify(source));
   const first = modern.projects.find((project) => project.media?.length)?.media[0];
-  if (first) first.title = 'French Toast — Behind the Scenes';
+  if (first) {
+    first.title = 'French Toast — Behind the Scenes';
+    // Per-item tools: free text, and nothing like the project's array of chips.
+    first.tools = 'Adobe Premiere Pro, Adobe After Effects';
+    // Per-item date: free text too — "Summer 2025" is a real answer.
+    first.date = 'March 2026';
+  }
   modern.settings.typography = {
     // The shared face, then two roles that override it with their own and one
     // that does not — the pairing this system exists to allow.

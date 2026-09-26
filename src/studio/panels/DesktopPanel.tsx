@@ -17,6 +17,7 @@ import {
   Advanced,
   Area,
   Choice,
+  FoldBar,
   Grid,
   IconFields,
   IdField,
@@ -28,7 +29,12 @@ import {
   opts,
   slugFromTitle,
   uniqueSlug,
+  useFolds,
 } from './parts';
+
+/** The collapsible sections of this tab, in page order. */
+const FOLDS = ['shortcuts', 'widgets', 'dock', 'alerts', 'launch', 'notes'] as const;
+type Fold = (typeof FOLDS)[number];
 
 /** Mirrors the enums in types/content.ts. */
 const ICON_KINDS = [
@@ -89,6 +95,17 @@ export function DesktopPanel({ draft, update }: PanelProps) {
   }));
   const appOptions = opts(APP_IDS);
 
+  // Which sections are open: UI state only, never content.
+  const folds = useFolds<Fold>();
+  const summary: Record<Fold, string> = {
+    shortcuts: `${list(draft.desktop.items).length} item(s)`,
+    widgets: `${list(draft.desktop.widgets).length} widget(s)`,
+    dock: `${list(draft.desktop.dockLinks).length} link(s)`,
+    alerts: `${list(draft.alerts).length} alert(s)`,
+    launch: `${list(draft.desktop.autoOpen).length} window(s)`,
+    notes: `${list(draft.notes).length} note(s)`,
+  };
+
   /** The value field changes shape with the target type. */
   const targetOptionsFor = (type: DesktopItem['target']['type']) => {
     if (type === 'folder') return folderOptions;
@@ -112,8 +129,11 @@ export function DesktopPanel({ draft, update }: PanelProps) {
         lede="What a visitor sees first: shortcuts, widgets, the dock's external links, and the windows that open at launch. Positions are handled for you — drag anything on the desktop itself to move it."
       />
 
+      <FoldBar folds={folds} ids={FOLDS} />
+
       <Section
         title="Desktop apps & shortcuts"
+        {...folds.props('shortcuts', summary.shortcuts)}
         hint="Every icon on the desktop — folders, projects, notes, files and the creative-app jokes. Each one opens something; pointing at an item that doesn't exist is caught by the validator before you can export."
       >
         <Repeater
@@ -250,6 +270,7 @@ export function DesktopPanel({ draft, update }: PanelProps) {
 
       <Section
         title="Widgets"
+        {...folds.props('widgets', summary.widgets)}
         hint="Small panels on the desktop: a clock, a short note in your own voice, or the reaction-time test. Two is plenty."
       >
         <Repeater
@@ -324,6 +345,7 @@ export function DesktopPanel({ draft, update }: PanelProps) {
 
       <Section
         title="Dock links"
+        {...folds.props('dock', summary.dock)}
         hint="Email and social shortcuts pinned to the right of the dock. These leave the site and open in a new tab."
       >
         <Repeater
@@ -374,6 +396,7 @@ export function DesktopPanel({ draft, update }: PanelProps) {
 
       <Section
         title="System alerts"
+        {...folds.props('alerts', summary.alerts)}
         hint="The joke dialogs behind the Photoshop / After Effects / Blender / VS Code icons. Point a shortcut at one by setting its “Opens” to “A system alert”."
       >
         <Repeater
@@ -472,6 +495,7 @@ export function DesktopPanel({ draft, update }: PanelProps) {
 
       <Section
         title="Windows open at launch"
+        {...folds.props('launch', summary.launch)}
         hint="Keep this to two or three. X/Y/width/height are pixels; values between 0 and 1 are treated as a share of the viewport."
       >
         <Repeater
@@ -535,6 +559,7 @@ export function DesktopPanel({ draft, update }: PanelProps) {
 
       <Section
         title="Notes"
+        {...folds.props('notes', summary.notes)}
         hint="The plain-text files on the desktop. This is where the personality lives — keep it brief."
       >
         <Repeater

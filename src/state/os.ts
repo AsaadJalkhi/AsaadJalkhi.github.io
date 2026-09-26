@@ -300,7 +300,8 @@ export const useOs = create<OsState>((set, get) => ({
             x: 12,
             y: topSafeArea(),
             width: viewport.width - 24,
-            height: viewport.height - topSafeArea() - 84,
+            // To the bottom edge; the dock overlays it. Keep in step with Window.tsx.
+            height: viewport.height - topSafeArea(),
             maximized: true,
             z,
           };

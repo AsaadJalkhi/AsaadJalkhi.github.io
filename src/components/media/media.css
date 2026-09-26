@@ -38,6 +38,50 @@
   overflow: hidden;
 }
 
+/* ------------------------------------------------ reading a shape in full */
+/*
+ * Nothing in the body of a case study is cropped. Ever. The banner crops
+ * because a banner is furniture; a piece of work is shown whole, and needing
+ * Focus Mode to discover what was cut off is a bug, not a feature.
+ *
+ * "Whole" on its own is not enough, though — that was the other half of the
+ * problem. A 9:16 Reel shown whole at the full width of a masonry column is
+ * roughly two and a half screens tall, which is unreadable in a different way.
+ * So the frame is given a CEILING ON HEIGHT and converts it to a ceiling on
+ * width through its own ratio, published by `MediaFrame` as `--frame-ratio`:
+ *
+ *     width ≤ cap × ratio   ⟹   height = width ÷ ratio ≤ cap
+ *
+ * The media keeps its exact proportions, loses nothing, and simply stops
+ * growing. Landscape is untouched because a wide frame is already bound by the
+ * column, not by the viewport's height.
+ *
+ * `--media-cap` is a variable so a container can lower it (Quick View does) and
+ * so this reads as a policy rather than a magic number.
+ */
+.media-frame {
+  --media-cap: 70vh;
+}
+
+.media-frame[data-shape='portrait'] .media-frame__stage {
+  max-width: calc(var(--media-cap) * var(--frame-ratio, 1));
+  margin-inline: auto;
+}
+
+.media-frame[data-shape='balanced'] .media-frame__stage {
+  max-width: calc(var(--media-cap) * 1.15 * var(--frame-ratio, 1));
+  margin-inline: auto;
+}
+
+/*
+ * A natural-shaped image reaches the same rules by the same route: it has no
+ * DECLARED ratio, but `ImageMedia` measures its real one and hands it over, so
+ * `--frame-ratio` and `data-shape` are set here too and the two rules above
+ * apply unchanged. Capping the `<img>` directly instead was tried and is worse:
+ * the max-height clamp shrinks the box without moving the auto margins, so a
+ * capped picture sits against the left edge of its column.
+ */
+
 .media-frame__kind {
   position: absolute;
   top: var(--s-2);
@@ -110,10 +154,12 @@
   min-width: 0;
 }
 
-.media-frame__credit {
-  color: var(--c-faint);
-  overflow-wrap: anywhere;
-}
+/*
+ * `.media-frame__credit` was deleted here (session 14). A tile in the project
+ * grid shows a title and a caption; the item's credit is shown in Focus Mode,
+ * styled as a `.focus__fact` like Tools and Date. `MediaFrame` no longer accepts
+ * a credit at all, so there is nothing left for a rule here to style.
+ */
 
 .media-frame__actions {
   display: flex;
@@ -435,7 +481,7 @@
 }
 
 .scene__type {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 11px;
   letter-spacing: 0.2em;
 }
