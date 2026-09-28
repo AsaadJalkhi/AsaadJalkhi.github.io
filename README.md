@@ -99,8 +99,10 @@ Add an object to `projects` in `portfolio.json`. Only five fields are required:
   "title": "GAF — Brand Marketing & Growth",
   "folder": "gaf",                 // must match a folder id
   "summary": "One line shown on cards and list rows.",
-  "featured": true,                // shows in Quick View → Selected Work
+  "featured": true,                // shows in Quick View → Selected Work (never affects Work order)
   "demo": false,                   // true = sample content, labelled in the UI
+  "order": 1,                      // optional: position inside its folder (lower first)
+  "quickViewOrder": 1,             // optional: position among featured projects in Quick View
 
   "company": "GAF",
   "year": "2026",
@@ -226,7 +228,8 @@ which is why the demo content looks complete with an empty `public/media/` folde
 A visual editor at **`#/studio`** (or from the dock/command palette). It edits everything
 above without touching JSON by hand: projects, folders, experience, capabilities, profile,
 CV, desktop icons and notes — with reorder, duplicate and delete for both projects and their
-media.
+media. Projects are listed by folder and dragged into order inside their folder; a separate
+Quick View list orders the featured ones. All Work is folder order, then project order.
 
 Everything is editable there, including the Work-grid tile size/shape, Instagram permalinks,
 the About window, theme and wallpapers, dock links, widgets and the alert jokes. The

@@ -177,7 +177,7 @@ await build({
   alias: { '@': join(root, 'src') },
 });
 
-const { FolderSchema, ProjectSchema } = await import(pathToFileURL(schemaBundle).href);
+const { FolderSchema, ProjectSchema, MediaItemSchema } = await import(pathToFileURL(schemaBundle).href);
 
 /* The list reorder, imported so a drop from #10 to #02 is asserted with a real array. */
 const utilsBundle = join(outdir, 'utils.mjs');
@@ -193,6 +193,32 @@ await build({
 });
 
 const { moveItem, slotIndex } = await import(pathToFileURL(utilsBundle).href);
+
+/* project ordering, imported so folder / All Work / Quick View order is asserted on real arrays. */
+const orderBundle = join(outdir, 'project-order.mjs');
+await build({
+  entryPoints: [join(root, 'src/lib/projectOrder.ts')],
+  bundle: true,
+  format: 'esm',
+  platform: 'node',
+  outfile: orderBundle,
+  logLevel: 'silent',
+  alias: { '@': join(root, 'src') },
+});
+const order = await import(pathToFileURL(orderBundle).href);
+
+/* Stacked vs slideshow, imported so the rule is asserted with real values. */
+const presentationBundle = join(outdir, 'presentation.mjs');
+await build({
+  entryPoints: [join(root, 'src/components/media/presentation.ts')],
+  bundle: true,
+  format: 'esm',
+  platform: 'node',
+  outfile: presentationBundle,
+  logLevel: 'silent',
+  alias: { '@': join(root, 'src') },
+});
+const presentation = await import(pathToFileURL(presentationBundle).href);
 
 /* ------------------------------------------------------------- the checks */
 
@@ -1844,7 +1870,7 @@ check('41. every Studio collapse draws through one shared primitive, and stays U
 
   // Competing implementations are gone: nothing else in the Studio draws a disclosure.
   const panels = ['ProjectsPanel', 'MediaList', 'FoldersPanel', 'ExperiencePanel', 'SkillsPanel',
-    'ProfilePanel', 'AppearancePanel', 'DesktopPanel', 'MediaFields', 'ExportPanel'];
+    'ProfilePanel', 'AppearancePanel', 'DesktopPanel', 'MediaFields', 'ExportPanel', 'SubItemList'];
   for (const name of panels) {
     const src = read(`src/studio/panels/${name}.tsx`);
     if (/aria-expanded|useState<Set</.test(src)) throw new Error(`${name} keeps its own collapse state or toggle`);
@@ -1856,6 +1882,7 @@ check('41. every Studio collapse draws through one shared primitive, and stays U
     ExperiencePanel: /fold=\{\{ folds, id: \(item\) => item\.id \}\}/,
     SkillsPanel: /fold=\{\{ folds, id: \(group\) => group\.id \}\}/,
     MediaList: /<Collapsible[\s\S]*?open=\{folds\.isOpen\(item\.id\)\}/,
+    SubItemList: /<Collapsible[\s\S]*?open=\{folds\.isOpen\(keys\[index\]/,
   };
   for (const [name, wired] of Object.entries(lists)) {
     const src = read(`src/studio/panels/${name}.tsx`);
@@ -1893,6 +1920,415 @@ check('41. every Studio collapse draws through one shared primitive, and stays U
     if (/useFolds|\bfolds\b/.test(read(file))) throw new Error(`${file} touches fold state`);
   }
   return 'Collapsible + useFolds + FoldBar in parts.tsx; 8 editors migrated, actions outside the toggle, UI-only';
+});
+
+/* ------------------------------------------- 42. three-order contract */
+
+check('42. folder, All Work and Quick View order are three separate contracts', () => {
+  /*
+   * The Studio used to move projects around the raw projects[] array while Work
+   * sorted featured-first, then by `order` — so an arrow could "move" a project
+   * without changing anything a visitor saw. Now: folder.order, project.order
+   * inside a folder, quickViewOrder among featured projects. Nothing else.
+   */
+  const folders = [
+    { id: 'b', name: 'B', order: 2 },
+    { id: 'a', name: 'A', order: 1 },
+  ];
+  const fixture = () => [
+    { id: 'p1', folder: 'b', order: 2, featured: true },
+    { id: 'p2', folder: 'a', order: 3, featured: false },
+    { id: 'p3', folder: 'a', order: 1, featured: true },
+    { id: 'p4', folder: 'b', order: 1, featured: false },
+    { id: 'p5', folder: 'a', order: 2, featured: true },
+    { id: 'p6', folder: 'a', order: 4, featured: true },
+    { id: 'p7', folder: 'b', order: 1, featured: false },
+  ];
+  const ids = (list) => list.map((p) => p.id).join(',');
+  const orders = (list) => list.map((p) => `${p.id}=${p.order}`).join(',');
+  const inFolder = (list, id) => order.orderedProjectsInFolder(list, id);
+
+  // 1–2. A folder is project.order ascending; featured does not hoist anything.
+  if (ids(inFolder(fixture(), 'a')) !== 'p3,p5,p2,p6') throw new Error(`folder a: ${ids(inFolder(fixture(), 'a'))}`);
+  // Ties keep content order.
+  if (ids(inFolder(fixture(), 'b')) !== 'p4,p7,p1') throw new Error(`folder b ties: ${ids(inFolder(fixture(), 'b'))}`);
+
+  // 3. All Work = folder.order, then project.order.
+  const all = ids(order.orderedAllWorkProjects(folders, fixture()));
+  if (all !== 'p3,p5,p2,p6,p4,p7,p1') throw new Error(`All Work: ${all}`);
+
+  // 4. Work hands an already-ordered array to the unchanged grid.
+  const work = read('src/components/windows/apps/ProjectsApp.tsx');
+  if (!/orderedProjectsInFolder\(portfolio\.projects, activeFolder\)/.test(work)
+    || !/orderedAllWorkProjects\(portfolio\.folders, portfolio\.projects\)/.test(work)) {
+    throw new Error('WorkView does not order through lib/projectOrder');
+  }
+  if (/\.featured/.test(work.replace(/\/\*[\s\S]*?\*\//g, ''))) throw new Error('featured still affects Work order');
+  if (!/<ProjectGrid projects=\{projects\} onOpen=\{onOpen\} \/>/.test(work) || !/packColumns\(projects, columns/.test(work)) {
+    throw new Error('ProjectGrid no longer packs the array it is given');
+  }
+
+  // 5–6. A folder move renumbers that folder 1…N and leaves the array and other folders alone.
+  const moved = fixture();
+  const before = ids(moved);
+  order.moveInFolder(moved, 'a', 3, 0);
+  if (orders(inFolder(moved, 'a')) !== 'p6=1,p3=2,p5=3,p2=4') throw new Error(`#04 → #01: ${orders(inFolder(moved, 'a'))}`);
+  if (ids(moved) !== before) throw new Error('a folder move reordered projects[]');
+  if (orders(inFolder(moved, 'b')) !== 'p4=1,p7=1,p1=2') throw new Error('a folder move touched another folder');
+  if (moved.some((p, i) => p.folder !== fixture()[i].folder || p.featured !== fixture()[i].featured)) {
+    throw new Error('a folder move changed something other than order');
+  }
+
+  // 7. Arrows and drops in both lists, and the header arrows, are the same local move.
+  const list = read('src/studio/panels/ProjectOrderList.tsx');
+  const panel = read('src/studio/panels/ProjectsPanel.tsx');
+  if (!/onMove\(index, index - 1\)/.test(list) || !/onMove\(index, index \+ 1\)/.test(list)
+    || !/onMove\(dragFrom, slotIndex\(dragFrom,/.test(list)) {
+    throw new Error('ProjectOrderList arrows and drop do not share onMove');
+  }
+  if (!/moveWithin\(project\.folder\)\(position, position - 1\)/.test(panel)
+    || !/moveWithin\(project\.folder\)\(position, position \+ 1\)/.test(panel)
+    || !/moveInFolder\(next\.projects, folderId, from, to\)/.test(panel)
+    || !/onMove=\{moveWithin\(group\.id\)\}/.test(panel)) {
+    throw new Error('the folder arrows and drag do not go through one moveInFolder');
+  }
+  if (/next\.projects\.splice\(to/.test(panel) || /label="Order"/.test(panel)) {
+    throw new Error('a global array move or the manual Order field is back in the Studio');
+  }
+
+  // 8. Changing folder: last in the destination, both folders 1…N.
+  const refiled = fixture();
+  order.moveToFolder(refiled, refiled[1], 'b');
+  if (orders(inFolder(refiled, 'a')) !== 'p3=1,p5=2,p6=3') throw new Error(`source folder: ${orders(inFolder(refiled, 'a'))}`);
+  if (orders(inFolder(refiled, 'b')) !== 'p4=1,p7=2,p1=3,p2=4') throw new Error(`destination: ${orders(inFolder(refiled, 'b'))}`);
+
+  // New projects append; duplicates sit right after their source.
+  const added = fixture();
+  const fresh = { id: 'new', folder: 'a', featured: false };
+  added.push(fresh);
+  order.appendToFolder(added, fresh);
+  if (orders(inFolder(added, 'a')) !== 'p3=1,p5=2,p2=3,p6=4,new=5') throw new Error('a new project is not last in its folder');
+
+  // 9. Duplicate.
+  const copied = fixture();
+  const copy = { ...copied[4], id: 'p5-copy' };
+  copied.push(copy);
+  order.placeAfter(copied, copy, copied[4]);
+  if (orders(inFolder(copied, 'a')) !== 'p3=1,p5=2,p5-copy=3,p2=4,p6=5') throw new Error(`duplicate: ${orders(inFolder(copied, 'a'))}`);
+
+  // 10. Delete leaves no gap.
+  const pruned = fixture().filter((p) => p.id !== 'p5');
+  order.renumberFolder(pruned, 'a');
+  if (orders(inFolder(pruned, 'a')) !== 'p3=1,p2=2,p6=3') throw new Error('delete left a gap');
+
+  // 11 + 14. Membership is featured; with no quickViewOrder, the legacy (array) order stands.
+  if (ids(order.orderedQuickViewProjects(fixture())) !== 'p1,p3,p5,p6') throw new Error('legacy Quick View order changed');
+  // Partial: explicit values first, the rest in stable order.
+  const partial = fixture();
+  partial[4].quickViewOrder = 1;
+  if (ids(order.orderedQuickViewProjects(partial)) !== 'p5,p1,p3,p6') throw new Error('partial quickViewOrder mis-sorted');
+
+  // 12–13. Explicit quickViewOrder wins over folder and project order.
+  const curated = fixture();
+  Object.assign(curated[5], { quickViewOrder: 1 });
+  Object.assign(curated[0], { quickViewOrder: 2 });
+  Object.assign(curated[4], { quickViewOrder: 3 });
+  Object.assign(curated[2], { quickViewOrder: 4 });
+  if (ids(order.orderedQuickViewProjects(curated)) !== 'p6,p1,p5,p3') throw new Error('quickViewOrder is not the Quick View order');
+
+  // 15–16. A Quick View move writes 1…N and nothing else.
+  const qv = fixture();
+  order.moveInQuickView(qv, 3, 0);
+  if (ids(order.orderedQuickViewProjects(qv)) !== 'p6,p1,p3,p5') throw new Error('Quick View move went wrong');
+  if (order.orderedQuickViewProjects(qv).map((p) => p.quickViewOrder).join(',') !== '1,2,3,4') {
+    throw new Error('Quick View move did not renumber 1…N');
+  }
+  if (qv.some((p, i) => p.order !== fixture()[i].order || p.folder !== fixture()[i].folder) || ids(qv) !== before) {
+    throw new Error('a Quick View move touched project.order, folder or projects[]');
+  }
+  if ('quickViewOrder' in qv[1]) throw new Error('a non-featured project was given a quickViewOrder');
+
+  // Featured on → last; off → cleared, the rest renumbered.
+  const toggled = fixture();
+  order.setFeatured(toggled, toggled[1], true);
+  if (ids(order.orderedQuickViewProjects(toggled)) !== 'p1,p3,p5,p6,p2' || toggled[1].quickViewOrder !== 5) {
+    throw new Error('featuring a project did not put it last');
+  }
+  order.setFeatured(toggled, toggled[2], false);
+  if ('quickViewOrder' in toggled[2]) throw new Error('un-featuring left a quickViewOrder behind');
+  if (order.orderedQuickViewProjects(toggled).map((p) => `${p.id}=${p.quickViewOrder}`).join(',') !== 'p1=1,p5=2,p6=3,p2=4') {
+    throw new Error('un-featuring did not renumber the rest');
+  }
+
+  // Runtime readers: Quick View and the shared selectors use the same helpers.
+  if (!/orderedQuickViewProjects\(portfolio\.projects\)/.test(read('src/components/quick-view/QuickView.tsx'))) {
+    throw new Error('Quick View does not order through orderedQuickViewProjects');
+  }
+  const store = read('src/lib/contentStore.ts');
+  if (!/return orderedQuickViewProjects\(p\.projects\)/.test(store) || !/return orderedFolders\(p\.folders\)/.test(store)) {
+    throw new Error('contentStore selectors do not delegate to lib/projectOrder');
+  }
+
+  // 17. quickViewOrder is optional: old projects validate and gain no key.
+  const real = JSON.parse(read('src/content/portfolio.json')).projects[0];
+  delete real.quickViewOrder;
+  const parsed = ProjectSchema.safeParse(real);
+  if (!parsed.success) throw new Error('a project without quickViewOrder no longer validates');
+  if ('quickViewOrder' in parsed.data) throw new Error('quickViewOrder materialised a default');
+  if (!ProjectSchema.safeParse({ ...real, quickViewOrder: 3 }).success) throw new Error('quickViewOrder: 3 rejected');
+  if (ProjectSchema.safeParse({ ...real, quickViewOrder: -1 }).success) throw new Error('quickViewOrder: -1 accepted');
+
+  // 18–19. Drag state stays in the list component; a list only ever moves within itself.
+  for (const file of ['src/types/content.ts', 'src/lib/projectOrder.ts', 'src/studio/useDraft.ts']) {
+    if (/dragFrom|DRAG_TYPE|is-drop|draggable/.test(read(file))) throw new Error(`drag state leaked into ${file}`);
+  }
+  if (/\.folder\s*=/.test(list) || [...list.matchAll(/draggable/g)].length !== 1) {
+    throw new Error('ProjectOrderList can change a folder or has more than the grip draggable');
+  }
+  if (!/const \[dragFrom, setDragFrom\] = useState<number \| null>\(null\);/.test(list)
+    || !/if \(dragFrom === null\) return;\s*event\.preventDefault\(\);/.test(list)) {
+    throw new Error('a list accepts drops it did not start — cross-folder drag');
+  }
+
+  // 20. Folder groups are the shared Collapsible, folded by folder id.
+  if (!/const groups = useFolds\(\);/.test(panel) || !/<FoldBar folds=\{groups\}/.test(panel)
+    || !/<Collapsible[\s\S]*?open=\{groups\.isOpen\(group\.id\)\}/.test(panel)) {
+    throw new Error('Studio folder groups do not use Collapsible + useFolds + FoldBar');
+  }
+  if (/aria-expanded/.test(list)) throw new Error('ProjectOrderList has its own collapse');
+
+  return 'folder = project.order · All Work = folder.order → project.order · Quick View = quickViewOrder; one move per list';
+});
+
+/* ------------------------------------- 43. one scroll in the project list */
+
+check('43. the Studio project list scrolls as one region, and folder cards never shrink', () => {
+  /*
+   * Opening a big folder once squashed every folder card below it: the cards
+   * have overflow: hidden, so as flex items they could shrink to nothing.
+   */
+  const css = read('src/studio/studio.css');
+  const panel = read('src/studio/panels/ProjectsPanel.tsx');
+  const scroll = rule(css, '.studio-list__scroll');
+  if (!/overflow-y:\s*auto/.test(scroll) || !/max-height:/.test(scroll)) {
+    throw new Error('.studio-list__scroll is not the bounded vertical scroll region');
+  }
+  if (!/flex-shrink:\s*0/.test(rule(css, '.studio-list__scroll > *'))) {
+    throw new Error('folder cards in the project list can shrink');
+  }
+  if (/overflow(-y)?:\s*(auto|scroll)/.test(rule(css, '.studio-order'))
+    || /overflow(-y)?:\s*(auto|scroll)/.test(rule(css, '.studio-list .studio-rep__body'))) {
+    throw new Error('a folder or row list has its own scrollbar');
+  }
+  if ((panel.match(/studio-list__scroll/g) ?? []).length !== 1) {
+    throw new Error('By folder and Quick View do not share one scroll container');
+  }
+  return 'one scroll region; cards and rows keep their natural height';
+});
+
+check('44. multi-image media is Stacked unless it opts into one shared Slideshow', () => {
+  const { slideshowOf, startSlideshow, DEFAULT_SLIDE_INTERVAL } = presentation;
+  const shot = (n) => ({ src: `media/x/${n}.jpg` });
+
+  // 1–3. Optional; old galleries and websites validate and gain nothing.
+  const oldGallery = { id: 'g', type: 'gallery', items: [shot(1), shot(2), shot(3)] };
+  const oldSite = { id: 'w', type: 'website', url: 'https://example.com', screenshots: [shot(1), shot(2)] };
+  for (const media of [oldGallery, oldSite]) {
+    const parsed = MediaItemSchema.safeParse(media);
+    if (!parsed.success) throw new Error(`old ${media.type} no longer validates`);
+    if ('presentation' in parsed.data) throw new Error(`old ${media.type} gained a presentation key`);
+    if (JSON.stringify(parsed.data) !== JSON.stringify(media)) throw new Error(`old ${media.type} changed on parse`);
+  }
+  const withShow = { ...oldGallery, presentation: { mode: 'slideshow', autoplay: true, interval: 2000 } };
+  if (!MediaItemSchema.safeParse(withShow).success) throw new Error('a slideshow presentation does not validate');
+  if (MediaItemSchema.safeParse({ ...oldGallery, presentation: { mode: 'carousel' } }).success) {
+    throw new Error('an unknown presentation mode validates');
+  }
+
+  // 4. Absent (or stacked) means stacked. 5. Two or more images only.
+  if (slideshowOf(undefined, 4) !== null) throw new Error('absent presentation is not stacked');
+  if (slideshowOf({ mode: 'stacked' }, 4) !== null) throw new Error('stacked is not stacked');
+  if (slideshowOf({ mode: 'slideshow' }, 1) !== null) throw new Error('one image renders as a slideshow');
+  const absentDefaults = slideshowOf({ mode: 'slideshow' }, 2);
+  if (!absentDefaults?.autoplay || absentDefaults.interval !== 2000) {
+    throw new Error('a slideshow with no autoplay/interval does not default to on / 2000ms');
+  }
+  if (slideshowOf({ mode: 'slideshow', autoplay: false, interval: 5000 }, 3).autoplay !== false) {
+    throw new Error('autoplay: false is ignored');
+  }
+
+  // 7–8. The Studio's Slideshow default is on, 2000ms, stored in ms.
+  const started = startSlideshow();
+  if (started.mode !== 'slideshow' || started.autoplay !== true || started.interval !== 2000
+    || DEFAULT_SLIDE_INTERVAL !== 2000) {
+    throw new Error('choosing Slideshow does not write autoplay on, 2000ms');
+  }
+  const fields = read('src/studio/panels/MediaFields.tsx');
+  if (!/Math\.round\(v \* 1000\)/.test(fields) || !/interval \?\? DEFAULT_SLIDE_INTERVAL\) \/ 1000/.test(fields)) {
+    throw new Error('the Studio interval is not edited in seconds and stored in ms');
+  }
+  if (!/v === 'slideshow' \? startSlideshow\(\) : undefined/.test(fields)) {
+    throw new Error('switching back to Stacked does not remove presentation');
+  }
+  // 5 (Studio). Controls only for 2+ images, in both editors.
+  if (!/items\.length >= 2 && <PresentationFields/.test(fields)
+    || !/screenshots\?\.length \?\? 0\) >= 2 && <PresentationFields/.test(fields)) {
+    throw new Error('Presentation controls are not gated on two or more images');
+  }
+
+  // 6. One shared renderer; neither adapter keeps slide state.
+  const gallery = read('src/components/media/adapters/ImageMedia.tsx');
+  const website = read('src/components/media/adapters/WebsiteMedia.tsx');
+  for (const [name, src] of [['GalleryMedia', gallery], ['WebsiteMedia', website]]) {
+    if (!/slideshowOf\(media\.presentation,/.test(src) || !/<MultiImageSlideshow/.test(src)) {
+      throw new Error(`${name} does not use slideshowOf + MultiImageSlideshow`);
+    }
+    // 11. The visible slide opens the same Focus index.
+    if (!/onOpen=\{setOpenIndex\}/.test(src)) throw new Error(`${name} slideshow bypasses its Focus Mode`);
+    if (/setTimeout|setInterval/.test(src)) throw new Error(`${name} keeps its own slideshow timer`);
+    // 12. The stacked layout is still there.
+    if (!/<div className="media-set" data-count=/.test(src)) throw new Error(`${name} lost the stacked layout`);
+  }
+  if (!/actions: action/.test(website)) throw new Error('Visit Website is missing from the slideshow');
+
+  const show = read('src/components/media/MultiImageSlideshow.tsx');
+  // 9. Manual arrows.
+  if (!/aria-label="Previous image"/.test(show) || !/aria-label="Next image"/.test(show)) {
+    throw new Error('previous / next buttons are missing');
+  }
+  // 10. Reduced motion stops autoplay; one timeout, cleaned up.
+  if (!/usePrefersReducedMotion\(\)/.test(show) || !/settings\.autoplay && !reduced/.test(show)) {
+    throw new Error('reduced motion does not stop auto-advance');
+  }
+  if ((show.match(/setTimeout/g) ?? []).length !== 1 || !/clearTimeout/.test(show) || /setInterval/.test(show)) {
+    throw new Error('the slideshow timer is not a single cleaned-up timeout');
+  }
+  if (!/onClick=\{\(\) => open\(i\)\}/.test(show)) throw new Error('a slide does not open its own index');
+  const css = read('src/components/media/media.css');
+  if (!/prefers-reduced-motion: reduce[\s\S]*?\.media-slideshow__slide/.test(css)) {
+    throw new Error('slide transitions are not disabled under reduced motion');
+  }
+  if (!/object-fit|objectFit="contain"/.test(show)) throw new Error('slides are not contained');
+
+  // 13. No slideshow state in the schema.
+  const types = read('src/types/content.ts');
+  const schema = types.slice(types.indexOf('export const PresentationSchema'), types.indexOf('export type Presentation'));
+  if (/index|current|paused|playing/i.test(schema)) throw new Error('slideshow UI state leaked into the schema');
+  if (/\.default\(/.test(schema)) throw new Error('presentation has a default and would be exported untouched');
+  return 'absent → stacked; slideshow via one shared renderer, 2000ms default, reduced motion still';
+});
+
+/* ------------------------------------- 45. gallery images / screenshots fold */
+
+check('45. gallery images and website screenshots fold and reorder through one shared list', () => {
+  const list = read('src/studio/panels/SubItemList.tsx');
+  const fields = read('src/studio/panels/MediaFields.tsx');
+
+  // 1. Both nested lists use the one component; the unfolded Repeater is gone from media.
+  if ((fields.match(/<SubItemList\b/g) ?? []).length !== 2) {
+    throw new Error('gallery images and website screenshots do not both use SubItemList');
+  }
+  if (!/label="Images"/.test(fields) || !/label="Screenshots"/.test(fields)) {
+    throw new Error('a nested picture list lost its label');
+  }
+  if (/<Repeater\b/.test(fields)) throw new Error('MediaFields still draws pictures through the unfolded Repeater');
+  if (!/items\.length >= 2 && <PresentationFields/.test(fields)) throw new Error('gallery presentation controls moved');
+
+  // 2. Shared primitive, default collapsed, own Expand all / Collapse all.
+  if (!/import \{ Collapsible, FoldBar, IconBtn, useFolds \} from '\.\/parts'/.test(list)) {
+    throw new Error('SubItemList does not use the shared Collapsible / FoldBar / useFolds');
+  }
+  if (!/const folds = useFolds\(\);/.test(list) || !/<FoldBar folds=\{folds\} ids=\{keys\}/.test(list)) {
+    throw new Error('picture cards have no Expand all / Collapse all of their own');
+  }
+  if (/defaultOpen|aria-expanded|useState<Set</.test(list)) throw new Error('SubItemList keeps its own open state');
+
+  // 3. A new picture opens; open state follows a key that moves with the row, not the index.
+  if (!/const add = \(\) => \{[\s\S]*?folds\.reveal\(key\)/.test(list)) throw new Error('a new picture does not open itself');
+  if (!/key=\{keys\[index\]\}/.test(list) || /folds\.isOpen\(index\)/.test(list)) {
+    throw new Error('picture cards are keyed or opened by position');
+  }
+  if (!/setKeys\(rows\.map\(\(row\) => row\.key\)\);\s*onChange\(rows\.map\(\(row\) => row\.item\)\)/.test(list)) {
+    throw new Error('rows and their keys are not committed together');
+  }
+
+  // 4. Grip, labelled; only the grip drags; arrows kept.
+  if (!/aria-label="Drag to reorder image"/.test(list) || !/title="Drag to reorder image"/.test(list)) {
+    throw new Error('the picture drag grip lost its label');
+  }
+  if (!/lead=\{grip\(index\)\}/.test(list) || (list.match(/\bdraggable\b/g) ?? []).length !== 1) {
+    throw new Error('something other than the picture grip is draggable');
+  }
+  if (!/label="Move up"[\s\S]{0,80}?move\(index, index - 1\)/.test(list) ||
+      !/label="Move down"[\s\S]{0,120}?move\(index, index \+ 1\)/.test(list)) {
+    throw new Error('the picture arrows no longer use the shared move');
+  }
+
+  // 5. One reorder path: drop and arrows share `move`, which is the only moveItem.
+  if (!/move\(dragFrom, slotIndex\(dragFrom,/.test(list)) throw new Error('a picture drop bypasses move');
+  if ((list.match(/moveItem\(/g) ?? []).length !== 1) throw new Error('SubItemList reorders in more than one place');
+  if (!/'application\/x-asaad-subitem'/.test(list)) throw new Error('pictures share a drag type with media cards');
+
+  // 6. Arbitrary moves carry the whole object and its key, in one step.
+  const pics = Array.from({ length: 10 }, (_, i) => ({
+    item: { src: `media/g/${i + 1}.jpg`, alt: `alt ${i + 1}`, caption: `cap ${i + 1}`, aspect: '4:5', url: undefined },
+    key: `k${i + 1}`,
+  }));
+  const before = JSON.stringify(pics);
+  const moved = moveItem(pics, 9, slotIndex(9, 1)); // #10 → #02
+  if (moved.map((row) => row.key).join(',') !== 'k1,k10,k2,k3,k4,k5,k6,k7,k8,k9') {
+    throw new Error('#10 → #02 is not a single move');
+  }
+  if (moved[1] !== pics[9] || moved[1].item.caption !== 'cap 10' || moved[1].item.alt !== 'alt 10') {
+    throw new Error('a moved picture lost or swapped its fields');
+  }
+  if (JSON.stringify(pics) !== before) throw new Error('moving a picture mutated the original list');
+  if (moveItem(pics, 2, slotIndex(2, 8)).map((row) => row.key)[7] !== 'k3') { // #03 → before #09
+    throw new Error('a forward drop landed in the wrong place');
+  }
+
+  // 7. Duplicate lands right after its source.
+  if (!/next\.splice\(index \+ 1, 0, \{ item: structuredClone\(source\.item\)/.test(list)) {
+    throw new Error('a duplicated picture does not land after its source');
+  }
+
+  // 8. UI-only: the picture schema gains nothing.
+  // The legacy optional `id` predates this and is never written by the Studio.
+  const types = read('src/types/content.ts');
+  const start = types.indexOf('export const MediaSubItemSchema');
+  const sub = types.slice(start, types.indexOf('});', start));
+  const keys = [...sub.matchAll(/^\s+(\w+):/gm)].map((m) => m[1]).join(',');
+  if (keys !== 'id,src,url,alt,caption,aspect') throw new Error(`the picture schema changed: ${keys}`);
+  if (/uid\('row'\)[\s\S]*?\bid:/.test(list) || /\.id\b/.test(list)) {
+    throw new Error('SubItemList writes a row key into the content');
+  }
+  return 'gallery images + website screenshots: one SubItemList, collapsed, keyed rows, one move';
+});
+
+/* ------------------------------------------- 46. Quick View thumbnail fill */
+
+check('46. Quick View thumbnails cover their frame, cropped around the centre', () => {
+  const css = read('src/components/quick-view/quick-view.css');
+  const qv = read('src/components/quick-view/QuickView.tsx');
+
+  if (!/<span className="qv-work__art">\s*<SmartImage\b/.test(qv)) {
+    throw new Error('the Quick View thumbnail is no longer a SmartImage inside .qv-work__art');
+  }
+  const frame = rule(css, '.qv-work__art');
+  if (!/position:\s*relative/.test(frame) || !/overflow:\s*hidden/.test(frame) || !/aspect-ratio:/.test(frame)) {
+    throw new Error('the Quick View media frame lost its box, clip or containing block');
+  }
+  if (!/position:\s*absolute/.test(rule(css, '.qv-work__art > .smart-image'))) {
+    throw new Error('the SmartImage wrapper is not pinned to the Quick View frame');
+  }
+  const fill = rule(css, '.qv-work__art .smart-image__img, .qv-work__art .smart-image__fallback, .qv-work__art .smart-image__skeleton');
+  for (const decl of [/width:\s*100%/, /height:\s*100%/, /object-fit:\s*cover/, /object-position:\s*center center/]) {
+    if (!decl.test(fill)) throw new Error(`Quick View thumbnails are missing \`${decl.source}\``);
+  }
+  if (/object-position:\s*(top|center top)|align-items:\s*flex-start/.test(css.slice(css.indexOf('.qv-work__art'), css.indexOf('.qv-work__body')))) {
+    throw new Error('Quick View thumbnails are anchored to the top');
+  }
+  return 'fills the frame, cover, centre-cropped; scoped to .qv-work__art';
 });
 
 /* ---------------------------------------------------------------- report */

@@ -22,6 +22,7 @@ import {
   type Project,
   type ValidationResult,
 } from '@/types/content';
+import { orderedFolders, orderedProjectsInFolder, orderedQuickViewProjects } from './projectOrder';
 
 let cached: ValidationResult | null = null;
 
@@ -37,18 +38,18 @@ export function rawPortfolio(): unknown {
 
 /* ------------------------------------------------------------- selectors */
 
+/* Ordering lives in lib/projectOrder.ts; these are the Portfolio-shaped entry points. */
+
 export function foldersSorted(p: Portfolio): Folder[] {
-  return [...p.folders].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+  return orderedFolders(p.folders);
 }
 
 export function projectsInFolder(p: Portfolio, folderId: string): Project[] {
-  return p.projects
-    .filter((project) => project.folder === folderId)
-    .sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+  return orderedProjectsInFolder(p.projects, folderId);
 }
 
 export function featuredProjects(p: Portfolio): Project[] {
-  return p.projects.filter((project) => project.featured);
+  return orderedQuickViewProjects(p.projects);
 }
 
 export function findProject(p: Portfolio, id?: string): Project | undefined {

@@ -182,11 +182,13 @@ check('7. content without any of the new fields still validates', () => {
   for (const project of legacy.projects) {
     delete project.heroMediaId;
     delete project.showHeroInMedia;
+    delete project.quickViewOrder;
   }
   for (const media of legacy.projects.flatMap((project) => project.media ?? [])) {
     delete media.title;
     delete media.tools;
     delete media.date;
+    delete media.presentation;
   }
   delete legacy.settings?.typography;
   const result = validatePortfolio(legacy);
@@ -203,6 +205,13 @@ check('7. content without any of the new fields still validates', () => {
     // Per-item date: free text too — "Summer 2025" is a real answer.
     first.date = 'March 2026';
   }
+  // Stacked / Slideshow on a gallery or website with two or more images.
+  const multi = modern.projects
+    .flatMap((project) => project.media ?? [])
+    .find((media) => (media.items?.length ?? 0) >= 2 || (media.screenshots?.length ?? 0) >= 2);
+  if (multi) multi.presentation = { mode: 'slideshow', autoplay: true, interval: 2000 };
+  // Curated Quick View position, independent of folder order.
+  modern.projects[0].quickViewOrder = 1;
   modern.settings.typography = {
     // The shared face, then two roles that override it with their own and one
     // that does not — the pairing this system exists to allow.
@@ -225,6 +234,23 @@ check('7. content without any of the new fields still validates', () => {
     throw new Error(forwards.issues.map((i) => `${i.path}: ${i.message}`).join('; '));
   }
   return 'backward compatible both ways';
+});
+
+check('8. an absent quickViewOrder stays absent through a round trip', () => {
+  // Additions are tolerated by check 2; this one must never appear on its own.
+  const authored = source.projects.filter((p) => 'quickViewOrder' in p).length;
+  const exported = JSON.parse(JSON.stringify(parsed)).projects.filter((p) => 'quickViewOrder' in p).length;
+  if (exported !== authored) throw new Error(`${exported} projects export quickViewOrder, ${authored} authored it`);
+  return `${authored} authored, ${exported} exported`;
+});
+
+check('9. an absent media presentation stays absent through a round trip', () => {
+  const count = (data) =>
+    data.projects.flatMap((p) => p.media ?? []).filter((m) => 'presentation' in m).length;
+  const authored = count(source);
+  const exported = count(JSON.parse(JSON.stringify(parsed)));
+  if (exported !== authored) throw new Error(`${exported} media export presentation, ${authored} authored it`);
+  return `${authored} authored, ${exported} exported`;
 });
 
 /* ---------------------------------------------------------------- report */

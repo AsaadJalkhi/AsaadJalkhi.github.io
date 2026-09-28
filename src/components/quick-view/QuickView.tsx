@@ -14,7 +14,8 @@ import { usePortfolio } from '@/state/portfolio';
 import { useOs } from '@/state/os';
 import { asset } from '@/lib/paths';
 import { copyText } from '@/lib/utils';
-import { featuredProjects, primaryDiscipline, projectThumb } from '@/lib/contentStore';
+import { primaryDiscipline, projectThumb } from '@/lib/contentStore';
+import { orderedQuickViewProjects } from '@/lib/projectOrder';
 import { usePrefersReducedMotion } from '@/hooks/useEnvironment';
 import { SmartImage } from '@/components/ui/SmartImage';
 import { Btn, DemoBadge, SectionTitle, Tag } from '@/components/ui/Ui';
@@ -29,7 +30,8 @@ export function QuickView() {
   const [reading, setReading] = useState<Project | null>(null);
 
   const { profile, experience, skills } = portfolio;
-  const featured = useMemo(() => featuredProjects(portfolio), [portfolio]);
+  // Featured projects in their curated order — independent of folder and Work order.
+  const featured = useMemo(() => orderedQuickViewProjects(portfolio.projects), [portfolio]);
   const cvHref = asset(profile.cv.file);
 
   // The "organising" entrance: blocks settle into place in document order.

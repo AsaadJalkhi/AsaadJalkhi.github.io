@@ -4,12 +4,218 @@
 > missing, and what was decided. It exists so a new session can pick up the work without
 > reading every file in the repo.
 >
-> **Last updated:** 2026-09-26 · **Session 21** (one shared Studio collapsible, every tab)
+> **Last updated:** 2026-09-27 · **Session 24** (gallery images fold and drag in the Studio)
 
 ---
 
 <!-- CHECKPOINT:START -->
 ## CURRENT SESSION CHECKPOINT
+
+Session 24 · 2026-09-27 · **Gallery images and website screenshots are folded, draggable rows in
+the Studio.** Studio UI only. No schema, content, export or public rendering changes.
+
+**Completed:**
+- **`src/studio/panels/SubItemList.tsx` (new)** replaces the unfolded `Repeater` for gallery
+  Images and website Screenshots in `MediaFields.tsx`. The screenshots use the same editor
+  structure, so they were migrated too.
+- **Rows:** the shared `Collapsible`, with grip · `#NN` · file name (`fileName`, now exported from
+  `MediaList`) · ↑ ↓ · duplicate · delete · chevron. They start collapsed. The editor inside is
+  the unchanged `SubItemFields`.
+- **Folds:** its own `useFolds` and `FoldBar` (count + Expand all / Collapse all) per list, so other
+  galleries, media cards and project sections are unaffected. **+ Add another image** opens the new row.
+- **Identity:** pictures have no stored id. Each row gets a session-only key (`uid('row')`), and
+  `commit` moves keys and rows together, so an open card follows its picture through
+  move / duplicate / delete. Nothing is written to content.
+- **Reorder:** grip-only native drag ("Drag to reorder image"), its own drag type, 45% source
+  opacity, accent before/after line (existing `.studio-media-card` classes). The drop and the arrows
+  both call `move` → one `moveItem`, via `slotIndex`. The whole object moves.
+- **Duplicate** lands after its source. Image ⇄ Gallery conversion is unchanged.
+- **CSS:** `.studio-sublist` (tighter rows). **Checks:** new `check:ui` **45**. Check 41 now also
+  covers `SubItemList`.
+
+**Files changed:** `src/studio/panels/SubItemList.tsx` (new), `src/studio/panels/MediaFields.tsx`,
+`src/studio/panels/MediaList.tsx` (`fileName` exported, nothing else), `src/studio/studio.css`,
+`scripts/check-ui.mjs`, `PROJECT_STATUS.md`, `ARCHITECTURE.md`, `CONTENT_GUIDE.md`.
+
+**Not touched:** `src/types/content.ts`, `src/content/portfolio.json` (its earlier uncommitted
+edits were left alone), `backup/portfolio.TRUTH.json`, `parts.tsx`, every public component.
+
+**Verified:** `npm run lint` clean · `npm run build` green (1887 modules) · `npm run check:content`
+all pass · `npm run check:ui` **45/45**.
+
+**Follow-up (same session) · Quick View thumbnail fill.** `.smart-image` has no base size, so
+Quick View card `<img>`s sat at their intrinsic size: small files left gaps, large ones were
+clipped from the top-left. `quick-view.css` now pins `.qv-work__art > .smart-image` absolute to
+the frame (`position: relative` on `.qv-work__art`), and the img / fallback / skeleton inside fill
+it at 100% × 100% with `object-fit: cover; object-position: center center`. Frame geometry is
+unchanged (4:3, 16:9 at ≤820px). Scoped to Quick View; SmartImage and other surfaces untouched.
+New `check:ui` **46**. Lint clean, build green, check:ui 46/46. QA: `#/quick` with mixed-ratio
+thumbnails, desktop and ≤820px.
+
+**Next exact step:** human QA in `#/studio`. No browser automation was used.
+- Open a gallery with 8+ images: every row collapsed, file names readable.
+- Drag #10 onto the top half of #02, then open a card and move it with the arrows. It should stay open.
+- Try Expand all / Collapse all and check the outer media cards don't change.
+- Add an image and check it opens. Duplicate one and check it lands after the source.
+- Delete down to one and check it becomes an Image again.
+- Repeat on a website's Screenshots.
+
+<!-- CHECKPOINT:END -->
+
+---
+
+## Previous checkpoint — Session 23
+
+Session 23 · 2026-09-27 · **Galleries and multi-screenshot websites can be Stacked or Slideshow.**
+One optional schema field. Content not migrated. Stacked (absent) is unchanged.
+
+**Completed:**
+- **Schema:** `media.presentation?: { mode: 'stacked' | 'slideshow', autoplay?: boolean,
+  interval?: number }` (`PresentationSchema`; interval is ms, int, 1000–10000). There's no default,
+  so old content exports no new key.
+- **Decision:** `src/components/media/presentation.ts` (new, pure). `slideshowOf(presentation,
+  count)` returns `null` (stacked) for absent, `'stacked'` or fewer than 2 images. Otherwise it
+  returns `{ autoplay (on unless false), interval (2000 if absent, clamped) }`. `startSlideshow()`
+  is the Studio's switch value.
+- **Renderer:** `src/components/media/MultiImageSlideshow.tsx` (new), shared by `GalleryMedia`
+  and `WebsiteMedia`:
+  - One image at a time in a fixed-ratio stage: manual aspect → first image's aspect → measured →
+    fallback. Slides are contained and fade (320ms).
+  - Previous / Next buttons, an `n / N` counter, touch swipe with `pan-y`, and the current slide's caption.
+  - Autoplay is one re-armed `setTimeout`. It runs only while visible (`useInView`), not hovered,
+    not touched and not behind Focus Mode.
+  - Reduced motion: no autoplay, no fade, arrows still work.
+  - The visible slide opens that index in the adapter's existing Focus Mode.
+- **Adapters:** both branch on `slideshowOf`. The stacked JSX is unchanged. Website keeps Visit
+  Website in the frame actions.
+- **Studio:** `PresentationFields` in `MediaFields.tsx` sits under Images / Screenshots, only at 2+.
+  - Display: Stacked / Slideshow.
+  - Slideshow shows Change every (seconds, 1–10, step 0.5, stored as ms) and Autoplay.
+  - Slideshow writes autoplay on / 2000ms. Stacked removes the key.
+  - Dropping below 2 images removes the key.
+  - Rendering the editor writes nothing.
+- **Checks:** `check:ui` **44** covers all 14 requested properties. `check:content` 7 strips and
+  adds `presentation`. New check **9** confirms an absent presentation stays absent.
+
+**Files changed:** `src/types/content.ts`, `src/components/media/presentation.ts` (new),
+`src/components/media/MultiImageSlideshow.tsx` (new), `src/components/media/adapters/ImageMedia.tsx`,
+`src/components/media/adapters/WebsiteMedia.tsx`, `src/components/media/media.css`,
+`src/studio/panels/MediaFields.tsx`, `src/studio/studio.css`, `scripts/check-ui.mjs`,
+`scripts/roundtrip.mjs`, `PROJECT_STATUS.md`, `ARCHITECTURE.md`, `CONTENT_GUIDE.md`.
+
+**Not touched:** `src/content/portfolio.json`, `backup/portfolio.TRUTH.json`, `MediaGallery`,
+`MediaFocus`, `subitems.ts`, `lib/masonry.ts`, project/folder/Quick View ordering, banner,
+the Studio collapse and drag systems. Note: `portfolio.json` has uncommitted content edits from
+outside this session (folder intros, Good Moon banner); they were left as they are.
+
+**Verified:** `npm run lint` clean · `npm run build` green (1886 modules) · `npm run check:content`
+9/9, byte-identical · `npm run check:ui` **44/44**.
+
+**Next exact step:** human QA in the browser. No browser automation was used.
+- In the Studio, open a gallery with 2+ images and check it shows Display: Stacked. Export
+  without touching it and confirm there's no `presentation` key.
+- Switch to Slideshow and check it advances every 2s, loops, and the arrows restart the timer.
+  Hovering should pause it. Click slide 3 and confirm Focus opens image 3 and ← → still step.
+- Try a website with 2+ screenshots and check that Visit Website is still under it.
+- Turn on reduced motion in the OS and confirm nothing auto-advances.
+- On a phone, swipe left/right and check that vertical scroll still works.
+- Switch back to Stacked and confirm the key is gone and the old layout is back.
+
+
+---
+
+## Previous checkpoint — Session 22
+
+Session 22 · 2026-09-27 · **Projects organised by folder; three separate orders.** Schema gains one
+optional field. Content not migrated.
+
+**Root cause:** the Studio arrows moved a project in the raw `projects[]` array. Work never read
+that order. It sorted featured-first, then by `project.order`, so an arrow could appear to move a
+project without changing anything a visitor saw. The flat list also mixed every folder.
+
+**Contract (`src/lib/projectOrder.ts`, the only ordering code):**
+- `folder.order` controls folder sequence.
+- `project.order` controls position inside a folder.
+- `project.quickViewOrder` (new, optional) controls position among featured projects.
+- `featured` is Quick View membership only.
+- All Work is folders by `folder.order`, then `project.order`.
+- Quick View is featured projects by `quickViewOrder`. Explicit values come first; the rest keep
+  array order, which is the legacy order when none is set.
+- `projects[]` position is only the stable tie-break.
+
+**Completed:**
+- **Runtime:**
+  - `WorkView` dropped its featured-then-order sort and now uses `orderedProjectsInFolder` /
+    `orderedAllWorkProjects`. ProjectGrid and the masonry are unchanged.
+  - Quick View uses `orderedQuickViewProjects`.
+  - `contentStore`'s `foldersSorted` / `projectsInFolder` / `featuredProjects` delegate to the
+    same module, so the mobile home screen follows too.
+- **Studio sidebar:**
+  - A **By folder | Quick View** switch; By folder is the default.
+  - By folder shows one shared `Collapsible` per folder (a second `useFolds`, its own `FoldBar`),
+    each holding `ProjectOrderList` rows: grip, `#NN`, title, ★, year and ↑/↓.
+  - Drag and arrows call one `onMove`. For a folder that is `moveInFolder`, which renumbers the
+    folder 1…N. For Quick View it is `moveInQuickView`, which renumbers every featured project's
+    `quickViewOrder` 1…N and changes nothing else.
+  - No cross-folder drag.
+  - The header arrows now move within the folder. The global array move is gone.
+- **Identity:**
+  - The Order input was removed. The Folder hint shows the read-only position.
+  - Changing Folder uses `moveToFolder`: the project goes last in the destination and the source
+    folder is renumbered.
+  - **Show in Quick View** (the `featured` key) uses `setFeatured`: on puts the project last, off
+    deletes its `quickViewOrder` and renumbers the rest.
+- **New / duplicate / delete:** New appends to its folder, a duplicate goes right after its
+  source, and delete closes the gap.
+- **Schema:** `quickViewOrder: z.number().int().nonnegative().optional()`. It has no default, so
+  an export only gains the key once Quick View order is actually managed.
+- **Checks:**
+  - `check:ui` has a new check **42** with all 20 requested properties, tested on real arrays.
+  - `check:content` check 7 now strips and adds `quickViewOrder`.
+  - New check **8** confirms an absent `quickViewOrder` stays absent.
+
+**Visible change on the live site:** featured projects no longer jump to the front of Work.
+All Work is now grouped folder by folder.
+
+**Files changed:** `src/lib/projectOrder.ts` (new), `src/studio/panels/ProjectOrderList.tsx` (new),
+`src/studio/panels/ProjectsPanel.tsx`, `src/studio/studio.css`, `src/types/content.ts`,
+`src/lib/contentStore.ts`, `src/components/windows/apps/ProjectsApp.tsx`,
+`src/components/quick-view/QuickView.tsx`, `scripts/check-ui.mjs`, `scripts/roundtrip.mjs`,
+`PROJECT_STATUS.md`, `ARCHITECTURE.md`, `CONTENT_GUIDE.md`, `README.md`.
+
+**Not touched:** `src/content/portfolio.json`, `backup/portfolio.TRUTH.json`, `lib/masonry.ts`,
+`ProjectGrid`, `MediaList`, `FoldersPanel`, `ProjectPreview.tsx`, `useDraft.ts`, fingerprinting.
+
+**Verified:** `npm run lint` clean · `npm run build` green (1884 modules) · `npm run check:content`
+8/8, byte-identical · `npm run check:ui` **42/42**.
+
+**Regression fix (same session): the By folder sidebar squashed folder cards.** When a folder was
+opened, the cards below it collapsed into thin strips. The cards (`.studio-rep__item`) have
+`overflow: hidden`, which lets a flex item shrink to zero height, and `.studio-list__scroll` is a
+height-capped flex column. The fix is `.studio-list__scroll > * { flex-shrink: 0 }` in
+`studio.css`. Now cards keep their natural height and the list is the single scroll region, in both
+By folder and Quick View. New `check:ui` **43** guards it. After the fix: lint clean, build green,
+`check:ui` **43/43**.
+
+**Next exact step:** human QA in the browser. No browser automation was used.
+- **Sidebar scroll:** open GAF, scroll to its last row, and check that the folders below it keep
+  their normal height. Try Expand all, then Quick View with enough items to overflow.
+- **By folder:** open GAF and one other folder. Drag first ↔ last and use the arrows, and confirm
+  `#NN` renumbers. Reload the Studio and confirm the draft keeps the order.
+- **Folder change:** move a GAF project to another folder in Identity. It should leave GAF and
+  appear last in the destination.
+- **Duplicate / delete:** duplicate a middle project and check the copy lands right after it.
+  Delete one and check there is no numbering gap.
+- **Public Work:** check the GAF folder, another folder, and All Work. Featured stars must not
+  change Work order.
+- **Quick View:** open Projects → Quick View and drag across folders. Check that Quick View
+  changes and folder order does not. Toggle Show in Quick View off and on: the project should
+  land last.
+- **Preview:** the Studio Folder Preview must match live Work ordering.
+
+---
+
+## Previous checkpoint — Session 21
 
 Session 21 · 2026-09-26 · **One collapsible primitive across the Studio.** No schema, content,
 export or public-site changes.
@@ -59,8 +265,6 @@ passed · `npm run check:ui` **41/41**.
 - arrows, duplicate, delete and the media grip don't toggle
 - media drag still works
 - adding an item opens it
-
-<!-- CHECKPOINT:END -->
 
 ---
 

@@ -224,16 +224,21 @@
         "accent": "creative"
       },
       {
-        "id": "d-web",
-        "label": "Web & Digital",
+        "id": "d-designers-copy",
+        "label": "OCTOBOSS",
         "kind": "folder",
         "target": {
           "type": "folder",
-          "value": "web"
+          "value": "new-folder"
         },
         "zone": "left",
         "rotate": 0,
-        "accent": "digital"
+        "icon": {
+          "imageLight": "icons/OCTO.png",
+          "imageDark": "icons/OCTO.png",
+          "text": "OCT"
+        },
+        "accent": "creative"
       },
       {
         "id": "d-cv",
@@ -345,22 +350,6 @@
           "text": "Vs",
           "tint": "#4f97d8"
         }
-      },
-      {
-        "id": "new-shortcut",
-        "label": "DASH",
-        "kind": "folder",
-        "target": {
-          "type": "folder",
-          "value": "dash"
-        },
-        "zone": "any",
-        "rotate": 0,
-        "icon": {
-          "imageLight": "icons/dash.png",
-          "imageDark": "icons/dash.png"
-        },
-        "accent": "creative"
       }
     ],
     "widgets": [
@@ -417,7 +406,8 @@
       "caption": "Brand marketing and campaigns",
       "discipline": "marketing",
       "order": 1,
-      "description": "From launching the brand to figuring out what it should look, sound, and feel like every day. My work with GAF spanned creative direction, content production, campaigns, web, social, and the occasional idea that probably sounded questionable before we made it.",
+      "introTitle": "GAF Restaurant: Culture, Made Modern",
+      "description": "GAF is a contemporary restaurant inspired by Emirati hospitality and the Ghaf tree, bringing local culture and European influence into a modern dining experience in Dubai.My work with the brand covered everything from its launch and early visual language to campaigns, content, website, social, and the everyday work of keeping the brand feeling consistent without making it feel repetitive. Somewhere between food, fashion, culture, and the occasional idea that sounded questionable until we actually made it.",
       "banner": {
         "type": "image",
         "src": "media/gaf/Thumbnails/folder banner.jpg"
@@ -428,21 +418,41 @@
       "name": "The Good Moon",
       "caption": "Brand, social and guest experience",
       "discipline": "marketing",
-      "order": 2
+      "order": 2,
+      "introTitle": "The Good Moon: Everyday, but Better",
+      "description": "The Good Moon is an everyday cafe and restaurant built around lifestyle, comfort, and easy social moments. A place for coffee, breakfast, lunch, casual meetings, and the kind of drop-in visits that become part of someone’s routine.\nMy work with the brand covered content, social media, visual presentation, digital tools, and the ongoing creative work of keeping the brand feeling active, relevant, and easy to connect with.",
+      "banner": {
+        "type": "image",
+        "src": "media/good-moon/banners/tgm folder banner.jpg"
+      }
     },
     {
       "id": "designers-us",
       "name": "Designers&Us",
       "caption": "Fashion film and campaign content",
       "discipline": "creative",
-      "order": 3
+      "order": 3,
+      "introTitle": "Designers&Us: Fashion in Motion",
+      "description": "Designers&Us is a fashion brand built around statement pieces, visual storytelling, and collections that often lean into strong concepts rather than just seasonal drops.",
+      "banner": {
+        "type": "image",
+        "src": "media/designers-us/banners/Untitled-2-Recovered.jpg"
+      }
     },
     {
-      "id": "dash",
-      "name": "DASH",
-      "caption": "Agency work across client accounts",
-      "discipline": "marketing",
-      "order": 4
+      "id": "new-folder",
+      "name": "OCTOBOSS",
+      "discipline": "creative",
+      "icon": {
+        "imageLight": "icons/OCTO.png",
+        "imageDark": "icons/OCTO.png"
+      },
+      "introTitle": "OCTOBOSS Agency",
+      "description": "Octoboss was a Dubai marketing agency where my work moved between video editing, web development, CGI, 3D, and whatever else they needed that week.",
+      "banner": {
+        "type": "image",
+        "src": "media/OCTO/Banners/dsad.jpg"
+      }
     },
     {
       "id": "web",
@@ -450,13 +460,6 @@
       "caption": "Sites, commerce and internal systems",
       "discipline": "digital",
       "order": 5
-    },
-    {
-      "id": "experiments",
-      "name": "Experiments",
-      "caption": "Motion, 3D and unfinished ideas",
-      "discipline": "creative",
-      "order": 6
     }
   ],
   "projects": [
@@ -645,7 +648,7 @@
       },
       "featured": false,
       "demo": false,
-      "order": 5
+      "order": 7
     },
     {
       "id": "a-certain-kind-of-crowd",
@@ -773,6 +776,10 @@
           "instagramUrl": "https://www.instagram.com/reel/DXg9VCBlKV2/"
         }
       ],
+      "banner": {
+        "type": "video",
+        "src": "media/gaf/Thumbnails/ddd.mp4"
+      },
       "links": [],
       "thumbnail": "media/gaf/local_images/P2/Screenshot 2026-09-23 033838.png",
       "tile": {
@@ -781,7 +788,8 @@
       },
       "featured": true,
       "demo": false,
-      "order": 2
+      "order": 2,
+      "quickViewOrder": 1
     },
     {
       "id": "speaking-local",
@@ -964,7 +972,8 @@
       },
       "featured": true,
       "demo": false,
-      "order": 3
+      "order": 3,
+      "quickViewOrder": 2
     },
     {
       "id": "french-chef-with-attitude",
@@ -1042,7 +1051,9 @@
         "aspect": "4:5"
       },
       "featured": true,
-      "demo": false
+      "demo": false,
+      "order": 4,
+      "quickViewOrder": 3
     },
     {
       "id": "where-gaf-begins",
@@ -1162,7 +1173,8 @@
       },
       "featured": true,
       "demo": false,
-      "order": 1
+      "order": 1,
+      "quickViewOrder": 4
     },
     {
       "id": "project",
@@ -1409,7 +1421,9 @@
         "aspect": "4:5"
       },
       "featured": true,
-      "demo": false
+      "demo": false,
+      "order": 5,
+      "quickViewOrder": 5
     },
     {
       "id": "gaf-website",
@@ -1448,9 +1462,26 @@
           "aspect": "16:9",
           "screenshots": [
             {
-              "src": "media/gaf/local_images/website/FireShot Capture 013 - GAF - [www.gafofficial.ae].png"
+              "src": "media/gaf/local_images/web.png"
+            },
+            {
+              "src": "media/gaf/local_images/FireShot Capture 021 - GAF - [www.gafofficial.ae].png"
+            },
+            {
+              "src": "media/gaf/local_images/FireShot Capture 022 - GAF - [www.gafofficial.ae].png"
+            },
+            {
+              "src": "media/gaf/local_images/FireShot Capture 023 - GAF - [www.gafofficial.ae].png"
+            },
+            {
+              "src": "media/gaf/local_images/FireShot Capture 024 - GAF - [www.gafofficial.ae].png"
             }
           ],
+          "presentation": {
+            "mode": "slideshow",
+            "autoplay": true,
+            "interval": 2000
+          },
           "featured": true
         }
       ],
@@ -1459,87 +1490,113 @@
         "src": "media/gaf/local_images/website/012 - GAF - [www.gafofficial.ae].png"
       },
       "links": [],
-      "thumbnail": "media/gaf/local_images/website/012 - GAF - [www.gafofficial.ae].png",
+      "thumbnail": "media/gaf/local_images/web.png",
+      "tile": {
+        "span": "md",
+        "aspect": "16:9"
+      },
+      "featured": false,
+      "demo": false,
+      "order": 6
+    },
+    {
+      "id": "tgm-website",
+      "title": "TGM Website",
+      "shortTitle": "Website",
+      "folder": "good-moon",
+      "company": "TGM",
+      "year": "2025",
+      "role": "Web Development ",
+      "summary": "A lifestyle-led website for The Good Moon, built to carry the brand beyond the physical space and translate its relaxed cafe-and-restaurant personality into a clean digital experience.",
+      "description": "The Good Moon website was built to translate the brand’s relaxed, lifestyle-focused identity into a simple digital experience. The goal was to keep it visually aligned with the cafe and restaurant itself, while making the key information easy to explore without overloading the site.",
+      "disciplines": [
+        "digital",
+        "creative",
+        "marketing"
+      ],
+      "categories": [
+        "Web Design",
+        "Web Development",
+        "Digital Experience",
+        "Brand Implementation"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "WordPress",
+        "Elementor",
+        "Adobe Photoshop"
+      ],
+      "credits": [],
+      "media": [
+        {
+          "id": "m-nsxu17s",
+          "type": "website",
+          "url": "https://thegoodmoon.ae/",
+          "aspect": "16:9",
+          "screenshots": [
+            {
+              "src": "media/good-moon/local-images/website.png"
+            },
+            {
+              "src": "media/good-moon/local-images/FireShot Capture 027 - About us – The Good Moon - [thegoodmoon.ae].png"
+            },
+            {
+              "src": "media/good-moon/local-images/FireShot Capture 028 - The Good Moon – I All-Day Dining & Specialty Coffee in Du_ - [thegoodmoon.ae].png"
+            }
+          ],
+          "presentation": {
+            "mode": "slideshow",
+            "autoplay": true,
+            "interval": 2000
+          },
+          "featured": true
+        }
+      ],
+      "banner": {
+        "type": "image",
+        "src": "media/good-moon/local-images/banner.png"
+      },
+      "links": [],
+      "thumbnail": "media/good-moon/local-images/website.png",
       "tile": {
         "span": "md",
         "aspect": "16:9"
       },
       "featured": true,
       "demo": false,
-      "order": 4
-    },
-    {
-      "id": "gaf-guest-systems",
-      "title": "Reservations, CRM & Guest Systems",
-      "shortTitle": "GAF Systems",
-      "folder": "gaf",
-      "company": "GAF",
-      "year": "2025 — Present",
-      "role": "Marketing Executive",
-      "summary": "CRM, reservations, automation, reporting",
-      "disciplines": [
-        "digital",
-        "marketing"
-      ],
-      "categories": [
-        "Digital Systems",
-        "CRM",
-        "Automation"
-      ],
-      "tags": [
-        "CRM",
-        "reservations",
-        "automation",
-        "reporting"
-      ],
-      "responsibilities": [],
-      "tools": [],
-      "credits": [],
-      "caseStudy": {
-        "approach": "",
-        "metrics": [],
-        "sections": []
-      },
-      "media": [],
-      "links": [],
-      "tile": {
-        "span": "sm",
-        "aspect": "4:5"
-      },
-      "featured": false,
-      "demo": true,
-      "order": 2
+      "order": 7,
+      "quickViewOrder": 9
     },
     {
       "id": "times-square-film",
-      "title": "Times Square Campaign Film",
-      "shortTitle": "Times Square",
+      "title": "DFW: The Enlight",
+      "shortTitle": "DFW 1",
       "folder": "designers-us",
       "company": "Designers&Us / Octoboss",
       "year": "2024",
-      "role": "Video Editor",
-      "summary": "A campaign video for Designers&Us, displayed on a Times Square screen.",
+      "role": "Video Editing, Content Production",
+      "location": "Dubai",
+      "summary": "A Dubai Fashion Week collection built around the seven chakras, with each chapter expressed through its own color, mood, and energy.",
       "description": "",
       "disciplines": [
         "creative",
         "marketing"
       ],
       "categories": [
-        "Fashion",
-        "Film",
-        "Campaign"
+        "Fashion Content",
+        "Dubai Fashion Week",
+        "Runway Content",
+        "Video Editing",
+        "Event Content",
+        "Creative Production"
       ],
-      "tags": [
-        "video",
-        "editing",
-        "fashion",
-        "OOH"
-      ],
+      "tags": [],
       "responsibilities": [],
       "tools": [
-        "Premiere Pro",
-        "After Effects",
-        "Photoshop"
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop"
       ],
       "credits": [],
       "caseStudy": {
@@ -1547,76 +1604,1639 @@
         "metrics": [],
         "sections": []
       },
-      "media": [],
-      "links": [],
-      "tile": {
-        "span": "lg",
-        "aspect": "16:9"
-      },
-      "featured": true,
-      "demo": true,
-      "order": 1
-    },
-    {
-      "id": "web-asaad-os",
-      "title": "ASAAD.OS — This Portfolio",
-      "shortTitle": "ASAAD.OS",
-      "folder": "web",
-      "company": "Personal",
-      "year": "2026",
-      "role": "Concept, design & build",
-      "summary": "A portfolio built as a workspace, because the work does not fit one category.",
-      "description": "The whole site is driven by one validated content file, with a local Studio for editing it. Adding a project is a data change, not a code change.",
-      "disciplines": [
-        "digital",
-        "creative"
-      ],
-      "categories": [
-        "Web",
-        "Product",
-        "Design System"
-      ],
-      "tags": [
-        "React",
-        "TypeScript",
-        "Vite"
-      ],
-      "responsibilities": [],
-      "tools": [
-        "React",
-        "TypeScript",
-        "Vite",
-        "Zod"
-      ],
-      "credits": [],
       "media": [
         {
-          "id": "os-desktop",
-          "type": "image",
-          "src": "media/web/os-desktop.jpg",
-          "alt": "ASAAD.OS desktop",
-          "caption": "The workspace",
+          "id": "m-93vdqsy",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW1- the enlight/test 3.mp4",
+          "title": "The opening video at the show",
+          "aspect": "16:9"
+        },
+        {
+          "id": "m-ioaufxe-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW1- the enlight/Video-47101.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW1- the enlight/Video-83324.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW1- the enlight/Video-7485.mp4",
+          "title": "BTS & preparation",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW1- the enlight/Video-59496.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-3",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW1- the enlight/Video-41153.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-2",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW1- the enlight/Video-14233.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW1- the enlight/Video-11589.mp4",
+          "aspect": "9:16"
+        }
+      ],
+      "links": [],
+      "thumbnail": "media/designers-us/banners/Screenshot 2026-09-28 141844.png",
+      "tile": {
+        "span": "lg",
+        "aspect": "4:5"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 1,
+      "quickViewOrder": 6
+    },
+    {
+      "id": "times-square-film-copy-2",
+      "title": "DFW: Phantom of the Opera",
+      "shortTitle": "DFW 2",
+      "folder": "designers-us",
+      "company": "Designers&Us / Octoboss",
+      "year": "2024",
+      "role": "Video Editing, Content Production",
+      "location": "Dubai",
+      "summary": "A Dubai Fashion Week collection shaped around theatrical darkness, dramatic silhouettes, and the visual world of Phantom of the Opera.",
+      "description": "",
+      "disciplines": [
+        "creative",
+        "marketing"
+      ],
+      "categories": [
+        "Fashion Content",
+        "Dubai Fashion Week",
+        "Runway Content",
+        "Video Editing",
+        "Event Content",
+        "Creative Production"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop"
+      ],
+      "credits": [],
+      "caseStudy": {
+        "approach": "",
+        "metrics": [],
+        "sections": []
+      },
+      "media": [
+        {
+          "id": "m-d6sex5o",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW2-the phontom of the opera/Video Project 2.mp4",
+          "title": "The opening video",
           "aspect": "16:9",
           "featured": true
         },
         {
-          "id": "os-quick",
-          "type": "image",
-          "src": "media/web/os-quickview.jpg",
-          "alt": "Quick View layout",
-          "caption": "Quick View — the same content, as one page",
-          "aspect": "16:9"
+          "id": "m-267xmub",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW2-the phontom of the opera/Video-72970.mp4",
+          "title": "CGI Teaser",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-267xmub-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW2-the phontom of the opera/Video-36217.mp4",
+          "title": "BTS & Preparation. ",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-267xmub-copy-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW2-the phontom of the opera/Video-57388.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-267xmub-copy-copy-copy-2",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW2-the phontom of the opera/Video-21828.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-267xmub-copy-copy-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/DFW2-the phontom of the opera/Video-39447.mp4",
+          "aspect": "9:16"
         }
       ],
-      "heroMediaId": "os-desktop",
       "links": [],
+      "thumbnail": "media/designers-us/banners/Screenshot 2026-09-28 151658.png",
       "tile": {
-        "span": "lg",
-        "aspect": "16:9"
+        "span": "md",
+        "aspect": "4:3"
       },
       "featured": true,
       "demo": false,
-      "order": 2
+      "order": 2,
+      "quickViewOrder": 6
+    },
+    {
+      "id": "times-square-film-copy",
+      "title": "Outside the Runway",
+      "shortTitle": "Editorials",
+      "folder": "designers-us",
+      "company": "Designers&Us / Octoboss",
+      "year": "2024",
+      "role": "Video Editing, Content Production",
+      "location": "Dubai",
+      "summary": "Editorial shoots, location-led visuals, CGI experiments, and fashion content that lived outside the runway but still carried the Designers&Us world with it.",
+      "description": "",
+      "disciplines": [
+        "creative",
+        "marketing"
+      ],
+      "categories": [
+        "Editorial Fashion",
+        "Fashion Content",
+        "CGI",
+        "Video Editing",
+        "Creative Production",
+        "Location Shoots"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop",
+        "Blender"
+      ],
+      "credits": [],
+      "caseStudy": {
+        "approach": "",
+        "metrics": [],
+        "sections": []
+      },
+      "media": [
+        {
+          "id": "m-ioaufxe-copy-2-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/general/Video-14915.mp4",
+          "title": "Made It to New York",
+          "caption": "The original piece may be lost somewhere in the archive, but at least there’s proof it made it to New York.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3",
+          "type": "video",
+          "src": "media/designers-us/vids/general/Video-83949.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Video-93149.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy-11",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Video-90889.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy-10",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Sequence 06_Sub_01.mp4",
+          "aspect": "16:9",
+          "featured": true
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy-10-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Video-81013.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy-9",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Video-65840.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy-8",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Video-60268.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy-7",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Video-49019.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy-6",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Video-41475.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy-5",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Video-35125.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy-4",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Video-32832.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy-3",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Video-12846.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy-2",
+          "type": "video",
+          "src": "media/designers-us/vids/shoots/Video-4955.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-3-copy-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/general/Video-30920.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy-2",
+          "type": "video",
+          "src": "media/designers-us/vids/general/Video-9481.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-ioaufxe-copy-2-copy-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/general/Video-3037.mp4",
+          "aspect": "9:16"
+        }
+      ],
+      "links": [],
+      "thumbnail": "media/designers-us/banners/Untitled-3-ffff.jpg",
+      "tile": {
+        "span": "lg",
+        "aspect": "1:1"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 4,
+      "quickViewOrder": 7
+    },
+    {
+      "id": "times-square-film-copy-copy",
+      "title": "For the Aisle",
+      "shortTitle": "Bridal",
+      "folder": "designers-us",
+      "company": "Designers&Us / Octoboss",
+      "year": "2024",
+      "role": "Video Editing, Content Production",
+      "location": "Dubai",
+      "summary": "A visual project built around Designers&Us bridal collection, focusing on the dresses, details, movement, and the drama that comes naturally with this much white fabric.",
+      "description": "",
+      "disciplines": [
+        "creative",
+        "marketing"
+      ],
+      "categories": [
+        "Bridal Fashion",
+        "Fashion Content",
+        "Editorial Content",
+        "Video Editing",
+        "Creative Production"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop"
+      ],
+      "credits": [],
+      "caseStudy": {
+        "approach": "",
+        "metrics": [],
+        "sections": []
+      },
+      "media": [
+        {
+          "id": "m-rzeiyls-copy-6",
+          "type": "video",
+          "src": "media/designers-us/vids/wdding dresses/Video-96505.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-rzeiyls-copy-5",
+          "type": "video",
+          "src": "media/designers-us/vids/wdding dresses/Video-85253.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-rzeiyls-copy-4",
+          "type": "video",
+          "src": "media/designers-us/vids/wdding dresses/Video-54891.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-rzeiyls-copy-3",
+          "type": "video",
+          "src": "media/designers-us/vids/wdding dresses/Video-52935.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-rzeiyls-copy-2",
+          "type": "video",
+          "src": "media/designers-us/vids/wdding dresses/Video-17245.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-rzeiyls-copy",
+          "type": "video",
+          "src": "media/designers-us/vids/wdding dresses/Video-16660.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-rzeiyls",
+          "type": "video",
+          "src": "media/designers-us/vids/wdding dresses/Video-74968.mp4",
+          "aspect": "9:16"
+        }
+      ],
+      "links": [],
+      "thumbnail": "media/designers-us/banners/w.png",
+      "tile": {
+        "span": "md",
+        "aspect": "4:5"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 3,
+      "quickViewOrder": 16
+    },
+    {
+      "id": "meet-the-good-moon",
+      "title": "Meet The Good Moon",
+      "shortTitle": "Launch",
+      "folder": "good-moon",
+      "company": "The Good Moon",
+      "year": "2025",
+      "role": "concept development, video production, editing, 3D CGI",
+      "location": "Dubai",
+      "summary": "Introducing The Good Moon through people, atmosphere, and a little curiosity around the idea of the moon itself.",
+      "disciplines": [
+        "marketing",
+        "creative"
+      ],
+      "categories": [
+        "Content Creation",
+        "Creative Production",
+        "Video Editing",
+        "3D/CGI",
+        "Social Media."
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop",
+        "Blender"
+      ],
+      "credits": [
+        {
+          "role": "Graphic Designer",
+          "name": "Daniel Alkontar"
+        },
+        {
+          "role": "Photographer / Videographer ",
+          "name": "Adib Chanwawani"
+        }
+      ],
+      "media": [
+        {
+          "id": "m-s9esbbs",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/p/DEsOLyKybr3/"
+        },
+        {
+          "id": "m-rp19fhk",
+          "type": "image",
+          "src": "media/good-moon/local-images/gg.png",
+          "title": "Opening Grid"
+        },
+        {
+          "id": "m-sv22b8b",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-27024.mp4",
+          "title": "Fully CGI video"
+        },
+        {
+          "id": "m-7vkztvb",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-16687.mp4"
+        },
+        {
+          "id": "m-9l74ewz",
+          "type": "image",
+          "src": "media/good-moon/local-images/sdgfgjh.png",
+          "title": "The Revamp & Branding Retouch introduction ",
+          "featured": true
+        },
+        {
+          "id": "m-vp9qbco",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-90972.mp4"
+        },
+        {
+          "id": "m-r6rvmn1",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-87562.mp4"
+        }
+      ],
+      "links": [],
+      "thumbnail": "media/good-moon/banners/TGML.jpg",
+      "featured": false,
+      "demo": false,
+      "order": 5
+    },
+    {
+      "id": "the-good-moon-in-good-company",
+      "title": "A Good Kind of Crowd ",
+      "shortTitle": "The Crowd",
+      "folder": "good-moon",
+      "company": "The Good Moon",
+      "year": "2025 - 2026",
+      "role": "Creative Direction, Content Creation, Video Production & Editing",
+      "location": "Dubai",
+      "summary": "The people side of The Good Moon, built around models, friends, social moments, and the kind of lifestyle content that made the place feel lived in.",
+      "description": "The Good Moon was always meant to feel like more than somewhere you stop for coffee.\nThis project brings together the people-led side of the brand: models, friends around the table, casual moments, fashion-led shoots, quick trends, and the general energy of people actually enjoying the space.\nLess about the product in isolation, more about the kind of crowd, mood, and everyday lifestyle surrounding it.",
+      "disciplines": [
+        "marketing",
+        "creative"
+      ],
+      "categories": [
+        "Lifestyle Content",
+        "Creative Direction",
+        "Social Media Content",
+        "Video Production",
+        "Brand Content"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop"
+      ],
+      "credits": [
+        {
+          "role": "Graphic Designer",
+          "name": "Daniel Alkontar"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Adib Chanwawani"
+        }
+      ],
+      "media": [
+        {
+          "id": "m-04gqwod",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-10306.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-04gqwod-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-31183.mp4",
+          "title": "This is Barbra ",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-04gqwod-copy-copy-2",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-29102.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-99xy5gt",
+          "type": "gallery",
+          "aspect": "4:5",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/crowed/FireShot Capture 038 - (3) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/crowed/FireShot Capture 044 - (3) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/crowed/FireShot Capture 043 - (3) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/crowed/FireShot Capture 048 - (3) Instagram - [www.instagram.com].png"
+            }
+          ]
+        },
+        {
+          "id": "m-4e977vj",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-9415.mp4"
+        },
+        {
+          "id": "m-04gqwod-copy-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-78216.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-04gqwod-copy-copy-3",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-54197.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-04gqwod-copy-copy-copy-3",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-95901.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-0ullijh",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-23444.mp4",
+          "featured": true
+        },
+        {
+          "id": "m-99xy5gt-copy",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/crowed/FireShot Capture 045 - (3) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/crowed/FireShot Capture 047 - (3) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/crowed/FireShot Capture 051 - (3) Instagram - [www.instagram.com].png"
+            }
+          ],
+          "presentation": {
+            "mode": "slideshow",
+            "autoplay": true,
+            "interval": 2000
+          }
+        },
+        {
+          "id": "m-04gqwod-copy-copy-copy-2",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-52162.mp4"
+        },
+        {
+          "id": "m-04gqwod-copy-copy-copy-2-copy-2",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-96961.mp4"
+        },
+        {
+          "id": "m-04gqwod-copy-copy-copy-2-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-55033.mp4"
+        },
+        {
+          "id": "m-avka39l",
+          "type": "instagram",
+          "instagramUrl": "https://www.instagram.com/p/DMdOAtIJ6KT/"
+        },
+        {
+          "id": "m-04gqwod-copy-copy-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-46795.mp4"
+        },
+        {
+          "id": "m-t0cgg9k",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/crowed/FireShot Capture 042 - (3) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/crowed/FireShot Capture 041 - (3) Instagram - [www.instagram.com].png"
+            }
+          ],
+          "presentation": {
+            "mode": "slideshow",
+            "autoplay": true,
+            "interval": 2000
+          }
+        },
+        {
+          "id": "m-ynzhcou",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-30621.mp4",
+          "title": "The Good Moon X Matcha Concept"
+        },
+        {
+          "id": "m-0ullijh-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/Video-56090.mp4",
+          "featured": true
+        }
+      ],
+      "banner": {
+        "type": "video",
+        "src": "media/good-moon/banners/bbbb.mp4"
+      },
+      "links": [],
+      "thumbnail": "media/good-moon/banners/c.png",
+      "tile": {
+        "span": "md",
+        "aspect": "1:1"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 2,
+      "quickViewOrder": 10
+    },
+    {
+      "id": "the-good-moon-in-good-company-copy",
+      "title": "The Good Stuff",
+      "shortTitle": "The Good Stuff",
+      "folder": "good-moon",
+      "company": "The Good Moon",
+      "year": "2025 - 2026",
+      "role": "Creative Direction, Content Creation, Video Production & Editing",
+      "location": "Dubai",
+      "summary": "The product-focused side of The Good Moon, covering coffee, matcha, desserts, food, drinks, and all the little details that deserved a closer look.",
+      "description": "This is where the product gets to be the main character.\nPouring, plating, mixing, baking, melting, finishing, and occasionally filming something for way longer than necessary because the shot looked nice.\nFrom coffee and matcha to desserts, sweets, and food, this project is basically The Good Moon at its most edible.",
+      "disciplines": [
+        "marketing",
+        "creative"
+      ],
+      "categories": [
+        "Food & Beverage Content",
+        "Creative Direction",
+        "Product Content",
+        "Video Production",
+        "Social Media Content"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop"
+      ],
+      "credits": [
+        {
+          "role": "Graphic Designer",
+          "name": "Daniel Alkontar"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Adib Chanwawani"
+        }
+      ],
+      "media": [
+        {
+          "id": "m-e2hy9ey",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-41448.mp4",
+          "title": "This is what happens when you order a tropical sticky rice ",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-22",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-55834.mp4",
+          "title": "Chocolate mousse ",
+          "caption": "The shadow made a moon shape, if you didn't notice.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-21",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-4684.mp4",
+          "title": "The Good Moon X kool kaos.... with a K in both words ",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-20",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-3759.mp4",
+          "title": "Sliding to breakfast",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-qbsy9oj",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 077 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 071 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 073 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 075 - Instagram - [www.instagram.com].png"
+            }
+          ]
+        },
+        {
+          "id": "m-e2hy9ey-copy-19",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-3697.mp4",
+          "title": "Showing off a plated dessert",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-18",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-56594.mp4",
+          "title": "Announcing whatever this is",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-8nl7pmm",
+          "type": "gallery",
+          "aspect": "16:9",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 057 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 059 - (2) Instagram - [www.instagram.com].png"
+            }
+          ]
+        },
+        {
+          "id": "m-e2hy9ey-copy-17",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-13951.mp4",
+          "title": "The Good Moon x Tropical Feel",
+          "caption": "Tropical Feel created a pop-up event at The Good Moon to market their shoe brand.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-16",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-89813.mp4",
+          "title": "Is that a banana?",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-15",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-65623.mp4",
+          "title": "Too many textures on this one.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-14",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-88400.mp4",
+          "title": "Soft and chocolaty",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-13",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-98384.mp4",
+          "title": "Oh, the melt",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-12",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-99025.mp4",
+          "title": "Everything looks delicious here",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-11",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-97545.mp4",
+          "title": "The barista POV",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-10",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-92138.mp4",
+          "title": "Eggs on waffle?",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-82cyv47",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 069 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 076 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 063 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 064 - (2) Instagram - [www.instagram.com].png"
+            }
+          ]
+        },
+        {
+          "id": "m-e2hy9ey-copy-9",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-15836.mp4",
+          "title": "Lunch options",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-8",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-23057.mp4",
+          "title": "Half matcha, half matcha",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-6wbcg1q",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 054 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 055 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 056 - (2) Instagram - [www.instagram.com].png"
+            }
+          ],
+          "presentation": {
+            "mode": "slideshow",
+            "autoplay": false,
+            "interval": 2000
+          }
+        },
+        {
+          "id": "m-e2hy9ey-copy-7",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-47945.mp4",
+          "title": "Making a drink in style",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-7-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-12355.mp4",
+          "title": "Chef is scratching with this dessert",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-6",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-42230.mp4",
+          "title": "Breakfast done right",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-5",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-10791.mp4",
+          "title": "Morning coffee with some dance moves",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-40fcojm",
+          "type": "gallery",
+          "aspect": "4:5",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 081 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 079 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 080 - Instagram - [www.instagram.com].png"
+            }
+          ],
+          "presentation": {
+            "mode": "slideshow",
+            "autoplay": true,
+            "interval": 2000
+          }
+        },
+        {
+          "id": "m-e2hy9ey-copy-4",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-8285.mp4",
+          "title": "Ramadan Helal as a cake",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-05lplcv",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 058 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 072 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 082 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 060 - (2) Instagram - [www.instagram.com].png"
+            }
+          ]
+        },
+        {
+          "id": "m-e2hy9ey-copy-3",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-90161.mp4",
+          "title": "Picture is worth taking.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-e2hy9ey-copy-2",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-70513.mp4",
+          "title": "This is how you make matcha",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-0h72gyl",
+          "type": "gallery",
+          "aspect": "4:5",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 074 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 070 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 083 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 078 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/stuff/FireShot Capture 066 - (2) Instagram - [www.instagram.com].png"
+            }
+          ],
+          "presentation": {
+            "mode": "slideshow",
+            "autoplay": true,
+            "interval": 2000
+          }
+        },
+        {
+          "id": "m-e2hy9ey-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/the good stuff/Video-55977.mp4",
+          "title": "A moon shaped dessert",
+          "aspect": "9:16"
+        }
+      ],
+      "banner": {
+        "type": "video",
+        "src": "media/good-moon/banners/bbbbff.mp4"
+      },
+      "links": [],
+      "thumbnail": "media/good-moon/banners/WERDR.png",
+      "tile": {
+        "span": "md",
+        "aspect": "4:5"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 1,
+      "quickViewOrder": 11
+    },
+    {
+      "id": "roll-with-it",
+      "title": "Roll With It",
+      "shortTitle": "Sushi",
+      "folder": "good-moon",
+      "company": "The Good Moon",
+      "year": "2025",
+      "role": "Creative Direction, Content Creation, Video Production & Editing",
+      "location": "Dubai",
+      "summary": "Sushi joined the menu, so naturally it needed more than one nice photo.",
+      "description": "Introducing sushi to The Good Moon with a small visual rollout built around clean food shots, preparation, and just enough drama for a plate of sushi.",
+      "disciplines": [
+        "marketing",
+        "creative"
+      ],
+      "categories": [
+        "Food & Beverage Content",
+        "Product Launch",
+        "Creative Direction",
+        "Video Production",
+        "Social Media Content"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop"
+      ],
+      "credits": [],
+      "media": [
+        {
+          "id": "m-jmdttlm",
+          "type": "video",
+          "src": "media/good-moon/local-videos/sushi/Video-99614.mp4",
+          "title": "Raw Decision",
+          "caption": "Apparently, coffee and dessert were not enough. Sushi entered the chat, and The Good Moon got a little more interesting."
+        },
+        {
+          "id": "m-b81uvt8",
+          "type": "video",
+          "src": "media/good-moon/local-videos/sushi/sushi (1).mp4",
+          "title": "Roll Call",
+          "caption": "Plates down, chopsticks moving. The rest is just keeping up."
+        },
+        {
+          "id": "m-d3zpcob",
+          "type": "gallery",
+          "aspect": "16:9",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/sushi/FireShot Capture 089 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/sushi/FireShot Capture 088 - Instagram - [www.instagram.com].png"
+            }
+          ],
+          "featured": true
+        },
+        {
+          "id": "m-b81uvt8-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/sushi/Video-62918.mp4",
+          "title": "No Questions, Just Sushi"
+        },
+        {
+          "id": "m-kacbk5i",
+          "type": "gallery",
+          "aspect": "4:5",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/sushi/FireShot Capture 085 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/sushi/FireShot Capture 086 - Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/sushi/FireShot Capture 090 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/sushi/FireShot Capture 087 - Instagram - [www.instagram.com].png"
+            }
+          ],
+          "presentation": {
+            "mode": "slideshow",
+            "autoplay": true,
+            "interval": 2000
+          }
+        }
+      ],
+      "banner": {
+        "type": "image",
+        "src": "media/good-moon/banners/sushi.jpg"
+      },
+      "links": [],
+      "thumbnail": "media/good-moon/banners/TGMLs.jpg",
+      "tile": {
+        "span": "md",
+        "aspect": "4:5"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 3,
+      "quickViewOrder": 12
+    },
+    {
+      "id": "roll-with-it-copy",
+      "title": "A Very Good Excuse for Flowers",
+      "shortTitle": "Valentine’s",
+      "folder": "good-moon",
+      "company": "The Good Moon",
+      "year": "2025",
+      "role": "Creative Direction, Content Creation, Video Production & Editing",
+      "location": "Dubai",
+      "summary": "A Valentine’s collaboration built around flowers, coffee, and just enough romance to get away with making everything look extra pretty.",
+      "description": "Valentine’s gave us a very convenient reason to make The Good Moon softer, sweeter, and slightly more dramatic than usual.\nThe project mixed floral styling, coffee-led visuals, lifestyle content, and a CGI piece created for the collaboration. Romantic, yes. Subtle, not particularly.",
+      "disciplines": [
+        "marketing",
+        "creative"
+      ],
+      "categories": [
+        "Creative Direction",
+        "Seasonal Campaign",
+        "Brand Collaboration",
+        "Lifestyle Content",
+        "CGI",
+        "Video Production"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop",
+        "Blender"
+      ],
+      "credits": [
+        {
+          "role": "Graphic Designer",
+          "name": "Daniel Alkontar"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Adib Chanwawani"
+        }
+      ],
+      "media": [
+        {
+          "id": "m-a5girrq",
+          "type": "image",
+          "src": "media/good-moon/local-images/val/FireShot Capture 094 - (2) Instagram - [www.instagram.com].png",
+          "featured": true
+        },
+        {
+          "id": "m-o1a56o3",
+          "type": "video",
+          "src": "media/good-moon/local-videos/val/Video-21231.mp4",
+          "title": "Caught in the Act",
+          "caption": "Flowers everywhere, feelings everywhere, and one very important petal making its way into the next scene.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-o1a56o3-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/val/Video-18465.mp4",
+          "title": "Highly Scientific",
+          "caption": "He loves me. He loves me not. A flawless decision-making system, assuming you trust a rose with your emotional future.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-o1a56o3-copy-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/val/Video-59497.mp4",
+          "title": "Subtle Was Never the Plan",
+          "caption": "Flowers took over the rooftop, giant hearts showed up in the sky, and subtlety quietly left the campaign.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-oxqhl61",
+          "type": "image",
+          "src": "media/good-moon/local-images/val/FireShot Capture 095 - (2) Instagram - [www.instagram.com].png",
+          "title": "Case Closed",
+          "caption": "The petals have spoken.",
+          "aspect": "4:5"
+        }
+      ],
+      "banner": {
+        "type": "image",
+        "src": "media/good-moon/banners/sushi VAL.jpg"
+      },
+      "links": [],
+      "thumbnail": "media/good-moon/banners/TGMV.jpg",
+      "tile": {
+        "span": "md",
+        "aspect": "4:5"
+      },
+      "featured": false,
+      "demo": false,
+      "order": 6
+    },
+    {
+      "id": "roll-with-it-copy-copy",
+      "title": "The Good Moon x Gabi",
+      "shortTitle": "Gabi Collab",
+      "folder": "good-moon",
+      "company": "The Good Moon",
+      "year": "2025",
+      "role": "Creative Direction, Content Creation, Video Production & Editing",
+      "location": "Dubai",
+      "summary": "A lifestyle collaboration bringing Gabi’s abayas into The Good Moon’s world through fashion-led visuals, movement, coffee, and a very compatible audience.",
+      "description": "We could have put someone in an abaya, handed them a coffee, taken a few nice photos, and called it a collaboration.\nWe did not do that.\nInstead, The Good Moon x Gabi became a small editorial world of its own. Monochrome visuals, hard light, long shadows, moon imagery, styling, fabric, chess pieces, and enough mysterious-looking frames to make a coffee collaboration feel like it belonged in a fashion magazine.",
+      "disciplines": [
+        "marketing",
+        "creative"
+      ],
+      "categories": [
+        "Creative Direction",
+        "Seasonal Campaign",
+        "Brand Collaboration",
+        "Lifestyle Content",
+        "CGI",
+        "Video Production"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop"
+      ],
+      "credits": [
+        {
+          "role": "Graphic Designer",
+          "name": "Daniel Alkontar"
+        },
+        {
+          "role": "Photographer / Videographer",
+          "name": "Adib Chanwawani"
+        }
+      ],
+      "media": [
+        {
+          "id": "m-rdchtdo",
+          "type": "image",
+          "src": "media/good-moon/local-images/GABI/FireShot Capture 099 - (2) Instagram - [www.instagram.com].png",
+          "demo": false,
+          "featured": true
+        },
+        {
+          "id": "m-uambp6p",
+          "type": "video",
+          "src": "media/good-moon/local-videos/gabi/Video-25211.mp4",
+          "title": "Enter Gabi",
+          "caption": "A few shadows, a little fabric, and absolutely no intention of explaining everything yet.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-uambp6p-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/gabi/Video-51793.mp4",
+          "title": "Now We Have a Date",
+          "caption": "The mystery got a timestamp. Fashion, moonlight, and The Good Moon x Gabi, officially on the calendar.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-rdchtdo-copy",
+          "type": "image",
+          "src": "media/good-moon/local-images/GABI/FireShot Capture 101 - (2) Instagram - [www.instagram.com].png",
+          "demo": false,
+          "featured": true
+        },
+        {
+          "id": "m-uambp6p-copy-copy",
+          "type": "video",
+          "src": "media/good-moon/local-videos/gabi/Video-4955.mp4",
+          "title": "And Then It Happened",
+          "caption": "The mood left the moodboard. The Good Moon x Gabi, now with real people, real fabric, real coffee, and considerably less mystery.",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-cf6o1lz",
+          "type": "gallery",
+          "items": [
+            {
+              "src": "media/good-moon/local-images/GABI/FireShot Capture 107 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/GABI/FireShot Capture 108 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/GABI/FireShot Capture 104 - (2) Instagram - [www.instagram.com].png"
+            },
+            {
+              "src": "media/good-moon/local-images/GABI/FireShot Capture 106 - (2) Instagram - [www.instagram.com].png"
+            }
+          ]
+        }
+      ],
+      "banner": {
+        "type": "image",
+        "src": "media/good-moon/banners/gg.jpg"
+      },
+      "links": [],
+      "thumbnail": "media/good-moon/banners/TGMLG.jpg",
+      "tile": {
+        "span": "md",
+        "aspect": "4:5"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 4,
+      "quickViewOrder": 13
+    },
+    {
+      "id": "on-feed",
+      "title": "On Feed",
+      "shortTitle": "Social Content",
+      "folder": "new-folder",
+      "company": "OCTOBOSS",
+      "year": "2024",
+      "role": "Content Creation, Video Editing, 3D / CGI, Creative Production",
+      "location": "Dubai",
+      "summary": "One line describing this project.",
+      "description": "A mix of agency content, behind-the-scenes moments, quick social edits, and CGI pieces made to keep Octoboss looking active, sharp, and a little less corporate.",
+      "disciplines": [
+        "creative"
+      ],
+      "categories": [
+        "Social Media Content",
+        "Agency Content",
+        "Video Editing",
+        "3D / CGI",
+        "Creative Production"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop",
+        "Blender"
+      ],
+      "credits": [],
+      "media": [
+        {
+          "id": "m-1tc7b2e",
+          "type": "video",
+          "src": "media/OCTO/local-vids/octo/Video-59354.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-1tc7b2e-copy-5",
+          "type": "video",
+          "src": "media/OCTO/local-vids/octo/Video-32328.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-1tc7b2e-copy-4",
+          "type": "video",
+          "src": "media/OCTO/local-vids/octo/Video-31353.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-63424n7",
+          "type": "video",
+          "src": "media/OCTO/local-vids/octo/Video-24921 sd.mp4",
+          "title": "Nice dinner party.",
+          "caption": "Behind the scenes of a private Designers&Us dinner with the Syrian Stars of \" لعبة حب\" TV show, where the polished evening started long before anyone took their seat.",
+          "aspect": "16:9"
+        },
+        {
+          "id": "m-1tc7b2e-copy",
+          "type": "video",
+          "src": "media/OCTO/local-vids/octo/Video-53290.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-1tc7b2e-copy-3",
+          "type": "video",
+          "src": "media/OCTO/local-vids/octo/Video-30736.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-1tc7b2e-copy-2",
+          "type": "video",
+          "src": "media/OCTO/local-vids/octo/Video-69397.mp4",
+          "aspect": "9:16"
+        }
+      ],
+      "banner": {
+        "type": "image",
+        "src": "media/OCTO/Banners/qwe.jpg"
+      },
+      "links": [],
+      "thumbnail": "media/OCTO/Banners/FireShot Capture 113 - Instagram - [www.instagram.com].png",
+      "tile": {
+        "span": "md",
+        "aspect": "4:5"
+      },
+      "featured": true,
+      "demo": false,
+      "order": 1,
+      "quickViewOrder": 15
+    },
+    {
+      "id": "on-feed-copy",
+      "title": "Furby Friends ",
+      "shortTitle": "pets",
+      "folder": "new-folder",
+      "company": "OCTOBOSS",
+      "year": "2024",
+      "role": "Content Creation, Video Editing",
+      "location": "Dubai",
+      "summary": "Furry Pets is a pet grooming and cleaning brand focused on keeping pets looking fresh, clean, and very pleased with themselves.",
+      "description": "",
+      "disciplines": [
+        "creative",
+        "marketing"
+      ],
+      "categories": [
+        "Social Media Content",
+        "Agency Content",
+        "Video Editing",
+        "Creative Production"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop",
+        "Blender"
+      ],
+      "credits": [],
+      "media": [
+        {
+          "id": "m-etr0pcw",
+          "type": "video",
+          "src": "media/OCTO/local-vids/furby/Video-81408.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-5",
+          "type": "video",
+          "src": "media/OCTO/local-vids/furby/Video-68630.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-4",
+          "type": "video",
+          "src": "media/OCTO/local-vids/furby/Video-10576.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-3",
+          "type": "video",
+          "src": "media/OCTO/local-vids/furby/Video-69411.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-2",
+          "type": "video",
+          "src": "media/OCTO/local-vids/furby/Video-65882.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy",
+          "type": "video",
+          "src": "media/OCTO/local-vids/furby/Video-6288.mp4",
+          "aspect": "9:16"
+        }
+      ],
+      "links": [],
+      "thumbnail": "media/OCTO/Banners/furby.jpg",
+      "featured": false,
+      "demo": false,
+      "order": 3
+    },
+    {
+      "id": "on-feed-copy-copy",
+      "title": "Padel 360: Four Days, No Time",
+      "shortTitle": "Padel 360",
+      "folder": "new-folder",
+      "company": "OCTOBOSS",
+      "year": "2024",
+      "role": "Content Creation, Video Editing",
+      "location": "Dubai",
+      "summary": "Four days of tournament coverage in Abu Dhabi, with multiple same-day edits produced on-site while the event was still happening.",
+      "description": "Padel 360 was a four-day tournament in Abu Dhabi, and the content schedule did not believe in waiting.\nThe job was to capture the action, atmosphere, players, crowd, and key moments, then turn that footage into multiple social videos on the same day, often while the next part of the event was already starting.",
+      "disciplines": [
+        "creative",
+        "marketing"
+      ],
+      "categories": [
+        "Event Coverage",
+        "Sports Content",
+        "Video Editing",
+        "Social Media Content",
+        "Fast-Turnaround Production"
+      ],
+      "tags": [],
+      "responsibilities": [],
+      "tools": [
+        "Adobe Premiere Pro",
+        "Adobe After Effects",
+        "Adobe Photoshop"
+      ],
+      "credits": [],
+      "media": [
+        {
+          "id": "m-etr0pcw-copy",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-23878.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-copy-10",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-19460.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-copy-9",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-426.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-copy-8",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-81436.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-copy-8-copy",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-29774.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-copy-7",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-52009.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-copy-6",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-90148.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-copy-5",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-24815.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-copy-4",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-81436.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-copy-3",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-74005.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-copy-2",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-55985.mp4",
+          "aspect": "9:16"
+        },
+        {
+          "id": "m-etr0pcw-copy-copy",
+          "type": "video",
+          "src": "media/OCTO/local-vids/360 padel/Video-67463.mp4",
+          "aspect": "9:16"
+        }
+      ],
+      "banner": {
+        "type": "video",
+        "src": "media/OCTO/Banners/360.mp4"
+      },
+      "links": [],
+      "thumbnail": "media/OCTO/Banners/360.jpg",
+      "featured": true,
+      "demo": false,
+      "order": 2,
+      "quickViewOrder": 14
     }
   ],
   "experience": [

@@ -15,8 +15,10 @@ import { useCallback, useState } from 'react';
 import type { Discipline, MediaItem } from '@/types/content';
 import { SmartImage } from '@/components/ui/SmartImage';
 import { MediaFrame } from '../MediaFrame';
-import { isAuto, useImageRatio } from '../aspect';
+import { FALLBACK_RATIO, isAuto, useImageRatio } from '../aspect';
 import { MediaFocus } from '../MediaFocus';
+import { MultiImageSlideshow } from '../MultiImageSlideshow';
+import { slideshowOf } from '../presentation';
 import { asMediaItems, galleryItems } from '../subitems';
 import type { AdapterProps } from '../types';
 
@@ -115,40 +117,59 @@ export function GalleryMedia({ media, seed, discipline, mode, priority }: Adapte
     );
   }
 
+  // Two or more images and a Slideshow setting; otherwise the stacked set below.
+  const slideshow = slideshowOf(media.presentation, items.length);
+
   return (
     <>
-      <MediaFrame
-        fill
-        title={media.title}
-        caption={media.caption}
-        demo={media.demo}
-        kindLabel={items.length > 1 ? `${items.length} images` : undefined}
-      >
-        <div className="media-set" data-count={Math.min(items.length, 3)}>
-          {items.map((item, index) => (
-            <figure className="media-set__item" key={item.id ?? `${media.id}-${index}`}>
-              <button
-                type="button"
-                className="media-open"
-                onClick={() => setOpenIndex(index)}
-                aria-label={item.alt ? `Open ${item.alt} larger` : 'Open larger'}
-              >
-                <SmartImage
-                  src={item.src ?? item.url}
-                  alt={item.alt ?? item.caption ?? `Image ${index + 1}`}
-                  seed={`${seed}-${media.id}-${index}`}
-                  discipline={discipline}
-                  label={item.caption}
-                  natural={isAuto(item.aspect)}
-                  objectFit="contain"
-                  className={isAuto(item.aspect) ? undefined : 'media-set__img'}
-                />
-              </button>
-              {item.caption && <figcaption className="media-set__caption">{item.caption}</figcaption>}
-            </figure>
-          ))}
-        </div>
-      </MediaFrame>
+      {slideshow ? (
+        <MultiImageSlideshow
+          items={items}
+          settings={slideshow}
+          frame={{ title: media.title, caption: media.caption, demo: media.demo }}
+          aspect={media.aspect}
+          fallbackRatio={FALLBACK_RATIO.gallery}
+          onOpen={setOpenIndex}
+          held={openIndex !== null}
+          seed={`${seed}-${media.id}`}
+          discipline={discipline}
+          priority={priority}
+          altOf={(item, index) => item.alt ?? item.caption ?? `Image ${index + 1}`}
+          openLabelOf={(item) => (item.alt ? `Open ${item.alt} larger` : 'Open larger')}
+        />
+      ) : (
+        <MediaFrame
+          fill
+          title={media.title}
+          caption={media.caption}
+          demo={media.demo}
+        >
+          <div className="media-set" data-count={Math.min(items.length, 3)}>
+            {items.map((item, index) => (
+              <figure className="media-set__item" key={item.id ?? `${media.id}-${index}`}>
+                <button
+                  type="button"
+                  className="media-open"
+                  onClick={() => setOpenIndex(index)}
+                  aria-label={item.alt ? `Open ${item.alt} larger` : 'Open larger'}
+                >
+                  <SmartImage
+                    src={item.src ?? item.url}
+                    alt={item.alt ?? item.caption ?? `Image ${index + 1}`}
+                    seed={`${seed}-${media.id}-${index}`}
+                    discipline={discipline}
+                    label={item.caption}
+                    natural={isAuto(item.aspect)}
+                    objectFit="contain"
+                    className={isAuto(item.aspect) ? undefined : 'media-set__img'}
+                  />
+                </button>
+                {item.caption && <figcaption className="media-set__caption">{item.caption}</figcaption>}
+              </figure>
+            ))}
+          </div>
+        </MediaFrame>
+      )}
 
       {openIndex !== null && (
         <MediaFocus

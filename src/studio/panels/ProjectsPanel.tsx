@@ -1,23 +1,43 @@
 /**
  * Projects panel — the main editing surface.
  *
- * Master list on the left (add / duplicate / reorder / delete), full editor on
- * the right: metadata, case study, media, links and credits. Each top-level
- * section is collapsed until opened, with a one-line summary, and Preview draws
- * the unsaved draft with the live renderers (see ProjectPreview).
+ * The list on the left is grouped by folder (folder.order), each folder's
+ * projects in their visible order, reordered by grip or arrows. A second mode
+ * lists only the featured projects, in Quick View order. Both write through
+ * `lib/projectOrder` — the same definitions Work and Quick View read — and
+ * never reorder the `projects[]` array itself.
+ *
+ * The full editor is on the right: metadata, case study, media, links and
+ * credits. Each top-level section is collapsed until opened, with a one-line
+ * summary, and Preview draws the unsaved draft with the live renderers (see
+ * ProjectPreview).
  */
-import { useState } from 'react';
-import { ArrowDown, ArrowUp, Copy, Eye, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowDown, ArrowUp, Copy, Eye, FolderTree, Plus, Star, Trash2 } from 'lucide-react';
 import { Btn, Empty, Toggle } from '@/components/ui/Ui';
 import type { CaseStudy, MediaItem, Project } from '@/types/content';
-import { uid } from '@/lib/utils';
+import { cx, uid } from '@/lib/utils';
+import {
+  appendToFolder,
+  moveInFolder,
+  moveInQuickView,
+  moveToFolder,
+  orderedFolders,
+  orderedProjectsInFolder,
+  orderedQuickViewProjects,
+  placeAfter,
+  renumberFolder,
+  setFeatured,
+} from '@/lib/projectOrder';
 import type { PanelProps } from '../useDraft';
 import { MediaFields } from './MediaFields';
 import { MediaList } from './MediaList';
+import { ProjectOrderList } from './ProjectOrderList';
 import { ProjectPreview } from './ProjectPreview';
 import { BannerSource, SourceField } from './SourceField';
 import {
   Advanced,
+  Collapsible,
   IdField,
   Area,
   Choice,
@@ -27,7 +47,6 @@ import {
   IconBtn,
   IconFields,
   Lines,
-  Num,
   PanelHead,
   Repeater,
   Section,
@@ -227,8 +246,14 @@ function blankProject(id: string, folder: string): Project {
   };
 }
 
+/** The sidebar: folders and their projects, or the Quick View sequence. */
+type ListMode = 'folder' | 'quick';
+
 export function ProjectsPanel({ draft, update }: PanelProps) {
   const [selected, setSelected] = useState<string | null>(draft.projects[0]?.id ?? null);
+  const [mode, setMode] = useState<ListMode>('folder');
+  /** Which folder groups are open in the sidebar, by folder id. UI state only. */
+  const groups = useFolds();
   /*
    * Which sections are open, and whether the preview is. UI state only — never
    * in the draft. Folds are reset when a *different project* is chosen (see
@@ -245,6 +270,47 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
   const choose = (id: string | null, open: Fold[] = []) => {
     setSelected(id);
     folds.set(open);
+  };
+
+  /*
+   * The sidebar groups. Folders by folder.order; a folder id no folder has
+   * (hand-edited JSON) still gets a group, so its projects stay reachable.
+   */
+  const known = new Set(draft.folders.map((folder) => folder.id));
+  const groupList = [
+    ...orderedFolders(draft.folders).map((folder) => ({ id: folder.id, name: folder.name })),
+    ...[...new Set(draft.projects.map((p) => p.folder))]
+      .filter((id) => !known.has(id))
+      .map((id) => ({ id, name: `Unknown folder · ${id}` })),
+  ];
+  const folderName = (id: string) => draft.folders.find((folder) => folder.id === id)?.name ?? id;
+  const quickView = orderedQuickViewProjects(draft.projects);
+
+  // The selected project's folder starts open, so the list shows where you are.
+  useEffect(() => {
+    if (project) groups.reveal(project.folder);
+    // Mount only: afterwards the groups are the user's to open and close.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Where the selected project sits in its folder's visible order. */
+  const siblings = project ? orderedProjectsInFolder(draft.projects, project.folder) : [];
+  const position = project ? siblings.findIndex((p) => p.id === project.id) : -1;
+
+  /** The one folder reorder — sidebar drag, sidebar arrows and header arrows. */
+  const moveWithin = (folderId: string) => (from: number, to: number) =>
+    update((next) => {
+      moveInFolder(next.projects, folderId, from, to);
+    });
+
+  /** The one Quick View reorder. Touches `quickViewOrder` only. */
+  const moveQuick = (from: number, to: number) =>
+    update((next) => {
+      moveInQuickView(next.projects, from, to);
+    });
+
+  const select = (id: string) => {
+    if (id !== project?.id) choose(id);
   };
 
   /** Props for one collapsible section. */
@@ -272,11 +338,15 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
       draft.projects.map((p) => p.id),
       'new-project',
     );
+    const folder = draft.folders[0]?.id ?? 'web';
     update((next) => {
-      next.projects.push(blankProject(id, next.folders[0]?.id ?? 'web'));
+      const created = blankProject(id, folder);
+      next.projects.push(created);
+      appendToFolder(next.projects, created);
     });
     // A new project is empty, so it opens on the section that needs filling in.
     choose(id, ['identity']);
+    groups.reveal(folder);
   };
 
   const duplicateProject = () => {
@@ -292,6 +362,8 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
       clone.id = id;
       clone.title = `${source.title} (copy)`;
       next.projects.splice(activeIndex + 1, 0, clone);
+      // Right after the original in its folder's visible order, not wherever the array put it.
+      placeAfter(next.projects, clone, source);
     });
     choose(id);
   };
@@ -301,17 +373,9 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
     const fallback = draft.projects.find((p) => p.id !== project.id)?.id ?? null;
     update((next) => {
       next.projects = next.projects.filter((p) => p.id !== project.id);
+      renumberFolder(next.projects, project.folder);
     });
     choose(fallback);
-  };
-
-  const moveProject = (direction: -1 | 1) => {
-    update((next) => {
-      const to = activeIndex + direction;
-      if (to < 0 || to >= next.projects.length) return;
-      const [moved] = next.projects.splice(activeIndex, 1);
-      if (moved) next.projects.splice(to, 0, moved);
-    });
   };
 
   return (
@@ -330,27 +394,69 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
             </Btn>
           </header>
 
+          <div className="studio-media__view studio-list__mode" role="group" aria-label="Organise projects">
+            <button
+              type="button"
+              className={cx('studio-media__view-btn', mode === 'folder' && 'is-on')}
+              aria-pressed={mode === 'folder'}
+              onClick={() => setMode('folder')}
+            >
+              <FolderTree strokeWidth={1.5} /> By folder
+            </button>
+            <button
+              type="button"
+              className={cx('studio-media__view-btn', mode === 'quick' && 'is-on')}
+              aria-pressed={mode === 'quick'}
+              onClick={() => setMode('quick')}
+            >
+              <Star strokeWidth={1.5} /> Quick View
+            </button>
+          </div>
+
           <div className="studio-list__scroll">
-            {draft.projects.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`studio-list__item${item.id === project?.id ? ' studio-list__item--active' : ''}`}
-                onClick={() => {
-                  if (item.id !== project?.id) choose(item.id);
-                }}
-              >
-                <span className="studio-list__title">
-                  {item.title}
-                  {item.featured && <span className="studio-list__star">★</span>}
-                </span>
-                <span className="mono studio-list__meta">
-                  {item.folder}
-                  {item.year ? ` · ${item.year}` : ''}
-                  {item.demo ? ' · demo' : ''}
-                </span>
-              </button>
-            ))}
+            {mode === 'folder' ? (
+              <>
+                <FoldBar folds={groups} ids={groupList.map((group) => group.id)} />
+                {groupList.map((group) => {
+                  const items = orderedProjectsInFolder(draft.projects, group.id);
+                  return (
+                    <Collapsible
+                      key={group.id}
+                      title={group.name}
+                      summary={count(items.length, 'project')}
+                      open={groups.isOpen(group.id)}
+                      onToggle={() => groups.toggle(group.id)}
+                    >
+                      {items.length ? (
+                        <ProjectOrderList
+                          projects={items}
+                          selectedId={project?.id}
+                          onSelect={select}
+                          onMove={moveWithin(group.id)}
+                          meta={(p) => [p.year, p.demo && 'demo'].filter(Boolean).join(' · ')}
+                          what="in this folder"
+                        />
+                      ) : (
+                        <p className="studio-rep__empty">No projects in this folder.</p>
+                      )}
+                    </Collapsible>
+                  );
+                })}
+              </>
+            ) : quickView.length ? (
+              <ProjectOrderList
+                projects={quickView}
+                selectedId={project?.id}
+                onSelect={select}
+                onMove={moveQuick}
+                meta={(p) => [folderName(p.folder), p.year].filter(Boolean).join(' · ')}
+                what="in Quick View"
+              />
+            ) : (
+              <p className="studio-rep__empty">
+                Nothing in Quick View yet. Turn on Show in Quick View in a project's Identity.
+              </p>
+            )}
           </div>
         </aside>
 
@@ -366,16 +472,16 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
                 <h3 className="studio-detail__title">{project.title}</h3>
                 <div className="studio-detail__tools">
                   <IconBtn
-                    label="Move up"
-                    disabled={activeIndex <= 0}
-                    onClick={() => moveProject(-1)}
+                    label="Move up in folder"
+                    disabled={position <= 0}
+                    onClick={() => moveWithin(project.folder)(position, position - 1)}
                   >
                     <ArrowUp strokeWidth={1.5} />
                   </IconBtn>
                   <IconBtn
-                    label="Move down"
-                    disabled={activeIndex >= draft.projects.length - 1}
-                    onClick={() => moveProject(1)}
+                    label="Move down in folder"
+                    disabled={position < 0 || position >= siblings.length - 1}
+                    onClick={() => moveWithin(project.folder)(position, position + 1)}
                   >
                     <ArrowDown strokeWidth={1.5} />
                   </IconBtn>
@@ -436,7 +542,15 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
                     label="Folder"
                     value={project.folder}
                     options={folderOptions}
-                    onChange={(v) => patch({ folder: v })}
+                    hint={`Position #${String(position + 1).padStart(2, '0')} of ${siblings.length} — reorder in the list`}
+                    onChange={(v) => {
+                      // Leaves the old folder renumbered and lands last in the new one.
+                      update((next) => {
+                        const target = next.projects[activeIndex];
+                        if (target) moveToFolder(next.projects, target, v);
+                      });
+                      groups.reveal(v);
+                    }}
                   />
                   <Text
                     label="Company"
@@ -449,12 +563,6 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
                     label="Location"
                     value={project.location}
                     onChange={(v) => patch({ location: v })}
-                  />
-                  <Num
-                    label="Order"
-                    value={project.order}
-                    hint="Lower sorts first inside the folder"
-                    onChange={(v) => patch({ order: v })}
                   />
                 </Grid>
 
@@ -504,10 +612,15 @@ export function ProjectsPanel({ draft, update }: PanelProps) {
 
                 <div className="studio-toggles">
                   <Toggle
-                    label="Featured"
-                    hint="Appears in Quick View → Selected Work"
+                    label="Show in Quick View"
+                    hint="Adds it last in Quick View → Selected Work. Order it under Projects → Quick View. Does not change Work order."
                     checked={project.featured}
-                    onChange={(v) => patch({ featured: v })}
+                    onChange={(v) =>
+                      update((next) => {
+                        const target = next.projects[activeIndex];
+                        if (target) setFeatured(next.projects, target, v);
+                      })
+                    }
                   />
                   <Toggle
                     label="Demo content"

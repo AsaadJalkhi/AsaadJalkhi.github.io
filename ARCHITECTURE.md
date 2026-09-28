@@ -34,6 +34,7 @@ src/
     search.ts              Index + scoring for the command palette
     storage.ts             Guarded local + session storage (both throw in private mode)
     utils.ts               cx, clamp, seeded random, moveItem, download, copyText
+    projectOrder.ts        The one definition of folder / All Work / Quick View order + Studio writers
   state/
     os.ts                  Zustand: view, windows, z-order, palette, cursor, theme, tidy, reset
     portfolio.tsx          Context provider for validated content
@@ -65,6 +66,8 @@ src/
       focusLayout.ts       Pure: ratio + viewport → portrait / balanced / landscape
       aspect.ts            THE definition of Auto — real intrinsic ratios
       subitems.ts          Gallery images and website screenshots as media
+      presentation.ts      Pure: presentation + image count → stacked (null) or slideshow settings
+      MultiImageSlideshow.tsx  The one slideshow for galleries and website screenshots
       adapters/            One per media type
       types.ts             AdapterProps — the contract every adapter implements
     quick-view/            Recruiter mode
@@ -75,6 +78,7 @@ src/
     PinGate.tsx            Casual privacy gate in front of the Studio — NOT security
     useDraft.ts            Draft state, validation, import/export  ← CMS swap point
     panels/                One panel per content area + parts.tsx (form primitives)
+                           SubItemList.tsx — gallery images / screenshots as folded, draggable rows
   styles/
     tokens.css             Every colour, space, radius, shadow, timing, z-layer
     global.css             Resets, typography, focus, reduced-motion
@@ -105,6 +109,49 @@ View. They carry a muted tint each, used sparingly on labels. They are **not** t
 colour scheme: the chrome is neutral and the colour comes from the project imagery.
 
 Anything invented carries `demo: true` so the UI can label it honestly.
+
+### Project order: three fields, three meanings (session 22)
+
+`lib/projectOrder.ts` is the only place order is defined. Work, folder windows, the Studio
+Folder preview (it is `WorkView`), Quick View, the mobile home screen (through
+`contentStore`'s `foldersSorted` / `projectsInFolder` / `featuredProjects`) and the Studio
+sidebar all read it.
+
+| Field | Means | Read by |
+| --- | --- | --- |
+| `folder.order` | the sequence of folders | `orderedFolders` |
+| `project.order` | position **inside its folder** | `orderedProjectsInFolder` |
+| `project.quickViewOrder` | position among **featured** projects | `orderedQuickViewProjects` |
+
+- **`featured` = Quick View membership only.** It has no effect on Work or folder order.
+- **A folder** = its projects by `project.order`, lower first.
+- **All Work** = folders by `folder.order`, each folder's projects by `project.order`
+  (`orderedAllWorkProjects`). There is no separate global order field. A project whose folder
+  is unknown goes last instead of disappearing.
+- **Quick View** = featured projects by `quickViewOrder`. Explicit values sort first. Missing
+  values follow in array order. When no project has one, that array order is exactly the
+  Quick View from before this field existed.
+- **Ties and missing values.** A missing `order` ranks as 99, as it always has. Every sort is
+  stable, so ties keep content (array) order.
+- **Raw `projects[]` position is storage, not visitor-facing order.** It is only the tie-break.
+  Nothing reorders the array. It stays lossless through round trips and export.
+
+`quickViewOrder` is `z.number().int().nonnegative().optional()`, with no default. Old files
+validate unchanged, and it is absent from an export until someone manages Quick View order in
+the Studio (roundtrip check 8).
+
+The Studio writers in the same module mutate order fields on the draft inside `update`, and
+nothing else:
+
+- `moveInFolder`: renumbers that folder 1…N.
+- `appendToFolder`: a new project goes last.
+- `moveToFolder`: goes last in the destination and renumbers the folder it left.
+- `placeAfter`: a duplicate goes right after its source.
+- `renumberFolder`: after a delete.
+- `moveInQuickView` and `setFeatured`: renumber every featured project's `quickViewOrder`
+  1…N. Featuring a project puts it last; un-featuring deletes its key.
+
+Check 42 pins all of this against real arrays.
 
 ### Adding a field
 
@@ -256,6 +303,51 @@ rather than silently showing nothing.
   shapes — none (a small link preview), one (that screenshot is the piece), many (a set that
   clicks through to Focus Mode). The `iframe` flag is retained in the schema so old content
   validates, and is inert for websites.
+
+#### Multi-image presentation: Stacked or Slideshow (session 23)
+
+A gallery (`items`) or a website (`screenshots`) with **two or more** images can carry an optional
+`presentation: { mode: 'stacked' | 'slideshow', autoplay?, interval? }` (`PresentationSchema`).
+Absent is Stacked — the original `.media-set` layout, untouched — and there is no default, so old
+content validates, renders and exports exactly as before. No migration.
+
+- **One decision, one renderer.** Both adapters call `slideshowOf(media.presentation, count)`
+  (`media/presentation.ts`, pure). `null` means stacked: absent, `'stacked'`, or fewer than two
+  images (a stale setting on one picture is ignored). Otherwise both render `MultiImageSlideshow`,
+  which owns all slide state; neither adapter has a timer. `autoplay` is on unless `false`;
+  `interval` is milliseconds, 2000 when absent, clamped to 1000–10000.
+- **Layout.** The stage has one ratio — the item's manual aspect, else the first image's manual
+  aspect, else its measured shape, else `FALLBACK_RATIO` — so nothing jumps between slides. Each
+  slide is `contain`ed, never cropped. The ratio goes to `MediaFrame` (`fill` + `ratio`), so the
+  usual `--media-cap` height ceiling applies. Slides fade (320ms); the current slide's own caption
+  sits under the stage.
+- **Controls.** Previous / Next buttons ("Previous image" / "Next image"), a `n / N` counter
+  (visual; each slide's label says "n of N"), and touch swipe via pointer events with
+  `touch-action: pan-y`, so vertical scrolling stays with the page. A swipe swallows the click after it.
+- **Autoplay** is a single `setTimeout` re-armed on every slide change, so a manual step restarts
+  the clock and timers never stack. It runs only when `useInView` says the stage is visible and it
+  isn't hovered, being touched, or behind Focus Mode (`held`). **Under prefers-reduced-motion it
+  never runs**, and the fade is off; the arrows still work.
+- **Focus Mode.** A slide is a `.media-open` button calling `onOpen(i)`, which is the adapter's
+  existing `setOpenIndex`. Slide 3 opens gallery image 3 through the same `asMediaItems` list and
+  stepping as before.
+- **Website.** Visit Website stays in the frame's `actions`, in the same place as in stacked.
+- **Studio.** `PresentationFields` in `MediaFields.tsx` appears under Images / Screenshots only at
+  2+. Rendering writes nothing. Display → Slideshow writes `startSlideshow()` (`autoplay: true`,
+  `interval: 2000`). Display → Stacked removes the key. Change every is edited in seconds, stored in
+  ms. Dropping below two images (gallery → image, or screenshots < 2) removes the key too.
+- `check:ui` **44** and `check:content` 7 / **9** guard it.
+
+**Editing the pictures (session 24).** Gallery `items` and website `screenshots` are edited by
+one component, `studio/panels/SubItemList.tsx`. Each picture is a shared `Collapsible` row
+(grip, `#NN`, `fileName(src ?? url)`, ↑ ↓, duplicate, delete) in its own `useFolds`, with its
+own `FoldBar`, so Expand all / Collapse all touch only that list. Rows start collapsed and a
+new one opens itself. Pictures have no stored id and get none: each row carries a session-only
+key (`uid('row')`) that `commit` moves together with the row, so the open card follows its
+picture through a reorder. Drag is the media-list pattern: grip-only, native, its own drag
+type (`application/x-asaad-subitem`, so a picture can't land among media cards), and a drop
+and the arrows both call `move` → the one `moveItem`, via `slotIndex`. The whole sub-item object
+moves; only array order is stored. `check:ui` **45**.
 
 #### Aspect: there is exactly one "Auto"
 
@@ -771,7 +863,9 @@ change cross-fades rather than hard-cutting. Each layer takes an optional image 
 ## Quick View
 
 `components/quick-view/QuickView.tsx`. A real view swap, not a filter: intro, selected work
-(`featured` projects only), experience, capabilities, about, contact, CV.
+(`featured` projects only, ordered by `quickViewOrder` through `orderedQuickViewProjects` — see
+*Project order*), experience, capabilities, about, contact, CV. Quick View order is its own
+curated sequence: folder order and Work order play no part in it.
 
 This is the recruiter path, and **usability beats artistry here** — it is plain, scannable
 and fast. It shares the tokens and UI primitives with the OS, so it feels like the same
@@ -965,6 +1059,30 @@ Each of these has its own bar. Not folded:
 
 The old `studio-section--fold` and `studio-detail__bar` CSS is gone. Checks 28, 29, 35, 40 and 41.
 
+**Projects sidebar: organised by folder (session 22).** The flat list of every project is gone.
+A **By folder | Quick View** switch sits under the header. It is component state and defaults to
+By folder.
+
+- **By folder.** One `Collapsible` per folder, in `folder.order`, folded by folder id through a
+  second `useFolds` (`groups`) with its own `FoldBar`. The selected project's folder opens on
+  mount. Each group holds a `ProjectOrderList` (`panels/ProjectOrderList.tsx`) of that folder's
+  projects. A row is a grip, `#NN` (its folder position), the title, a ★ when featured, and the
+  year, plus up/down arrows. Clicking the row selects it. Only the grip is `draggable`.
+- **Quick View.** One `ProjectOrderList` of `orderedQuickViewProjects`. Its meta line is
+  folder · year, because folders are mixed on purpose here.
+- **One move per collection.** A drop resolves to an insertion slot exactly as in `MediaList`
+  (`slotIndex`), and the drop and the arrows call the same `onMove`. For a folder that is
+  `moveWithin(folderId)` → `moveInFolder`. For Quick View it is `moveInQuickView`. The detail
+  header's arrows are `moveWithin(project.folder)` too. No Studio control moves the raw array.
+- **No cross-folder drag.** Drag state lives in each list instance, so a list only accepts
+  drops it started. The Identity **Folder** field changes folders (`moveToFolder`).
+- **No Order input.** Identity no longer has an editable Order field. The Folder field's hint
+  shows the read-only position. **Show in Quick View** is the `featured` toggle and calls
+  `setFeatured`. New, Duplicate and Delete go through `appendToFolder`, `placeAfter` and
+  `renumberFolder`.
+
+Check 42.
+
 **Project sections fold (session 17).** `Section` in `parts.tsx` takes optional
 `open` / `onToggle` / `summary`; with `onToggle` it renders its title as a real button
 (`aria-expanded`, `aria-controls`) and mounts its hint and fields only while open. Other panels
@@ -985,7 +1103,9 @@ It gets `draft` as a prop and draws it with the live renderers:
 - **Project** → `CaseStudyBody` (from `ProjectApp.tsx`, already prop-driven): banner, header,
   facts, narrative, media masonry, Focus Mode, footer, links.
 - **Folder** → `WorkView`, extracted from `ProjectsApp` with no behaviour change: the filter row,
-  featured-then-`order` sort, `ProjectGrid`, `Tile` and `projectThumb`. `ProjectsApp` is now
+  the ordering (since session 22: `orderedProjectsInFolder` for a folder and
+  `orderedAllWorkProjects` for All work, with no featured-first step), `ProjectGrid`, `Tile` and
+  `projectThumb`. The preview has no ordering of its own, so it always matches the live Work order. `ProjectsApp` is now
   `WorkView` fed `usePortfolio()` and `openProject`; the preview feeds it the draft and a local
   callback that switches the preview to Project mode for that card. It starts on the edited
   project's folder.
@@ -1027,8 +1147,10 @@ interface DraftEnvelope { baseSignature: string; savedAt: string; draft: unknown
 
 `baseSignature` is a `fingerprint()` of the `portfolio.json` the draft was started from:
 FNV-1a over a `stableStringify()` that **sorts object keys at every depth but deliberately
-leaves array order alone**, because in this schema array order *is* content — it is the
-order projects appear on the desktop.
+leaves array order alone**. Array order is part of the stored content, so a reordered array
+is a different file and must not match. For `projects[]` it is no longer visitor-facing order,
+though. Work and Quick View order come from `folder.order`, `project.order` and
+`project.quickViewOrder` (see *Project order*). Array position is only the stable tie-break.
 
 On open, three cases:
 

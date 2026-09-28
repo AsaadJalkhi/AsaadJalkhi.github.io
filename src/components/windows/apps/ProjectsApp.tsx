@@ -33,6 +33,7 @@ import { useOpenTarget } from '@/hooks/useOpenTarget';
 import { useColumnCount } from '@/hooks/useColumnCount';
 import { foldersSorted, primaryDiscipline, projectThumb } from '@/lib/contentStore';
 import { packColumns } from '@/lib/masonry';
+import { orderedAllWorkProjects, orderedProjectsInFolder } from '@/lib/projectOrder';
 import { SmartImage } from '@/components/ui/SmartImage';
 import { cx } from '@/lib/utils';
 import type { AppProps } from '../registry';
@@ -100,15 +101,17 @@ export function WorkView({
 }) {
   const folders = useMemo(() => foldersSorted(portfolio), [portfolio]);
 
-  const projects = useMemo(() => {
-    const list = activeFolder
-      ? portfolio.projects.filter((p) => p.folder === activeFolder)
-      : portfolio.projects;
-    return [...list].sort((a, b) => {
-      if (a.featured !== b.featured) return a.featured ? -1 : 1;
-      return (a.order ?? 99) - (b.order ?? 99);
-    });
-  }, [portfolio.projects, activeFolder]);
+  /*
+   * A folder is its projects by `order`; All work is every folder in turn.
+   * `featured` plays no part — it is Quick View membership (lib/projectOrder).
+   */
+  const projects = useMemo(
+    () =>
+      activeFolder
+        ? orderedProjectsInFolder(portfolio.projects, activeFolder)
+        : orderedAllWorkProjects(portfolio.folders, portfolio.projects),
+    [portfolio.projects, portfolio.folders, activeFolder],
+  );
 
   const open = activeFolder ? folders.find((folder) => folder.id === activeFolder) : undefined;
   const intro = open && hasIntro(open) ? open : undefined;

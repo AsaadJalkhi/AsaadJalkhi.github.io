@@ -120,6 +120,25 @@ export const MediaSubItemSchema = z.object({
 export type MediaSubItem = z.infer<typeof MediaSubItemSchema>;
 
 /**
+ * How a gallery or a set of website screenshots is laid out.
+ *
+ * Absent means stacked — the original masonry — and is the only way old content
+ * says it, so nothing is migrated and an untouched export gains no key. The
+ * Studio writes this only when someone changes the control, and removes it
+ * again on a switch back to Stacked. It is read only when there are two or more
+ * images; a single picture renders as before whatever this says.
+ *
+ * `autoplay` is on unless set to false. `interval` is milliseconds; absent is
+ * 2000. See `components/media/presentation.ts`.
+ */
+export const PresentationSchema = z.object({
+  mode: z.enum(['stacked', 'slideshow']),
+  autoplay: z.boolean().optional(),
+  interval: z.number().int().min(1000).max(10000).optional(),
+});
+export type Presentation = z.infer<typeof PresentationSchema>;
+
+/**
  * One media item. Deliberately loose: a YouTube item needs `url`, a local
  * image needs `src`, an Instagram item works best with `url` + `thumbnail`.
  * `refine` below enforces the minimum each type actually needs.
@@ -213,6 +232,11 @@ export const MediaItemSchema = z
      * Zero screenshots is fine and renders a quiet link preview.
      */
     screenshots: z.array(MediaSubItemSchema).optional(),
+    /**
+     * For "gallery" and "website" with two or more images: Stacked (absent) or
+     * Slideshow. See `PresentationSchema`.
+     */
+    presentation: PresentationSchema.optional(),
     /** For type "generative": which built-in animated scene to draw. DEPRECATED. */
     scene: z.enum(['marquee', 'campaign', 'signal', 'grid']).optional(),
     /**
@@ -483,12 +507,17 @@ export const ProjectSchema = z.object({
       aspect: AspectSchema.default('4:3'),
     })
     .optional(),
-  /** Featured projects appear in Quick View → Selected Work. */
+  /** Quick View → Selected Work membership. Never affects Work order. */
   featured: z.boolean().default(false),
   /** true = sample content written to demonstrate the system. */
   demo: z.boolean().default(false),
-  /** Manual sort order inside a folder (lower first). */
+  /** Position inside its folder (lower first). All Work is folder.order, then this. */
   order: z.number().optional(),
+  /**
+   * Position among featured projects in Quick View (lower first). Optional:
+   * without it Quick View keeps the array order. See `lib/projectOrder.ts`.
+   */
+  quickViewOrder: z.number().int().nonnegative().optional(),
 });
 export type Project = z.infer<typeof ProjectSchema>;
 

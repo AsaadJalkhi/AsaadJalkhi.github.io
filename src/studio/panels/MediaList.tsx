@@ -81,7 +81,7 @@ const TYPE_LABEL: Record<MediaItem['type'], string> = {
 };
 
 /** The last path segment, without a query string. */
-function fileName(path?: string): string | undefined {
+export function fileName(path?: string): string | undefined {
   if (!path) return undefined;
   const clean = path.split(/[?#]/)[0]?.replace(/[\\/]+$/, '') ?? '';
   const name = clean.split(/[\\/]/).pop();

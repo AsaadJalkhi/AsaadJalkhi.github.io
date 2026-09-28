@@ -123,10 +123,36 @@
 }
 
 .qv-work__art {
+  position: relative;
   display: block;
   aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--c-raised);
+}
+
+/*
+ * The thumbnail is artwork in a fixed frame. `.smart-image` has no size of its
+ * own, so without this the <img> sits at its intrinsic size: small files leave
+ * a gap, large ones are clipped from the top-left. Pinned to the frame, every
+ * source covers it and crops evenly around the centre.
+ */
+.qv-work__art > .smart-image {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.qv-work__art .smart-image__img,
+.qv-work__art .smart-image__fallback,
+.qv-work__art .smart-image__skeleton {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+  object-position: center center;
 }
 
 .qv-work__body {

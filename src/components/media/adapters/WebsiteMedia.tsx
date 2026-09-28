@@ -21,7 +21,9 @@
  *   through to it. Deliberately minimal. Better an honest small card than a
  *   large empty frame pretending something failed to load.
  *   **One** — a single preview image at its own real shape.
- *   **Several** — a small gallery, each at its own shape, each openable.
+ *   **Several** — a small gallery, each at its own shape, each openable; or,
+ *   with `presentation.mode: 'slideshow'`, the shared `MultiImageSlideshow`.
+ *   Visit Website stays in the frame's actions either way.
  *
  * `media.iframe` is read by nothing here any more. It stays in the schema so
  * existing content keeps validating; see the note on it in types/content.ts.
@@ -32,8 +34,10 @@ import { SmartImage } from '@/components/ui/SmartImage';
 import { Btn } from '@/components/ui/Ui';
 import { hostOf } from '@/lib/paths';
 import { MediaFrame } from '../MediaFrame';
-import { isAuto } from '../aspect';
+import { FALLBACK_RATIO, isAuto } from '../aspect';
 import { MediaFocus } from '../MediaFocus';
+import { MultiImageSlideshow } from '../MultiImageSlideshow';
+import { slideshowOf } from '../presentation';
 import { asMediaItems, screenshotItems } from '../subitems';
 import type { AdapterProps } from '../types';
 
@@ -146,29 +150,57 @@ export function WebsiteMedia({ media, seed, discipline, mode, priority }: Adapte
     );
   }
 
+  // Two or more screenshots and a Slideshow setting; otherwise stacked below.
+  const slideshow = slideshowOf(media.presentation, shots.length);
+
   return (
     <>
-      <MediaFrame
-        fill
-        title={media.title}
-        caption={media.caption}
-        demo={media.demo}
-        kindLabel="Website"
-        actions={action}
-      >
-        {shots.length === 1 ? (
-          shot(0, 'media-shot media-shot--single', isAuto(shots[0].aspect))
-        ) : (
-          <div className="media-set" data-count={Math.min(shots.length, 3)}>
-            {shots.map((item, index) => (
-              <figure className="media-set__item" key={item.id ?? `${media.id}-${index}`}>
-                {shot(index, 'media-set__shot', isAuto(item.aspect))}
-                {item.caption && <figcaption className="media-set__caption">{item.caption}</figcaption>}
-              </figure>
-            ))}
-          </div>
-        )}
-      </MediaFrame>
+      {slideshow ? (
+        <MultiImageSlideshow
+          items={shots}
+          settings={slideshow}
+          frame={{
+            title: media.title,
+            caption: media.caption,
+            demo: media.demo,
+            kindLabel: 'Website',
+            actions: action,
+          }}
+          aspect={media.aspect}
+          fallbackRatio={FALLBACK_RATIO.website}
+          onOpen={setOpenIndex}
+          held={openIndex !== null}
+          seed={`${seed}-${media.id}`}
+          discipline={discipline}
+          priority={priority}
+          altOf={(item) => item.alt ?? item.caption ?? `Screenshot of ${host}`}
+          openLabelOf={(item, index) =>
+            item.alt ? `Open ${item.alt} larger` : `Open screenshot ${index + 1} larger`
+          }
+        />
+      ) : (
+        <MediaFrame
+          fill
+          title={media.title}
+          caption={media.caption}
+          demo={media.demo}
+          kindLabel="Website"
+          actions={action}
+        >
+          {shots.length === 1 ? (
+            shot(0, 'media-shot media-shot--single', isAuto(shots[0].aspect))
+          ) : (
+            <div className="media-set" data-count={Math.min(shots.length, 3)}>
+              {shots.map((item, index) => (
+                <figure className="media-set__item" key={item.id ?? `${media.id}-${index}`}>
+                  {shot(index, 'media-set__shot', isAuto(item.aspect))}
+                  {item.caption && <figcaption className="media-set__caption">{item.caption}</figcaption>}
+                </figure>
+              ))}
+            </div>
+          )}
+        </MediaFrame>
+      )}
 
       {openIndex !== null && (
         <MediaFocus

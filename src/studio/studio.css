@@ -719,37 +719,106 @@
   letter-spacing: var(--tracking-wide);
 }
 
+.studio-list__mode {
+  display: flex;
+  margin: var(--s-2) var(--s-2) 0;
+}
+
+.studio-list__mode .studio-media__view-btn {
+  flex: 1;
+  justify-content: center;
+}
+
 .studio-list__scroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
   max-height: 520px;
+  padding: var(--s-2);
   overflow-y: auto;
 }
 
-.studio-list__item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  width: 100%;
-  padding: var(--s-2) var(--s-3);
-  border: none;
-  border-left: 2px solid transparent;
-  border-bottom: 1px solid var(--c-line);
-  background: none;
-  color: var(--c-mute);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: background var(--t-fast) var(--e-out);
+/*
+ * The only scroll region in the sidebar, so its children keep their natural
+ * height. A folder card has overflow: hidden, which makes its flex min-height 0
+ * — without this, an open folder squeezes every card below it instead of
+ * overflowing into the scroll.
+ */
+.studio-list__scroll > * {
+  flex-shrink: 0;
 }
 
-.studio-list__item:hover {
+/* Folder groups in the narrow sidebar: the card body is the row list, edge to edge. */
+.studio-list .studio-rep__body {
+  padding: 0;
+}
+
+/*
+ * One project row (ProjectOrderList): grip, the select button, two arrows.
+ * Drag feedback mirrors the media cards — dimmed source, accent insertion line.
+ */
+.studio-order {
+  display: flex;
+  flex-direction: column;
+}
+
+.studio-order__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: 2px var(--s-1);
+  border-left: 2px solid transparent;
+  border-bottom: 1px solid var(--c-line);
+  color: var(--c-mute);
+}
+
+.studio-order__row:last-child {
+  border-bottom: none;
+}
+
+.studio-order__row:hover {
   background: var(--c-raised);
   color: var(--c-text);
 }
 
-.studio-list__item--active {
+.studio-order__row--active {
   border-left-color: var(--c-accent);
   background: var(--c-raised-2);
   color: var(--c-bone);
+}
+
+.studio-order__row.is-dragging {
+  opacity: 0.45;
+}
+
+.studio-order__row.is-drop-before {
+  box-shadow: inset 0 2px 0 var(--c-accent);
+}
+
+.studio-order__row.is-drop-after {
+  box-shadow: inset 0 -2px 0 var(--c-accent);
+}
+
+.studio-order__pick {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  flex: 1;
+  min-width: 0;
+  padding: var(--s-1) 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.studio-order__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .studio-list__title {
@@ -1356,6 +1425,24 @@
   text-transform: uppercase;
 }
 
+/*
+ * A gallery's images or a website's screenshots as folded cards. Tighter than
+ * the media cards they sit inside, so a closed row reads as a line of a list.
+ */
+.studio-sublist {
+  gap: var(--s-2);
+  width: 100%;
+}
+
+.studio-sublist .studio-rep__title {
+  margin-bottom: 0;
+}
+
+.studio-sublist .studio-media-card__head {
+  min-height: 44px;
+  padding-block: var(--s-1);
+}
+
 /* "Add another image", with its explanation beside it rather than beneath. */
 .studio-inline-action {
   display: flex;
@@ -1369,6 +1456,26 @@
   color: var(--c-faint);
   font-size: var(--fs-2xs);
   line-height: 1.4;
+}
+
+/* Stacked / Slideshow, under a gallery's images or a website's screenshots. */
+.studio-presentation {
+  margin-top: var(--s-3);
+  padding: var(--s-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-sm);
+}
+
+.studio-presentation__head {
+  margin: 0 0 var(--s-2);
+  color: var(--c-mute);
+  font-size: var(--fs-3xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.studio-presentation .studio-toggles {
+  padding-bottom: 0;
 }
 
 /*

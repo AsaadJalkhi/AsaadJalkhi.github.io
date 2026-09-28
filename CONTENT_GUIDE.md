@@ -50,8 +50,11 @@ Editing by hand while `npm run dev` is running skips steps 2–3; the page reloa
    - **ID** — lowercase with dashes, e.g. `gaf-launch-campaign`
 4. Add **Media** (see below).
 5. Turn **Demo content** *off* — it's real work.
-6. Turn **Featured** *on* if it should appear in Quick View → Selected Work.
-7. Export → replace → commit → push.
+6. Turn **Show in Quick View** *on* if it should appear in Quick View → Selected Work. It joins
+   at the end; reorder it under **Projects → Quick View**.
+7. It starts at the end of its folder. Drag it into place under **Projects → By folder** (see
+   *Reorder projects*).
+8. Export → replace → commit → push.
 
 ### Doing it by hand
 
@@ -212,7 +215,32 @@ and you get a numbered list to add more. Each image keeps **its own** source, al
 caption and shape, and can be reordered, duplicated or removed. Take the list back down to a
 single image and it quietly becomes a plain Image again.
 
+In the Studio each image is a one-line row — grip, `#01`, the file name, ↑ ↓, duplicate,
+delete — **collapsed** until you click it. **Expand all / Collapse all** above the list affect
+only that gallery. Reorder by dragging the six-dot grip (one drag moves `#10` to `#02`) or
+with the arrows. **+ Add another image** opens the new row straight away. A website's
+**Screenshots** work exactly the same way. This is Studio only: the JSON is still the same
+list of images, and its order is the only thing saved.
+
 Clicking any image in a gallery opens it full size, with ← and → stepping through the set.
+
+### Stacked or Slideshow
+
+A gallery, or a website with **two or more** screenshots, gets a small **Presentation** box
+under its images:
+
+- **Display: Stacked** (the default) shows every image at once, the way it always has.
+- **Display: Slideshow** shows one image at a time in the same space, with ‹ › arrows, a
+  `2 / 4` counter and swipe on touch screens. Choosing it turns **Autoplay** on and sets
+  **Change every** to **2 seconds**. You can change either (1–10 seconds).
+
+Clicking the image on screen opens that exact image in Focus Mode. Visitors who ask their
+device for reduced motion never get autoplay; they use the arrows. A website keeps its
+Visit Website button either way.
+
+In the JSON this is `"presentation": { "mode": "slideshow", "autoplay": true, "interval": 2000 }`
+(interval in milliseconds). Leave it out for Stacked. Existing content needs no changes.
+Switching back to Stacked removes it.
 
 ### Websites
 
@@ -223,8 +251,8 @@ else's cookie banner sitting in the middle of your portfolio. Neither is a portf
 
 So a website item is: the address, shown as an explicit **"Visit Website ↗"** link, plus
 **your own screenshots**. With no screenshots it renders as a small link preview. With one,
-that screenshot is the piece. With several, they lay out as a set and click through to full
-size. `iframe: true` in older content is now ignored.
+that screenshot is the piece. With several, they lay out as a set, or as a slideshow (see
+Stacked or Slideshow above), and click through to full size. `iframe: true` in older content is now ignored.
 
 ### Google Drive video
 
@@ -385,12 +413,31 @@ results as real ones — it is the one thing that would sink the whole portfolio
 ## Common tasks
 
 ### Reorder projects
-Studio → **Projects** → select one → arrows in the top-right of the detail panel.
-Within a folder, the **Order** number wins (lower first).
+Studio → **Projects** → **By folder** → open the folder → drag a project by its six-dot grip.
+The **↑ ↓** arrows on each row (and in the top-right of the detail panel) do the same thing, one
+step at a time.
 
-### Mark a project as featured
-Studio → **Projects** → **Featured** toggle. Featured projects are the only ones in
-Quick View → Selected Work. Keep it to your strongest 5–8.
+- Reordering only ever happens **inside a folder**. The `#01, #02…` beside each project is its
+  position in that folder, and it renumbers after every move.
+- **All work** follows automatically: folders in their folder order, then each folder's projects
+  in the order you set here.
+- **New projects** go at the end of their folder. A **duplicate** appears right after the
+  original.
+- To move a project to another folder, change **Folder** in Identity. It leaves the old folder
+  (which closes the gap) and goes to the **end** of the new one.
+- You never need to type an order number. (The `order` value in `portfolio.json` is what the
+  Studio writes. Only edit it by hand if you are editing the JSON directly.)
+
+### Show a project in Quick View
+Studio → **Projects** → Identity → **Show in Quick View** (the `featured` key in the JSON).
+It controls one thing, whether the project is in Quick View → Selected Work. It does **not**
+change where the project sits in Work or in its folder. Keep it to your strongest 5–8.
+
+- Turning it on puts the project **last** in Quick View. Turning it off removes it, and the rest
+  close up.
+- To choose the Quick View order: Studio → **Projects** → **Quick View**, then drag by the grip
+  (or use the arrows). You can mix folders freely, so a GAF project can lead Quick View while
+  sitting fifth in the GAF folder. This changes only Quick View, never folder or Work order.
 
 ### Rename a folder
 Studio → **Folders** → click the folder's row to open it (every folder card starts collapsed;

@@ -41,8 +41,15 @@
 import { AlertCircle, CheckCircle2, ImagePlus } from 'lucide-react';
 import { Btn, Toggle } from '@/components/ui/Ui';
 import { mediaProblem, type MediaItem, type MediaSubItem } from '@/types/content';
-import { Advanced, Area, Choice, Grid, Repeater, Text, LOCAL_PATH_HINT, opts } from './parts';
+import {
+  DEFAULT_SLIDE_INTERVAL,
+  MAX_SLIDE_INTERVAL,
+  MIN_SLIDE_INTERVAL,
+  startSlideshow,
+} from '@/components/media/presentation';
+import { Advanced, Area, Choice, Grid, Num, Text, LOCAL_PATH_HINT, opts } from './parts';
 import { SourceField } from './SourceField';
+import { SubItemList } from './SubItemList';
 
 const SCENES = ['marquee', 'campaign', 'signal', 'grid'] as const;
 
@@ -114,8 +121,8 @@ function Requirement({ item }: { item: MediaItem }) {
  * One row of a gallery or a screenshot set.
  *
  * Each picture gets its own source, its own alt text, its own caption and its
- * own shape — because they are different pictures. The surrounding `Repeater`
- * supplies reorder, duplicate and remove.
+ * own shape — because they are different pictures. The surrounding
+ * `SubItemList` folds it and supplies reorder, duplicate and remove.
  */
 function SubItemFields({
   item,
@@ -159,6 +166,71 @@ function SubItemFields({
         onChange={(v) => patch({ caption: v || undefined })}
       />
     </>
+  );
+}
+
+const DISPLAY_OPTIONS = [
+  { value: 'stacked', label: 'Stacked — every image at once' },
+  { value: 'slideshow', label: 'Slideshow — one image at a time' },
+];
+
+/**
+ * Stacked or Slideshow, for a gallery or a website with two or more images.
+ *
+ * Rendering this writes nothing: an item with no `presentation` shows Stacked
+ * and stays absent until the control is changed. Choosing Slideshow writes the
+ * defaults (autoplay on, 2 seconds); choosing Stacked removes the key, so the
+ * JSON reads exactly as it did before. Interval is edited in seconds and
+ * stored in milliseconds.
+ */
+function PresentationFields({ item, patch }: { item: MediaItem; patch: Patch }) {
+  const presentation = item.presentation;
+  const slideshow = presentation?.mode === 'slideshow';
+  // What the two slideshow controls edit on top of; only read once Slideshow is set.
+  const base = presentation ?? startSlideshow();
+  const seconds = (presentation?.interval ?? DEFAULT_SLIDE_INTERVAL) / 1000;
+
+  return (
+    <div className="studio-presentation">
+      <p className="studio-presentation__head mono">Presentation</p>
+      <Grid>
+        <Choice
+          label="Display"
+          value={slideshow ? 'slideshow' : 'stacked'}
+          options={DISPLAY_OPTIONS}
+          hint="Stacked shows every image in the frame. Slideshow shows one at a time, in the same place."
+          onChange={(v) =>
+            patch({ presentation: v === 'slideshow' ? startSlideshow() : undefined })
+          }
+        />
+        {slideshow && (
+          <Num
+            label="Change every (seconds)"
+            value={seconds}
+            min={MIN_SLIDE_INTERVAL / 1000}
+            max={MAX_SLIDE_INTERVAL / 1000}
+            step={0.5}
+            hint="1–10 seconds."
+            onChange={(v) => {
+              if (v === undefined || Number.isNaN(v)) return;
+              const ms = Math.round(v * 1000);
+              const interval = Math.min(MAX_SLIDE_INTERVAL, Math.max(MIN_SLIDE_INTERVAL, ms));
+              patch({ presentation: { ...base, interval } });
+            }}
+          />
+        )}
+      </Grid>
+      {slideshow && (
+        <div className="studio-toggles">
+          <Toggle
+            label="Autoplay"
+            hint="Advance on its own. Never for visitors who ask for reduced motion — they get the arrows."
+            checked={base.autoplay !== false}
+            onChange={(v) => patch({ presentation: { ...base, autoplay: v } })}
+          />
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -296,19 +368,25 @@ function SourceFields({ item, patch }: { item: MediaItem; patch: Patch }) {
             hint="Shown as an explicit 'Visit Website' link. The site itself is never embedded — see the screenshots below."
             onChange={(v) => patch({ url: v || undefined })}
           />
-          <Repeater
+          <SubItemList
             label="Screenshots"
+            noun="Screenshot"
             addLabel="Add a screenshot"
             items={item.screenshots ?? []}
-            onChange={(next) => patch({ screenshots: next.length ? next : undefined })}
-            create={(): MediaSubItem => ({})}
-            labelOf={(shot, i) => shot.caption ?? shot.alt ?? shot.src ?? `Screenshot ${i + 1}`}
+            onChange={(next) =>
+              patch({
+                screenshots: next.length ? next : undefined,
+                // Stacked/Slideshow only means something with two or more.
+                ...(next.length < 2 && item.presentation && { presentation: undefined }),
+              })
+            }
             empty="No screenshots yet — this will show as a small link preview. Add one or more and they become the picture of the site."
           >
             {(shot, patchShot) => (
               <SubItemFields item={shot} patch={patchShot} kind="screenshot" />
             )}
-          </Repeater>
+          </SubItemList>
+          {(item.screenshots?.length ?? 0) >= 2 && <PresentationFields item={item} patch={patch} />}
         </>
       );
 
@@ -389,6 +467,7 @@ function ImageOrGallery({ item, patch }: { item: MediaItem; patch: Patch }) {
         url: only?.url,
         alt: only?.alt ?? item.alt,
         aspect: only?.aspect ?? item.aspect,
+        presentation: undefined,
       });
       return;
     }
@@ -412,17 +491,19 @@ function ImageOrGallery({ item, patch }: { item: MediaItem; patch: Patch }) {
   }
 
   return (
-    <Repeater
-      label="Images"
-      addLabel="Add another image"
-      items={items}
-      onChange={setItems}
-      create={(): MediaSubItem => ({})}
-      labelOf={(sub, i) => sub.caption ?? sub.alt ?? sub.src ?? `Image ${i + 1}`}
-      empty="Add the first image."
-    >
-      {(sub, patchSub) => <SubItemFields item={sub} patch={patchSub} kind="image" />}
-    </Repeater>
+    <>
+      <SubItemList
+        label="Images"
+        noun="Image"
+        addLabel="Add another image"
+        items={items}
+        onChange={setItems}
+        empty="Add the first image."
+      >
+        {(sub, patchSub) => <SubItemFields item={sub} patch={patchSub} kind="image" />}
+      </SubItemList>
+      {items.length >= 2 && <PresentationFields item={item} patch={patch} />}
+    </>
   );
 }
 
