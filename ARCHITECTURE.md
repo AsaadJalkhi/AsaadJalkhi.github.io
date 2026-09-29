@@ -35,12 +35,14 @@ src/
     storage.ts             Guarded local + session storage (both throw in private mode)
     utils.ts               cx, clamp, seeded random, moveItem, download, copyText
     projectOrder.ts        The one definition of folder / All Work / Quick View order + Studio writers
+    mobileHome.ts          Mobile home: defaults, columns, widget picks, icon list, artwork rule (pure)
+    weather.ts             Weather widget data: Open-Meteo URL, WMO codes, defensive parse, keyless fetch
   state/
     os.ts                  Zustand: view, windows, z-order, palette, cursor, theme, tidy, reset
     portfolio.tsx          Context provider for validated content
   hooks/
     useColumnCount.ts      How many columns the CONTAINER holds — ResizeObserver, not innerWidth
-    useEnvironment.ts      Viewport size, compact breakpoint, reduced motion
+    useEnvironment.ts      Viewport size, compact (narrow OR touch tablet) query, reduced motion
     useHashRoute.ts        Hash routing
     useHotkeys.ts          Declarative global shortcuts
     useOpenTarget.ts       "Open this project/note/app/url/alert" — the one way things open
@@ -51,8 +53,8 @@ src/
     desktopPlacement.ts    Pure collision geometry: protected space, nearest free spot
 
   components/
-    os/                    Boot, Desktop, DesktopIcon, DesktopWidget, Dock, MenuBar,
-                           CommandPalette, CustomCursor, Wallpaper
+    os/                    Boot, Desktop, DesktopIcon, DesktopWidget, ReactionWidget,
+                           WeatherWidget, Dock, MenuBar, CommandPalette, CustomCursor, Wallpaper
     windows/
       Window.tsx           Chrome, drag, resize, min/max/close, focus
       WindowLayer.tsx      Renders the stack
@@ -71,7 +73,7 @@ src/
       adapters/            One per media type
       types.ts             AdapterProps — the contract every adapter implements
     quick-view/            Recruiter mode
-    mobile/                Purpose-built mobile shell; MobileSurface owns the sheet stack
+    mobile/                MobileShell = the touch home screen; MobileSurface owns the sheet stack
     ui/                    Btn, Tag, Meta, Field, Toggle, Empty, SmartImage, Poster
   studio/
     StudioApp.tsx          Grouped nav + validation banner
@@ -113,9 +115,8 @@ Anything invented carries `demo: true` so the UI can label it honestly.
 ### Project order: three fields, three meanings (session 22)
 
 `lib/projectOrder.ts` is the only place order is defined. Work, folder windows, the Studio
-Folder preview (it is `WorkView`), Quick View, the mobile home screen (through
-`contentStore`'s `foldersSorted` / `projectsInFolder` / `featuredProjects`) and the Studio
-sidebar all read it.
+Folder preview (it is `WorkView`), Quick View, the mobile home screen's icon grid
+(`orderedFolders`, through `lib/mobileHome.ts`'s `mobileApps`) and the Studio sidebar all read it.
 
 | Field | Means | Read by |
 | --- | --- | --- |
@@ -786,16 +787,45 @@ right of the desktop). `useOpenTarget` is the only place that switches on it.
 
 ### Widgets
 
-`DesktopWidget.tsx`. Three types, all deliberately self-contained — no network, no API,
-nothing to break:
+`DesktopWidget.tsx`. Four types, deliberately few:
 
 | Type | What it is |
 | --- | --- |
 | `clock` | Time, day, date, optional place label. |
 | `note` | A short card whose text comes from the content file. |
-| `reaction` | A reaction-time test. `ReactionWidget.tsx`, the only widget with state. |
+| `reaction` | A reaction-time test. `ReactionWidget.tsx`. |
+| `weather` | Place, temperature, condition, icon, today's high / low. `WeatherWidget.tsx` + `lib/weather.ts`. |
 
 They flow through the same layout system as the icons, so they are draggable too.
+
+What a widget *shows* is `WidgetContent`, exported from the same file. `DesktopWidget` draws it
+inside its positioned, draggable wrapper; the mobile home screen's `MobileWidget` draws it inside
+a static square tile, passing `variant="tile"`. The variant is presentation only — the tile
+clock splits its date over two lines and sets AM/PM small so the digits can be large — and the
+time, the data and the logic are the same. There is one clock, one reaction test and one
+weather widget, not a desktop copy and a mobile copy.
+
+**On `weather`.** The one widget that touches the network, and built so that doesn't matter:
+
+- **Source.** [Open-Meteo](https://open-meteo.com/) `/v1/forecast`, one `fetch` for
+  `current=temperature_2m,weather_code,is_day` and today's `temperature_2m_max/min`. No key, no
+  backend, no dependency — it allows browser requests, so a static site calls it directly.
+- **Place.** Authored on the widget: `title` is the place name, `latitude` / `longitude` are
+  required for `weather` (the root `superRefine` reports a missing one at
+  `desktop.widgets.<i>.latitude`). The visitor's location is never requested — no
+  `navigator.geolocation` anywhere.
+- **Failure.** `loadWeather` never rejects: offline, a network error, a non-2xx, bad JSON or an
+  unexpected shape all resolve to `null`, with a 10s timeout. The widget keeps its footprint
+  in every state — loading shows the place and a dash, failure shows the place and "Weather
+  unavailable". A failed refresh keeps the last good reading.
+- **Refresh.** On mount, then every 30 minutes while mounted (`WEATHER_REFRESH_MS`). No sooner
+  retry after a failure, no service worker. Results are cached per place for the same 30
+  minutes, so remounting a shell (resizing across the compact breakpoint, Quick View and back)
+  does not refetch.
+- **Icons.** lucide only (`Sun` / `Moon`, `CloudSun` / `CloudMoon`, `Cloud`, `CloudFog`,
+  `CloudDrizzle`, `CloudRain`, `CloudSnow`, `CloudLightning`, `CloudOff` for failure); WMO codes
+  fold into eight kinds in `describeWeather`.
+- **Scope.** Current conditions only. No forecast, no hourly graph, no second implementation.
 
 **On `reaction` specifically:** §5 of PROJECT_STATUS.md rules out games, and this is its one
 deliberate exception, requested explicitly. It is scoped to stay tiny — press start, wait for
@@ -876,9 +906,91 @@ from the menu bar.
 
 ## Mobile
 
-`useIsCompact()` picks `MobileShell` instead of `Desktop`. It is **not** a squeezed desktop:
-apps are cards, projects open as full-screen sheets, there is no dragging and no custom
-cursor. Quick View is prominent. All content stays reachable.
+### Three modes, three jobs (session 25)
+
+| Mode | What it is | Component |
+| --- | --- | --- |
+| **Desktop** | The full computer OS: free-positioned icons, draggable windows, menu bar, dock | `os/Desktop.tsx` |
+| **Mobile / tablet** | A touch-first ASAAD.OS home screen: wallpaper, widgets, an icon grid, a floating dock, full-screen sheets | `mobile/MobileShell.tsx` + `mobile/MobileSurface.tsx` |
+| **Quick View** | The conventional recruiter portfolio, one scrolling page | `quick-view/QuickView.tsx` (`#/quick`) |
+
+`ShellBody` in `App.tsx` picks them in that order of precedence: `view === 'quickview'` → Quick
+View, else `useIsCompact()` → `MobileShell`, else `Desktop`.
+
+**Quick View is no longer the visual model for mobile.** The old `MobileShell` rendered Quick
+View's sections — hero, selected work, notes, footer — so a phone got a second, weaker Quick
+View instead of the OS. The home screen now renders none of Selected Work, Experience,
+Capabilities, About, CV or Contact; Quick View is one tap away in the dock. `check-ui` 47 fails
+the build if those sections come back.
+
+**`MobileShell` is home-screen presentation only.** It reads existing content and routes every tap
+through `useOpenTarget`; it holds no sheet state, never calls `openWindow`, and has no drag and
+no x/y. What it shows:
+
+- **Wallpaper** — the desktop's own `Wallpaper`, fixed behind the page.
+- **Status bar** — time, `profile.osName`, Search (the command palette), theme toggle.
+- **Widgets** — references to existing `desktop.widgets`, drawn with the shared `WidgetContent`.
+  Nothing new is authored for mobile, and the layout is ordered, not positioned or draggable:
+  each pick has an area (`top` / `afterApps`). **Every mobile widget is a square**
+  (`aspect-ratio: 1 / 1`) — there is no size or span. A phone puts two in a row
+  (`repeat(2, minmax(0, 1fr))`, on the icons' own gap, so each is two icon columns wide); a
+  tablet fits more per row (`auto-fill`, 168px minimum) rather than growing them. Type inside a
+  tile is sized to the tile with container units (`cqi`), not to the screen.
+- **Icon grid** — **All Work** first, then every folder in `orderedFolders` order, then the dock
+  links as external icons. A CSS grid, not free positions: four columns on a phone, and the
+  gaps tighten on the narrowest screens before the icons shrink. Each icon sits on a
+  mobile-only plate — a rounded square of glass with a hairline and a soft shadow, 56–64px
+  on a phone (`--m-icon: clamp(56px, 16vw, 64px)`), 72px on a tablet, capped at its column's
+  width — with the label beneath and the whole cell as the target. The desktop's
+  `.dicon` icons keep their bare 72px artwork; `check-ui` 48 compares every `.dicon` rule with
+  the committed stylesheet. Folder data is not duplicated: the
+  label is the folder's name, and the artwork is `folder.icon`, else the icon of the desktop
+  shortcut that targets that folder (`folderIcon`), resolved per theme by `iconSource` — the
+  same rule `DesktopIcon` uses — and drawn with `object-fit: contain`.
+- **Dock** — `DOCK_APPS` (minus Work, which is the grid's first icon) and a Quick View button.
+  No badges.
+
+A folder opens with `openFolder(id)`. All Work opens with `present({ app: 'projects', title })` —
+the same `ProjectsApp` the desktop's Work window uses, with no folder filter. Shared app
+components stay shared; there is no mobile Work view.
+
+### Which devices get it
+
+`useIsCompact()` = `COMPACT_QUERY` =
+`(max-width: 900px), (hover: none) and (pointer: coarse) and (max-width: 1366px)`.
+
+Narrow is not enough on its own: an iPad is 1024–1366px wide and used to get the draggable
+desktop, which is unusable by finger. The second clause catches a touch-first screen of tablet
+size in either orientation. It reads **input capability, not the device's name** — no user-agent
+sniffing. A touchscreen laptop with a mouse or trackpad reports `hover: hover` and keeps the
+desktop; a 1366px+ touch display is treated as a computer.
+
+### `settings.mobileHome` (optional)
+
+```ts
+mobileHome?: {
+  phoneColumns?: 3 | 4 | 5;       // default 4
+  tabletColumns?: 4 | 5 | 6;      // default 6 (≥700px)
+  widgets?: { widgetId: string; area?: 'top' | 'afterApps' }[];
+}
+```
+
+Every key is optional and the schema holds **no defaults** — they live in
+`MOBILE_HOME_DEFAULTS` in `lib/mobileHome.ts`, so an untouched file validates and exports
+byte-identically. `widgets` absent means the first clock then the first weather widget, both at
+the top; `[]` means none. There is no size field: an old draft's `span` is dropped on import,
+not rejected.
+`superRefine` rejects a `widgetId` that is not in `desktop.widgets`, or one listed twice;
+`mobileWidgets` also skips them at runtime so a hand-edited file cannot crash the home screen.
+
+### Layout rules
+
+`100dvh`; one scroll surface (the page — `.m-home` and its body never set `overflow`); safe-area
+insets on all four sides; the dock is `position: fixed` above the home indicator and the body
+pads by the dock's height so nothing hides under it; every target is ≥44px; no hover-only
+action; the icon entrance is off under reduced motion. Vertical rhythm, top to bottom: safe
+area and status bar, a small gap, the widgets, a larger gap, the icon grid, then wallpaper down
+to the dock. It holds from 320px to 430px with no horizontal overflow.
 
 ### How "open this" resolves — one path, declared by the shell
 

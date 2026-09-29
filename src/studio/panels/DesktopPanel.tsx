@@ -1,17 +1,31 @@
 /**
  * Desktop panel — everything that lives on the desktop surface.
  *
- * Five groups, in the order you would actually build a desktop: the shortcuts,
- * the widgets, the external links in the dock, the joke alerts those shortcuts
- * can open, the windows that are already open at launch, and the notes.
+ * Seven groups, in the order you would actually build a desktop: the shortcuts,
+ * the widgets, the external links in the dock, the phone / tablet home screen,
+ * the joke alerts those shortcuts can open, the windows that are already open
+ * at launch, and the notes.
  *
  * Positions are deliberately absent from the normal flow. The desktop places
  * new items itself (a seeded scatter — see hooks/useDesktopLayout), and anyone
  * can drag them where they want at runtime. Typing percentages is an override,
  * not a workflow, so it lives under Advanced.
  */
-import { disciplines, type SystemAlert, type DesktopItem, type DockLink, type Note, type Widget } from '@/types/content';
+import { ArrowDown, ArrowUp, Trash2 } from 'lucide-react';
+import {
+  disciplines,
+  type SystemAlert,
+  type DesktopItem,
+  type DockLink,
+  type MobileHome,
+  type MobileHomeWidget,
+  type Note,
+  type Widget,
+} from '@/types/content';
 import { APP_IDS } from '@/state/os';
+import { MOBILE_HOME_DEFAULTS, mobileWidgets } from '@/lib/mobileHome';
+import { moveItem } from '@/lib/utils';
+import { Btn } from '@/components/ui/Ui';
 import type { PanelProps } from '../useDraft';
 import {
   Advanced,
@@ -19,6 +33,7 @@ import {
   Choice,
   FoldBar,
   Grid,
+  IconBtn,
   IconFields,
   IdField,
   Num,
@@ -33,7 +48,7 @@ import {
 } from './parts';
 
 /** The collapsible sections of this tab, in page order. */
-const FOLDS = ['shortcuts', 'widgets', 'dock', 'alerts', 'launch', 'notes'] as const;
+const FOLDS = ['shortcuts', 'widgets', 'dock', 'mobile', 'alerts', 'launch', 'notes'] as const;
 type Fold = (typeof FOLDS)[number];
 
 /** Mirrors the enums in types/content.ts. */
@@ -101,6 +116,7 @@ export function DesktopPanel({ draft, update }: PanelProps) {
     shortcuts: `${list(draft.desktop.items).length} item(s)`,
     widgets: `${list(draft.desktop.widgets).length} widget(s)`,
     dock: `${list(draft.desktop.dockLinks).length} link(s)`,
+    mobile: draft.settings.mobileHome ? 'customised' : 'default',
     alerts: `${list(draft.alerts).length} alert(s)`,
     launch: `${list(draft.desktop.autoOpen).length} window(s)`,
     notes: `${list(draft.notes).length} note(s)`,
@@ -271,7 +287,7 @@ export function DesktopPanel({ draft, update }: PanelProps) {
       <Section
         title="Widgets"
         {...folds.props('widgets', summary.widgets)}
-        hint="Small panels on the desktop: a clock, a short note in your own voice, or the reaction-time test. Two is plenty."
+        hint="Small panels on the desktop (and, if picked under Mobile Home, the phone): a clock, the weather somewhere, a short note in your own voice, or the reaction-time test. A few is plenty."
       >
         <Repeater
           items={draft.desktop.widgets}
@@ -304,13 +320,20 @@ export function DesktopPanel({ draft, update }: PanelProps) {
                     { value: 'clock', label: 'Clock & date' },
                     { value: 'note', label: 'Sticky note' },
                     { value: 'reaction', label: 'Reaction time test' },
+                    { value: 'weather', label: 'Weather' },
                   ]}
                   onChange={(v) => patch({ type: v as Widget['type'] })}
                 />
                 <Text
                   label="Title"
                   value={widget.title}
-                  hint={widget.type === 'note' ? 'Small heading' : 'Label above the widget'}
+                  hint={
+                    widget.type === 'note'
+                      ? 'Small heading'
+                      : widget.type === 'weather'
+                        ? 'The place name, e.g. Dubai'
+                        : 'Label above the widget'
+                  }
                   onChange={(v) => patch({ title: v })}
                 />
                 <Choice
@@ -320,6 +343,29 @@ export function DesktopPanel({ draft, update }: PanelProps) {
                   onChange={(v) => patch({ zone: v as Widget['zone'] })}
                 />
               </Grid>
+
+              {widget.type === 'weather' && (
+                <Grid>
+                  <Num
+                    label="Latitude"
+                    value={widget.latitude}
+                    min={-90}
+                    max={90}
+                    step={0.0001}
+                    hint="Dubai is 25.2048"
+                    onChange={(v) => patch({ latitude: v })}
+                  />
+                  <Num
+                    label="Longitude"
+                    value={widget.longitude}
+                    min={-180}
+                    max={180}
+                    step={0.0001}
+                    hint="Dubai is 55.2708. The visitor's own location is never used."
+                    onChange={(v) => patch({ longitude: v })}
+                  />
+                </Grid>
+              )}
 
               {widget.type === 'note' && (
                 <Area
@@ -392,6 +438,14 @@ export function DesktopPanel({ draft, update }: PanelProps) {
             </>
           )}
         </Repeater>
+      </Section>
+
+      <Section
+        title="Mobile Home"
+        {...folds.props('mobile', summary.mobile)}
+        hint="The phone and tablet home screen: an icon for All Work and every folder (in folder order, with the desktop's artwork), the widgets you pick here, and a dock. Nothing here is new content — it only chooses."
+      >
+        <MobileHomeFields draft={draft} update={update} />
       </Section>
 
       <Section
@@ -601,5 +655,158 @@ export function DesktopPanel({ draft, update }: PanelProps) {
         </Repeater>
       </Section>
     </div>
+  );
+}
+
+const AREAS: Array<{ value: NonNullable<MobileHomeWidget['area']>; label: string }> = [
+  { value: 'top', label: 'Top' },
+  { value: 'afterApps', label: 'After apps' },
+];
+
+const columnOptions = (values: number[]) =>
+  values.map((n) => ({ value: String(n), label: `${n} columns` }));
+
+/**
+ * `settings.mobileHome`. Every key is optional and written only when chosen:
+ * picking "Default" deletes the key, and an object left with no keys is
+ * removed, so a portfolio that never touches this exports without it.
+ */
+function MobileHomeFields({ draft, update }: PanelProps) {
+  const home = draft.settings.mobileHome;
+  const widgets = Array.isArray(draft.desktop.widgets) ? draft.desktop.widgets : [];
+
+  const setHome = (change: (next: MobileHome) => void) =>
+    update((next) => {
+      const value: MobileHome = { ...(next.settings.mobileHome ?? {}) };
+      change(value);
+      for (const key of Object.keys(value) as Array<keyof MobileHome>) {
+        if (value[key] === undefined) delete value[key];
+      }
+      if (Object.keys(value).length) next.settings.mobileHome = value;
+      else delete next.settings.mobileHome;
+    });
+
+  /*
+   * With nothing chosen the home screen shows the default widget. The first
+   * edit starts from that default rather than from an empty list, so adding a
+   * second widget does not silently remove the clock.
+   */
+  const entries: MobileHomeWidget[] =
+    home?.widgets ?? mobileWidgets(undefined, widgets).map(({ widget }) => ({ widgetId: widget.id }));
+  const setEntries = (next: MobileHomeWidget[] | undefined) =>
+    setHome((value) => {
+      value.widgets = next;
+    });
+
+  const nameOf = (id: string) => {
+    const widget = widgets.find((w) => w.id === id);
+    return widget ? `${widget.title ?? widget.type} · ${widget.type}` : `missing: ${id}`;
+  };
+  const unselected = widgets.filter((w) => !entries.some((entry) => entry.widgetId === w.id));
+
+  return (
+    <>
+      <Grid>
+        <Choice
+          label="Phone columns"
+          value={home?.phoneColumns === undefined ? '' : String(home.phoneColumns)}
+          options={columnOptions([3, 4, 5])}
+          placeholder={`Default (${MOBILE_HOME_DEFAULTS.phoneColumns})`}
+          onChange={(v) =>
+            setHome((value) => {
+              value.phoneColumns = v ? Number(v) : undefined;
+            })
+          }
+        />
+        <Choice
+          label="Tablet columns"
+          value={home?.tabletColumns === undefined ? '' : String(home.tabletColumns)}
+          options={columnOptions([4, 5, 6])}
+          placeholder={`Default (${MOBILE_HOME_DEFAULTS.tabletColumns})`}
+          onChange={(v) =>
+            setHome((value) => {
+              value.tabletColumns = v ? Number(v) : undefined;
+            })
+          }
+        />
+      </Grid>
+
+      <div className="studio-rep">
+        <span className="mono studio-rep__title">Mobile widgets</span>
+        {!home?.widgets && (
+          <p className="studio-rep__empty">
+            Not customised — the home screen shows the desktop&apos;s first clock and first
+            weather widget at the top.
+          </p>
+        )}
+        {home?.widgets && entries.length === 0 && (
+          <p className="studio-rep__empty">No widgets on the home screen.</p>
+        )}
+
+        {entries.map((entry, index) => {
+          const patch = (changes: Partial<MobileHomeWidget>) =>
+            setEntries(entries.map((e, i) => (i === index ? { ...e, ...changes } : e)));
+          return (
+            <section className="studio-rep__item" key={`${entry.widgetId}-${index}`}>
+              <header className="studio-rep__head">
+                <span className="mono studio-rep__index">{String(index + 1).padStart(2, '0')}</span>
+                <span className="studio-rep__label">{nameOf(entry.widgetId)}</span>
+                <div className="studio-rep__tools">
+                  <IconBtn
+                    label="Move up"
+                    disabled={index === 0}
+                    onClick={() => setEntries(moveItem(entries, index, index - 1))}
+                  >
+                    <ArrowUp strokeWidth={1.5} />
+                  </IconBtn>
+                  <IconBtn
+                    label="Move down"
+                    disabled={index === entries.length - 1}
+                    onClick={() => setEntries(moveItem(entries, index, index + 1))}
+                  >
+                    <ArrowDown strokeWidth={1.5} />
+                  </IconBtn>
+                  <IconBtn
+                    label="Remove from the home screen"
+                    danger
+                    onClick={() => setEntries(entries.filter((_, i) => i !== index))}
+                  >
+                    <Trash2 strokeWidth={1.5} />
+                  </IconBtn>
+                </div>
+              </header>
+              <div className="studio-rep__body">
+                <Choice
+                  label="Position"
+                  value={entry.area ?? MOBILE_HOME_DEFAULTS.area}
+                  options={AREAS}
+                  hint="Every mobile widget is a square; two share a phone row"
+                  onChange={(v) => patch({ area: v as MobileHomeWidget['area'] })}
+                />
+              </div>
+            </section>
+          );
+        })}
+
+        {unselected.length > 0 && (
+          <Choice
+            label="+ Add widget"
+            value=""
+            options={unselected.map((w) => ({ value: w.id, label: `${w.title ?? w.type} · ${w.type}` }))}
+            placeholder="Choose a desktop widget…"
+            hint="Widgets are made in the Widgets section above; this only places them."
+            onChange={(v) => {
+              if (v) setEntries([...entries, { widgetId: v }]);
+            }}
+          />
+        )}
+
+        {home?.widgets && (
+          <Btn variant="quiet" size="sm" onClick={() => setEntries(undefined)}>
+            Reset widgets to the default
+          </Btn>
+        )}
+      </div>
+    </>
   );
 }

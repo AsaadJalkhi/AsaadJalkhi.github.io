@@ -160,6 +160,16 @@
       }
     },
     "customCursor": false,
+    "mobileHome": {
+      "widgets": [
+        {
+          "widgetId": "w-clock"
+        },
+        {
+          "widgetId": "w-weather"
+        }
+      ]
+    },
     "studioPin": "5729",
     "seo": {
       "title": "Asaad Jalkhi — Marketing, Creative & Digital",
@@ -367,6 +377,16 @@
         "title": "Reaction",
         "x": 76,
         "y": 36,
+        "zone": "right"
+      },
+      {
+        "id": "w-weather",
+        "type": "weather",
+        "title": "Dubai",
+        "latitude": 25.2048,
+        "longitude": 55.2708,
+        "x": 76,
+        "y": 57,
         "zone": "right"
       }
     ],

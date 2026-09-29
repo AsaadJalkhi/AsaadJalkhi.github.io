@@ -540,6 +540,37 @@ this one shortcut to go somewhere different.
 They sit in their own segment at the right of the dock. Links open in a new tab; email opens
 your mail app.
 
+### Arrange the phone and tablet home screen
+Studio → **Desktop & dock** → **Mobile Home**. Phones and tablets (touch screens up to
+1366px wide) don't get the desktop. They get a home screen: your wallpaper, a few widgets, an
+icon for **All Work** and for every folder, and a dock with **Quick View** in it. It is
+not a second Quick View — the selected work, experience, about, CV and contact stay in Quick View.
+
+**Nothing on it is written for mobile.** The icons are your folders, in folder order, so
+reorder folders under **Projects** and the home screen follows. Each folder uses its own icon
+if it has one, and otherwise borrows the icon of the desktop shortcut that opens it. The dock
+links you set up above appear as icons after the folders. This panel only chooses:
+
+- **Phone columns** — 3, 4 or 5. **Default (4)** leaves it unset.
+- **Tablet columns** — 4, 5 or 6, used from 700px wide. **Default (6)** leaves it unset.
+- **Mobile widgets** — which of your desktop widgets appear, in order. Each row has:
+  - **Position** — *Top* (above the icons) or *After apps* (below them).
+  - **↑ ↓** to reorder, and the bin to remove it from the home screen. Removing it here does
+    not delete the widget from the desktop.
+- **+ Add widget** — lists only the desktop widgets that aren't on the home screen yet. To make a
+  new one, add it under **Widgets** first.
+- **Reset widgets to the default** — forget your list.
+
+There is no size to pick: **every widget on a phone is a square**, and two sit side by side in a
+row — so two widgets at the top make one tidy row, and a third starts the next. A tablet fits
+more squares per row instead of making them bigger. Widgets on the phone can't be dragged; their
+order is the list's order.
+
+The portfolio currently puts **Clock** and **Weather — Dubai** at the top, clock first. If the
+list were empty of choices (never touched), the home screen would show the same thing — your
+first clock, then your first weather widget — without writing anything to `portfolio.json`. Remove every widget and it shows none — that is a
+real choice, not the same as the default.
+
 ### Edit the joke alerts (Photoshop, After Effects, Blender, VS Code)
 Studio → **Desktop & dock** → **System alerts**. Each has a title, a body, a tone
 (info / caution / error) and up to two buttons. A desktop shortcut whose **Opens** is set to
@@ -548,16 +579,32 @@ Studio → **Desktop & dock** → **System alerts**. Each has a title, a body, a
 Keep them short and dry. They are a wink, not a comedy set.
 
 ### Add or edit a widget
-Studio → **Desktop & dock** → **Widgets**. Three kinds, all self-contained — no network, no
-live services:
+Studio → **Desktop & dock** → **Widgets**. Four kinds, deliberately few. Only Weather goes
+online:
 
 - **Clock & date** — the time, with an optional place label.
 - **Sticky note** — a short card in your own voice.
 - **Reaction time test** — press Start, wait for the panel to turn blue, press it again, and
   it shows how many milliseconds that took. Your best score is remembered in your browser.
   There is nothing to configure beyond the title and where it sits, which is the point.
+- **Weather** — the place, the temperature, one word for the conditions with an icon, and
+  today's high and low. You choose the place; the visitor's own location is never asked for.
+  - **Title** — the place name as it should read, e.g. `Dubai`.
+  - **Latitude** / **Longitude** — where that is, in decimal degrees. Dubai is `25.2048` /
+    `55.2708`. Look any city up on a map and copy its coordinates. Both are required; the
+    Studio flags a weather widget that is missing one.
 
-Two widgets on screen is plenty.
+  It uses Open-Meteo, a free weather service that needs no account and no key, and refreshes
+  every 30 minutes. If it can't be reached — offline, blocked, or the service is down — the
+  widget still shows the place and says "Weather unavailable"; nothing else on the page is
+  affected.
+
+```json
+{ "id": "w-weather", "type": "weather", "title": "Dubai", "latitude": 25.2048, "longitude": 55.2708, "x": 76, "y": 57, "zone": "right" }
+```
+
+Every widget appears on the desktop, and — if it's on the Mobile Home list — on the phone too.
+The same widget, not a copy: edit it once. A handful on screen is plenty.
 
 ### Switch the site to dark by default, or lock the theme
 Studio → **Appearance** → **Theme**. **Start in dark mode** sets what a first-time visitor

@@ -7,10 +7,13 @@ personal computer interface.
 screen; the OS is the navigation and personality layer, not the point. Project imagery
 supplies the colour, so the interface itself stays neutral.
 
-Two ways in, both first-class:
+Three ways in, each first-class:
 
 - **Desktop** — draggable windows, an editorial Work grid, folders, media, command palette.
-- **Quick View** — a conventional, readable portfolio for anyone with 60 seconds.
+- **Mobile / tablet** — a touch-first home screen: wallpaper, widgets, an icon for every
+  folder, a floating dock, and full-screen sheets. Chosen for narrow screens and for touch
+  tablets.
+- **Quick View** — a conventional, readable portfolio for anyone with 60 seconds (`#/quick`).
 
 React 19 · TypeScript · Vite 7 · Zustand · Zod · GSAP · react-rnd · lucide-react.
 Static build. No backend, no database, no secrets.

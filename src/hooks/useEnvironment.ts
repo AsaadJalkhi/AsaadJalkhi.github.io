@@ -17,9 +17,26 @@ export function useMediaQuery(query: string): boolean {
   return matches;
 }
 
-/** Phone / small tablet — gets the purpose-built mobile shell, not the desktop. */
+/**
+ * Phone or tablet — gets the purpose-built mobile shell, not the desktop.
+ *
+ * Two ways in, either one enough:
+ *   - a narrow viewport, whatever the input — a phone, or a desktop window
+ *     dragged thin;
+ *   - a touch-first device (no hover, coarse pointer) at tablet size. An iPad
+ *     is 1024–1366px wide, so width alone handed it the draggable desktop, a
+ *     mouse metaphor under a finger.
+ *
+ * Capabilities, never the user agent. A desktop browser with a mouse keeps the
+ * desktop at any width above the breakpoint, including a touchscreen laptop
+ * whose primary pointer is fine. The Studio's Mobile preview is a container
+ * width, not this hook, so it is unaffected.
+ */
+export const COMPACT_QUERY =
+  '(max-width: 900px), (hover: none) and (pointer: coarse) and (max-width: 1366px)';
+
 export function useIsCompact(): boolean {
-  return useMediaQuery('(max-width: 900px)');
+  return useMediaQuery(COMPACT_QUERY);
 }
 
 /** True when the device has no precise pointer — disables the custom cursor. */

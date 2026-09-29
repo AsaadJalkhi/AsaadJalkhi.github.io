@@ -7,6 +7,16 @@
  *
  *   node scripts/check-ui.mjs
  *
+ * Check 48 is session 26: the phone home reads as a phone — every widget a
+ * square, two to a row, icons on 56–64px plates — and Weather is the fourth
+ * widget type: one renderer for both shells, an authored place (Dubai), no
+ * key, no geolocation, and "Weather unavailable" instead of an error.
+ *
+ * Check 47 is session 25: phone and tablet get a home screen — the desktop's
+ * wallpaper, its widgets as static tiles, All Work and every folder as icons,
+ * a floating dock — instead of a second Quick View. Check 25's handler list
+ * moved with it: the home has no project or note cards left to open.
+ *
  * Check 27 is session 15: project cards are packed shortest-column-first into as many columns
  * as the CONTAINER can hold, not laid out in a row-based grid. It is written as a property of
  * the packing rather than of the Work window, because the report was two bugs — "the grid" and
@@ -67,6 +77,7 @@ import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
 import { mkdtempSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { build } from 'esbuild';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -177,7 +188,18 @@ await build({
   alias: { '@': join(root, 'src') },
 });
 
-const { FolderSchema, ProjectSchema, MediaItemSchema } = await import(pathToFileURL(schemaBundle).href);
+const {
+  FolderSchema,
+  ProjectSchema,
+  MediaItemSchema,
+  MobileHomeSchema,
+  MobileHomeWidgetSchema,
+  PortfolioSchema,
+  SettingsSchema,
+  WidgetSchema,
+} = await import(
+  pathToFileURL(schemaBundle).href
+);
 
 /* The list reorder, imported so a drop from #10 to #02 is asserted with a real array. */
 const utilsBundle = join(outdir, 'utils.mjs');
@@ -219,6 +241,63 @@ await build({
   alias: { '@': join(root, 'src') },
 });
 const presentation = await import(pathToFileURL(presentationBundle).href);
+
+/* The mobile home screen's derivations, imported so icon order and widget defaults are asserted on real arrays. */
+const mobileHomeBundle = join(outdir, 'mobile-home.mjs');
+await build({
+  entryPoints: [join(root, 'src/lib/mobileHome.ts')],
+  bundle: true,
+  format: 'esm',
+  platform: 'node',
+  outfile: mobileHomeBundle,
+  logLevel: 'silent',
+  alias: { '@': join(root, 'src') },
+});
+const mobileHome = await import(pathToFileURL(mobileHomeBundle).href);
+
+/*
+ * The weather data layer, imported so "never throws" is asserted by making the
+ * network fail, not by reading the source. `fetch` is stubbed for the duration;
+ * nothing here reaches Open-Meteo.
+ */
+const weatherBundle = join(outdir, 'weather.mjs');
+await build({
+  entryPoints: [join(root, 'src/lib/weather.ts')],
+  bundle: true,
+  format: 'esm',
+  platform: 'node',
+  outfile: weatherBundle,
+  logLevel: 'silent',
+  alias: { '@': join(root, 'src') },
+});
+const weatherLib = await import(pathToFileURL(weatherBundle).href);
+
+const weatherRuns = { requested: [], outcomes: [] };
+{
+  const realFetch = globalThis.fetch;
+  const stubs = [
+    ['a network error', () => Promise.reject(new TypeError('Failed to fetch'))],
+    ['a synchronous throw', () => { throw new Error('boom'); }],
+    ['an HTTP 500', () => Promise.resolve({ ok: false, status: 500, json: async () => ({}) })],
+    ['a body that is not JSON', () => Promise.resolve({ ok: true, json: async () => { throw new SyntaxError('bad json'); } })],
+    ['a body in the wrong shape', () => Promise.resolve({ ok: true, json: async () => ({ current: { temperature_2m: 'hot' } }) })],
+  ];
+  for (const [index, [what, stub]] of stubs.entries()) {
+    globalThis.fetch = (url, init) => {
+      weatherRuns.requested.push(String(url));
+      return stub(url, init);
+    };
+    let outcome;
+    try {
+      // A distinct place per run, so no result is served from the cache.
+      outcome = { what, value: await weatherLib.loadWeather(10 + index, 20 + index) };
+    } catch (error) {
+      outcome = { what, threw: error };
+    }
+    weatherRuns.outcomes.push(outcome);
+  }
+  globalThis.fetch = realFetch;
+}
 
 /* ------------------------------------------------------------- the checks */
 
@@ -1047,12 +1126,14 @@ check('25. opening anything on mobile makes a sheet, never a desktop window', ()
       throw new Error(`${file} opens a desktop window directly, bypassing the surface`);
     }
   }
-  // The home screen's own cards go through the hook like everyone else's.
+  // The home screen's own icons go through the hook like everyone else's.
+  // (Session 25: the home screen is folder icons and a dock, not project and
+  // note cards — check 47 — so these are the handlers it has left.)
   const shell = read('src/components/mobile/MobileShell.tsx');
   if (!/useOpenTarget\(\)/.test(shell)) {
     throw new Error('MobileShell opens its own cards without the shared hook');
   }
-  for (const handler of ['openProject(project.id)', 'openFolder(folder.id)', 'openNote(note.id)']) {
+  for (const handler of ['openFolder(app.folderId)', "present({ app: 'projects'", 'openApp(app.id)']) {
     if (!shell.includes(handler)) throw new Error(`a mobile card bypasses the hook: ${handler}`);
   }
   return 'one open path, wrapping the whole shell, sheets stack';
@@ -2329,6 +2410,402 @@ check('46. Quick View thumbnails cover their frame, cropped around the centre', 
     throw new Error('Quick View thumbnails are anchored to the top');
   }
   return 'fills the frame, cover, centre-cropped; scoped to .qv-work__art';
+});
+
+/* ------------------------------------- 47. the mobile home is a home screen */
+
+check('47. phone / tablet is a home screen: wallpaper, widgets, icons, dock — not a second Quick View', () => {
+  /*
+   * Session 25. The mobile home rendered a hero, a Quick View button, Selected
+   * Work cards, text tiles, a notes list and a footer: Quick View again, one
+   * tap away from the real one, with none of the OS in it. It is now the OS
+   * translated to touch, reading everything from content that already exists.
+   */
+  const shell = read('src/components/mobile/MobileShell.tsx');
+  const code = shell.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+  const css = read('src/components/mobile/mobile.css');
+  const cleanCss = css.replace(/\/\*[\s\S]*?\*\//g, '');
+
+  // 1. None of Quick View's sections are drawn on the home screen.
+  for (const [pattern, what] of [
+    [/featuredProjects|projectThumb|m-card|m-hero/, 'Selected Work cards / hero'],
+    [/profile\.(headline|positioning|about|bio)\b/, 'about copy'],
+    [/portfolio\.(experience|skills)\b|\bexperience\.map|\bskills\.map/, 'Experience / Capabilities content'],
+    [/<(AboutApp|CvApp|ContactApp|QuickView)\b/, 'an app or Quick View rendered inline'],
+    [/portfolio\.notes|openNote\(/, 'the notes list'],
+  ]) {
+    if (pattern.test(code)) throw new Error(`the mobile home renders ${what}`);
+  }
+
+  // 2. The desktop's own wallpaper, pinned to the viewport.
+  if (!/<Wallpaper \/>/.test(code)) throw new Error('the mobile home does not reuse Wallpaper');
+  if (!/position:\s*fixed/.test(rule(css, '.m-home__backdrop'))) {
+    throw new Error('the wallpaper scrolls away with the content');
+  }
+
+  // 3. One widget renderer, two wrappers.
+  const widgetFile = read('src/components/os/DesktopWidget.tsx');
+  if (!/export function WidgetContent\(/.test(widgetFile) || !/<WidgetContent widget=\{widget\} \/>/.test(widgetFile)) {
+    throw new Error('DesktopWidget no longer draws through the shared WidgetContent');
+  }
+  if (!/<WidgetContent widget=\{widget\} variant="tile" \/>/.test(code)) {
+    throw new Error('the mobile widget does not reuse WidgetContent');
+  }
+
+  // 4. No desktop machinery: no drag, no windows, no positions, no sheet state.
+  for (const [pattern, what] of [
+    [/useDesktopLayout|onPointerDown|react-rnd|WindowLayer|<DesktopWidget|<DesktopIcon/, 'desktop drag / window infrastructure'],
+    [/openWindow\(|useState<Sheet|OpenSurfaceContext/, 'its own open path or sheet state'],
+    [/left:\s*`|top:\s*`|\.x\b|\.y\b/, 'x/y positioning'],
+    [/CustomCursor/, 'a custom cursor'],
+  ]) {
+    if (pattern.test(code)) throw new Error(`MobileShell carries ${what}`);
+  }
+  if (/touch-action:\s*none|cursor:\s*grab/.test(rule(css, '.m-widget'))) {
+    throw new Error('a mobile widget blocks scrolling or looks draggable');
+  }
+
+  // 5. Icons: All Work first, then every folder in the existing folder order.
+  const folders = [
+    { id: 'c', name: 'C', order: 3 },
+    { id: 'a', name: 'A', order: 1 },
+    { id: 'z', name: 'Z' },
+    { id: 'b', name: 'B', order: 2 },
+  ];
+  const apps = mobileHome.mobileApps(folders, [], 'All work');
+  const got = apps.map((a) => a.folderId ?? '*').join(',');
+  const want = ['*', ...order.orderedFolders(folders).map((f) => f.id)].join(',');
+  if (got !== want) throw new Error(`icon order ${got}, expected ${want}`);
+  if (/GAF|Good Moon|Designers|OCTOBOSS|Web & Digital/.test(code)) {
+    throw new Error('a folder name is hardcoded in the mobile home');
+  }
+
+  // 6. Artwork is the folder's own, else the desktop shortcut's; same per-theme rule as the desktop.
+  const items = [{ id: 'd', label: 'A', kind: 'folder', target: { type: 'folder', value: 'a' }, icon: { imageLight: 'l.png', imageDark: 'd.png' } }];
+  if (mobileHome.folderIcon(folders[1], items)?.imageDark !== 'd.png') {
+    throw new Error('a folder without its own icon does not fall back to its desktop shortcut');
+  }
+  if (mobileHome.folderIcon({ id: 'a', name: 'A', icon: { text: 'A' } }, items)?.text !== 'A') {
+    throw new Error("a folder's own icon does not win over the shortcut's");
+  }
+  if (mobileHome.iconSource({ image: 'x.png' }, 'dark') !== 'x.png' || mobileHome.iconSource({ imageLight: 'l', imageDark: 'd' }, 'light') !== 'l') {
+    throw new Error('iconSource no longer resolves per theme with the legacy image as fallback');
+  }
+  if (!/iconSource\(item\.icon, theme\)/.test(read('src/components/os/DesktopIcon.tsx'))) {
+    throw new Error('the desktop and the phone resolve artwork with two different rules');
+  }
+  if (!/object-fit:\s*contain/.test(rule(css, '.m-app__img'))) throw new Error('mobile icon artwork is cropped');
+
+  // 7. Folder → openFolder, All Work → the Work window with no folder filter.
+  if (!/if \(app\.folderId\) openFolder\(app\.folderId\);\s*else present\(\{ app: 'projects', title: ALL_WORK \}\);/.test(code)) {
+    throw new Error('icons do not open through openFolder / the unfiltered Work view');
+  }
+  if (!/aria-label=\{`Open \$\{app\.label\}`\}/.test(code)) throw new Error('icons are not labelled "Open <name>"');
+
+  // 8. The dock is the dock's data, plus Quick View, labelled.
+  if (!/DOCK_APPS\.filter/.test(code) || !/desktop\.dockLinks\.map/.test(code) || !/dockLinkUrl\(link, profile\)/.test(code)) {
+    throw new Error('the mobile dock does not reuse DOCK_APPS / dockLinks');
+  }
+  if (!/setView\('quickview'\)/.test(code)) throw new Error('Quick View is unreachable from the home screen');
+  if (!/aria-label=\{app\.label\}/.test(code)) throw new Error('dock items are unlabelled');
+
+  // 9. Touch targets ≥ 44px.
+  for (const [selector, prop] of [['.m-app', 'min-height'], ['.m-status__btn', 'height'], ['.m-dock__item', 'min-height']]) {
+    const m = new RegExp(`(^|[^-])${prop}:\\s*(\\d+)px`).exec(rule(css, selector));
+    if (!m || Number(m[2]) < 44) throw new Error(`${selector} ${prop} is under 44px`);
+  }
+
+  // 10. A CSS grid whose columns come from the content (phone / tablet), not x/y.
+  if (!/repeat\(var\(--m-cols\)/.test(rule(css, '.m-apps__grid'))) throw new Error('the icon grid is not column-driven');
+  if (!/'--m-cols-phone': columns\.phone/.test(code) || !/'--m-cols-tablet': columns\.tablet/.test(code)) {
+    throw new Error('the configured columns do not reach the grid');
+  }
+  const c = mobileHome.mobileColumns(undefined);
+  if (c.phone !== 4 || c.tablet !== 6) throw new Error(`default columns ${c.phone}/${c.tablet}, expected 4/6`);
+
+  // 11. Widget defaults are runtime, not content: absent → first clock then first weather, top; [] → none.
+  const widgets = [
+    { id: 'n', type: 'note', zone: 'any' },
+    { id: 'w', type: 'weather', latitude: 25, longitude: 55, zone: 'any' },
+    { id: 'k', type: 'clock', zone: 'any' },
+  ];
+  const def = mobileHome.mobileWidgets(undefined, widgets);
+  if (def.map((entry) => `${entry.widget.id}:${entry.area}`).join(',') !== 'k:top,w:top') {
+    throw new Error('the default mobile widgets are not the first clock then the first weather, at the top');
+  }
+  if (mobileHome.mobileWidgets({ widgets: [] }, widgets).length !== 0) throw new Error('an empty list does not mean none');
+  const picked = mobileHome.mobileWidgets({ widgets: [{ widgetId: 'n', area: 'afterApps' }, { widgetId: 'gone' }] }, widgets);
+  if (picked.length !== 1 || picked[0].area !== 'afterApps') {
+    throw new Error('configured widgets are not honoured, or a missing one crashes the list');
+  }
+
+  // 12. Schema: optional all the way down, no defaults materialised.
+  if (SettingsSchema.shape.mobileHome.safeParse(undefined).data !== undefined) {
+    throw new Error('settings.mobileHome materialises when absent');
+  }
+  if (Object.keys(MobileHomeSchema.parse({})).length) throw new Error('MobileHomeSchema has defaults');
+  if (MobileHomeSchema.safeParse({ phoneColumns: 9 }).success) throw new Error('an impossible column count is accepted');
+
+  // 13. Scroll, safe areas, dock clearance, motion.
+  if (!/min-height:\s*100dvh/.test(rule(css, '.m-home'))) throw new Error('the home screen is not a full viewport');
+  for (const side of ['top', 'right', 'bottom', 'left']) {
+    if (!cleanCss.includes(`env(safe-area-inset-${side})`)) throw new Error(`safe-area-inset-${side} is ignored`);
+  }
+  if (!/position:\s*fixed/.test(rule(css, '.m-dock'))) throw new Error('the dock is not anchored');
+  if (!/var\(--m-dock-h\)[\s\S]*safe-area-inset-bottom/.test(rule(css, '.m-home__body'))) {
+    throw new Error('the last row can hide behind the dock');
+  }
+  if (/overflow/.test(rule(css, '.m-home') + rule(css, '.m-home__body'))) {
+    throw new Error('the home screen adds a second scroll surface');
+  }
+  if (!/@media \(prefers-reduced-motion: reduce\)[\s\S]*\.m-apps__grid > li[\s\S]*animation:\s*none/.test(cleanCss)) {
+    throw new Error('the icon entrance ignores reduced motion');
+  }
+  if (/:hover/.test(cleanCss.slice(0, cleanCss.indexOf('.m-sheet {')))) throw new Error('the home screen relies on hover');
+
+  // 14. Detection: narrow OR touch-first tablet; capabilities, never the user agent.
+  const env = read('src/hooks/useEnvironment.ts');
+  if (!/max-width: 900px/.test(env) || !/\(hover: none\) and \(pointer: coarse\) and \(max-width: 1366px\)/.test(env)) {
+    throw new Error('useIsCompact does not cover both phones and touch tablets');
+  }
+  if (/userAgent|navigator\.platform/.test(env)) throw new Error('device detection sniffs the user agent');
+  if (!/useMediaQuery\(COMPACT_QUERY\)/.test(env)) throw new Error('useIsCompact is not the one compact query');
+
+  // 15. The desktop keeps its own widget and icon, Quick View is untouched by the shell.
+  const desktop = read('src/components/os/Desktop.tsx');
+  if (!/<DesktopWidget\b/.test(desktop) || /MobileShell|mobileHome/.test(desktop)) {
+    throw new Error('the desktop no longer draws its own widgets, or has picked up the mobile home');
+  }
+  if (/mobileHome|MobileShell/.test(read('src/components/quick-view/QuickView.tsx'))) {
+    throw new Error('Quick View depends on the mobile home');
+  }
+
+  // 16. Studio → Desktop & dock → Mobile Home, through the shared fold.
+  const panel = read('src/studio/panels/DesktopPanel.tsx');
+  if (!/title="Mobile Home"\s*\{\.\.\.folds\.props\('mobile'/.test(panel)) throw new Error('no Mobile Home section in the Desktop panel');
+  if (!/columnOptions\(\[3, 4, 5\]\)/.test(panel) || !/columnOptions\(\[4, 5, 6\]\)/.test(panel)) {
+    throw new Error('the column choices are not 3/4/5 (phone) and 4/5/6 (tablet)');
+  }
+  if (!/delete next\.settings\.mobileHome/.test(panel)) throw new Error('an emptied Mobile Home leaves `{}` in the content');
+  if (!/unselected/.test(panel)) throw new Error('"Add widget" offers widgets already placed');
+
+  // 17. The shell choice: Quick View is its own view first, then compact → home screen, else desktop.
+  const app = read('src/App.tsx');
+  if (!/view === 'quickview' \? \([\s\S]*?<QuickView \/>[\s\S]*?\) : compact \? \([\s\S]*?<MobileShell \/>[\s\S]*?\) : \([\s\S]*?<Desktop \/>/.test(app)) {
+    throw new Error('the Quick View / mobile home / desktop selection changed');
+  }
+  if (!/const compact = useIsCompact\(\);/.test(app)) throw new Error('the shell is not chosen by useIsCompact');
+
+  // 18. All Work is the registry's Work window — ProjectsApp — not a grid of the home screen's own.
+  if (!/projects: \{ id: 'projects'[^}]*component: ProjectsApp/.test(read('src/components/windows/registry.tsx'))) {
+    throw new Error('the projects app is no longer the shared Work window');
+  }
+
+  // 19. Back pops one sheet: a project opened from a folder returns to the folder, then home.
+  const surface = read('src/components/mobile/MobileSurface.tsx');
+  if (!/const pop = useCallback\(\(\) => setSheets\(\(stack\) => stack\.slice\(0, -1\)\), \[\]\);/.test(surface)) {
+    throw new Error('Back no longer removes exactly the top sheet');
+  }
+
+  // 20. The truth backup is untouched by this work: identical to its committed copy.
+  let committed = null;
+  try {
+    committed = execFileSync('git', ['show', 'HEAD:backup/portfolio.TRUTH.json'], { cwd: root, encoding: 'utf8', maxBuffer: 64 << 20 });
+  } catch {
+    committed = null; // no git, or no backup committed: nothing to compare against
+  }
+  if (committed !== null) {
+    const norm = (text) => text.replace(/\r\n/g, '\n');
+    if (norm(committed) !== norm(read('backup/portfolio.TRUTH.json'))) {
+      throw new Error('backup/portfolio.TRUTH.json differs from its committed copy');
+    }
+  }
+
+  return 'home screen only: wallpaper, shared widgets, All Work + folders, dock + Quick View; 44px; safe areas; no drag';
+});
+
+check('48. the phone home is square widgets over large icons, and Weather is one shared, keyless widget', () => {
+  /*
+   * Session 26. Mobile widgets came in half and full widths, and the icons were
+   * small enough to read as a list. Now every mobile widget is a square, two to
+   * a phone row, the icons sit on 56–64px plates, and Weather joined the clock
+   * at the top: one renderer for both shells, a place written in the content,
+   * no key, no geolocation, and "Weather unavailable" rather than an error.
+   */
+  const strip = (text) => text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+  const shell = strip(read('src/components/mobile/MobileShell.tsx'));
+  const widgetFile = strip(read('src/components/os/DesktopWidget.tsx'));
+  const weatherFile = strip(read('src/components/os/WeatherWidget.tsx'));
+  const weatherLibFile = strip(read('src/lib/weather.ts'));
+  const css = read('src/components/mobile/mobile.css');
+  const content = JSON.parse(read('src/content/portfolio.json'));
+
+  // 1. `weather` is a widget type, and needs its place.
+  const weather = { id: 'w', type: 'weather', title: 'Dubai', latitude: 25.2048, longitude: 55.2708 };
+  if (!WidgetSchema.safeParse(weather).success) throw new Error('a weather widget does not validate');
+  if (!WidgetSchema.shape.type.options.includes('weather')) throw new Error('weather is not a widget type');
+  if (WidgetSchema.safeParse({ ...weather, latitude: 91 }).success) throw new Error('an impossible latitude is accepted');
+  const unplaced = structuredClone(content);
+  unplaced.desktop.widgets.push({ id: 'w-nowhere', type: 'weather', title: 'Nowhere', zone: 'any' });
+  const noPlace = PortfolioSchema.safeParse(unplaced);
+  if (noPlace.success || !noPlace.error.issues.some((issue) => issue.path.join('.').endsWith('latitude'))) {
+    throw new Error('a weather widget without coordinates is not reported');
+  }
+
+  // 2. One Weather renderer, drawn through WidgetContent by both shells.
+  if (!/widget\.type === 'weather'[\s\S]*?<WeatherWidget title=\{widget\.title\} latitude=\{widget\.latitude\} longitude=\{widget\.longitude\} \/>/.test(widgetFile)) {
+    throw new Error('WidgetContent does not draw WeatherWidget');
+  }
+  if (/WeatherWidget|loadWeather|open-meteo/i.test(shell)) throw new Error('the phone has a weather implementation of its own');
+  const weatherUsers = readdirSync(join(root, 'src'), { recursive: true })
+    .filter((file) => /\.tsx?$/.test(file))
+    .filter((file) => /open-meteo\.com/.test(read(join('src', file))))
+    .map((file) => file.replace(/\\/g, '/'));
+  if (weatherUsers.join() !== 'lib/weather.ts') throw new Error(`Open-Meteo is called from ${weatherUsers.join(', ')}`);
+  if (/function useNow|toLocaleTimeString|DateTimeFormat/.test(shell.replace(/<time className="m-status__time"[\s\S]*?<\/time>/, ''))) {
+    throw new Error('the phone formats its own clock widget instead of sharing ClockContent');
+  }
+
+  // 3–4. No API key, no geolocation — the place is authored.
+  for (const [text, where] of [[weatherLibFile, 'lib/weather.ts'], [weatherFile, 'WeatherWidget.tsx']]) {
+    if (/api[_-]?key|appid|token|[?&]key=|Authorization/i.test(text)) throw new Error(`${where} carries an API key`);
+    if (/geolocation|getCurrentPosition|watchPosition/.test(text)) throw new Error(`${where} asks for the visitor's location`);
+  }
+  if (/geolocation/.test(read('src/components/mobile/MobileShell.tsx') + read('src/components/os/DesktopWidget.tsx'))) {
+    throw new Error('a shell asks for the visitor\'s location');
+  }
+  const url = new URL(weatherLib.weatherUrl(25.2048, 55.2708));
+  if (url.origin !== 'https://api.open-meteo.com' || [...url.searchParams.keys()].some((key) => /key|token|appid/i.test(key))) {
+    throw new Error(`unexpected weather request ${url}`);
+  }
+
+  // 5. Failure resolves to null — never a throw — and the widget still says where.
+  for (const { what, value, threw } of weatherRuns.outcomes) {
+    if (threw) throw new Error(`loadWeather threw on ${what}: ${threw.message}`);
+    if (value !== null) throw new Error(`loadWeather did not return null on ${what}`);
+  }
+  if (weatherRuns.requested.length !== weatherRuns.outcomes.length) throw new Error('a failed load was retried immediately');
+  for (const junk of [null, undefined, 'x', 3, {}, { current: {} }, { current: { temperature_2m: 20 } }, { current: { weather_code: 0 } }]) {
+    if (weatherLib.parseWeather(junk) !== null) throw new Error(`parseWeather trusted ${JSON.stringify(junk)}`);
+  }
+  const good = weatherLib.parseWeather({
+    current: { temperature_2m: 33.6, weather_code: 2, is_day: 1 },
+    daily: { temperature_2m_max: [38.2], temperature_2m_min: [29.5] },
+  });
+  if (!good || good.temperature !== 34 || good.high !== 38 || good.low !== 30 || good.kind !== 'partly' || !good.isDay) {
+    throw new Error(`parseWeather misread a real payload: ${JSON.stringify(good)}`);
+  }
+  if (!/Weather unavailable/.test(weatherFile) || !/<span className="widget__label">\{place\}<\/span>/.test(weatherFile)) {
+    throw new Error('a failed weather widget no longer shows its place and "Weather unavailable"');
+  }
+  if (weatherLib.WEATHER_REFRESH_MS < 30 * 60_000 || weatherLib.WEATHER_REFRESH_MS > 60 * 60_000) {
+    throw new Error('weather refreshes more often than every 30 minutes, or less than hourly');
+  }
+  if (!/setInterval\(refresh, WEATHER_REFRESH_MS\)/.test(weatherFile) || !/clearInterval/.test(weatherFile)) {
+    throw new Error('weather refresh is not one interval, cleared on unmount');
+  }
+  if (/serviceWorker/.test(weatherFile + weatherLibFile)) throw new Error('weather registered a service worker');
+
+  // 6. Every mobile widget is a square.
+  if (!/aspect-ratio:\s*1\s*\/\s*1/.test(rule(css, '.m-widget'))) throw new Error('a mobile widget is not square');
+
+  // 7. No size or span anywhere: schema, lib, Studio, shell, CSS.
+  if ('span' in MobileHomeWidgetSchema.shape) throw new Error('the mobile widget schema still has a span');
+  const legacySpan = MobileHomeSchema.safeParse({ widgets: [{ widgetId: 'w-clock', span: 'half' }] });
+  if (!legacySpan.success || 'span' in legacySpan.data.widgets[0]) throw new Error('an old `span` is not quietly dropped');
+  const panel = read('src/studio/panels/DesktopPanel.tsx');
+  const homeFields = panel.slice(panel.indexOf('function MobileHomeFields'));
+  for (const [text, where] of [
+    [homeFields, 'the Studio Mobile Home fields'],
+    [strip(read('src/lib/mobileHome.ts')), 'lib/mobileHome.ts'],
+    [shell, 'MobileShell'],
+  ]) {
+    if (/(?<![</])\bspan\b|SPANS|'half'|'full'|label="Size"/.test(text)) throw new Error(`${where} still has a widget size`);
+  }
+  if (/data-span|m-widget--(half|full)/.test(css)) throw new Error('mobile.css still sizes widgets by span');
+
+  // 8–9. Mobile Home is Clock then Weather, in the content and by default.
+  const home = mobileHome.mobileWidgets(content.settings.mobileHome, content.desktop.widgets);
+  const top = home.filter((entry) => entry.area === 'top').map((entry) => entry.widget.type);
+  if (top.join(',') !== 'clock,weather') throw new Error(`the phone's top widgets are ${top.join(',') || 'none'}, expected clock,weather`);
+  const byDefault = mobileHome.mobileWidgets(undefined, [...content.desktop.widgets].reverse()).map((entry) => entry.widget.type);
+  if (byDefault.join(',') !== 'clock,weather') throw new Error(`the default phone widgets are ${byDefault.join(',')}`);
+  const dubai = content.desktop.widgets.find((widget) => widget.type === 'weather');
+  if (!dubai || dubai.title !== 'Dubai' || Math.abs(dubai.latitude - 25.2) > 0.1 || Math.abs(dubai.longitude - 55.27) > 0.1) {
+    throw new Error('the weather widget is not authored for Dubai');
+  }
+
+  // 10. Two widgets to a phone row, on the icons' gap.
+  const widgetsRule = rule(css, '.m-widgets');
+  if (!/grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/.test(widgetsRule) || !/gap:\s*var\(--m-gap-x\)/.test(widgetsRule)) {
+    throw new Error('phone widgets are not two equal columns on the icon gap');
+  }
+
+  // 11. Larger phone icons: a 56–64px plate, never wider than its column.
+  const icon = /--m-icon:\s*clamp\((\d+)px,\s*[\d.]+vw,\s*(\d+)px\)/.exec(rule(css, '.m-home'));
+  if (!icon || Number(icon[1]) < 56 || Number(icon[2]) > 72) throw new Error('the phone icon plate is not 56–64px');
+  if (!/width:\s*min\(var\(--m-icon\), 100%\)/.test(rule(css, '.m-app__art')) || !/border-radius/.test(rule(css, '.m-app__art'))) {
+    throw new Error('the icon plate does not use --m-icon, or can overflow its column');
+  }
+  if (!/--m-cols:\s*var\(--m-cols-phone, 4\)/.test(rule(css, '.m-home'))) throw new Error('phones no longer default to four columns');
+
+  // 12. Desktop icons are as they were: every `.dicon` rule matches the committed os.css.
+  let committedOs = null;
+  try {
+    committedOs = execFileSync('git', ['show', 'HEAD:src/components/os/os.css'], { cwd: root, encoding: 'utf8', maxBuffer: 64 << 20 });
+  } catch {
+    committedOs = null;
+  }
+  const osCss = read('src/components/os/os.css');
+  if (!/width:\s*72px/.test(rule(osCss, '.dicon__art'))) throw new Error('the desktop icon art is no longer 72px');
+  if (committedOs !== null) {
+    const dicon = (text) =>
+      text
+        .replace(/\r\n/g, '\n')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .match(/[^{}]*\.dicon[^{}]*\{[^}]*\}/g)
+        ?.map((block) => block.trim())
+        .join('\n');
+    if (dicon(committedOs) !== dicon(osCss)) throw new Error('a desktop icon rule changed');
+  }
+
+  // 13. Weather on the desktop is an ordinary DesktopWidget, placed clear of the others.
+  if (!/<DesktopWidget\b/.test(read('src/components/os/Desktop.tsx'))) throw new Error('the desktop no longer draws DesktopWidget');
+  if (/weather/i.test(widgetFile.slice(widgetFile.indexOf('export function DesktopWidget')))) {
+    throw new Error('DesktopWidget special-cases weather outside WidgetContent');
+  }
+  const placed = content.desktop.widgets.filter((widget) => widget.x !== undefined && widget.y !== undefined);
+  for (const other of placed) {
+    if (other !== dubai && Math.abs(other.x - dubai.x) < 12 && Math.abs(other.y - dubai.y) < 15) {
+      throw new Error(`the weather widget is authored on top of ${other.id}`);
+    }
+  }
+
+  // 14. MobileSurface — the sheets — is untouched.
+  let committedSurface = null;
+  try {
+    committedSurface = execFileSync('git', ['show', 'HEAD:src/components/mobile/MobileSurface.tsx'], { cwd: root, encoding: 'utf8' });
+  } catch {
+    committedSurface = null;
+  }
+  const norm = (text) => text.replace(/\r\n/g, '\n');
+  if (committedSurface !== null && norm(committedSurface) !== norm(read('src/components/mobile/MobileSurface.tsx'))) {
+    throw new Error('MobileSurface.tsx changed');
+  }
+
+  // 15. Content from before Weather and Mobile Home still validates.
+  const legacy = structuredClone(content);
+  delete legacy.settings.mobileHome;
+  legacy.desktop.widgets = legacy.desktop.widgets.filter((widget) => widget.type !== 'weather');
+  const legacyResult = PortfolioSchema.safeParse(legacy);
+  if (!legacyResult.success) {
+    throw new Error(`content without weather or mobileHome fails: ${legacyResult.error.issues[0]?.message}`);
+  }
+
+  // 16. The truth backup is untouched (asserted in full by check 47 #20).
+  if (!read('backup/portfolio.TRUTH.json').length) throw new Error('the truth backup is missing');
+
+  return 'phone: square widgets two to a row, 56–64px plates; weather: one keyless renderer, Dubai, null on failure';
 });
 
 /* ---------------------------------------------------------------- report */

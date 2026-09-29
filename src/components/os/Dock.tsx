@@ -16,7 +16,7 @@ import { dockLinkUrl } from '@/lib/contentStore';
 import type { DockLink } from '@/types/content';
 import { cx } from '@/lib/utils';
 
-const LINK_ICONS: Record<DockLink['icon'], LucideIcon> = {
+export const LINK_ICONS: Record<DockLink['icon'], LucideIcon> = {
   mail: Mail,
   instagram: Instagram,
   linkedin: Linkedin,

@@ -4,12 +4,220 @@
 > missing, and what was decided. It exists so a new session can pick up the work without
 > reading every file in the repo.
 >
-> **Last updated:** 2026-09-27 · **Session 24** (gallery images fold and drag in the Studio)
+> **Last updated:** 2026-09-29 · **Session 26** (square mobile widgets, larger phone icons, Weather)
 
 ---
 
 <!-- CHECKPOINT:START -->
 ## CURRENT SESSION CHECKPOINT
+
+Session 26 · 2026-09-29 · **The phone home reads as a phone: square widgets, large icons, and
+Weather as the fourth widget.** Hierarchy, by weight: wallpaper → square widgets → large app icons
+→ floating dock. ASAAD.OS, not an iOS copy. One deliberate `portfolio.json` change (below). The
+brief referred to an attached reference screenshot; none arrived, so the composition follows the
+written description.
+
+**Completed:**
+- **Every mobile widget is a square.** `.m-widget` is `aspect-ratio: 1 / 1`; phones put two in a
+  row (`repeat(2, minmax(0, 1fr))` on the icons' own gap, so a widget is two icon columns wide);
+  tablets fit more per row (`auto-fill`, 168px minimum) instead of growing them. Type inside a
+  tile is sized to the tile with `cqi`. Grid-ordered, never draggable.
+- **Half / Full is gone, not hidden.** `span` removed from `MobileHomeWidgetSchema`,
+  `lib/mobileHome.ts`, `MobileShell`, `mobile.css` and the Studio. An old draft carrying `span`
+  still imports — Zod drops the key. Studio per widget: name / type, Position (Top / After apps),
+  ↑ ↓, remove; plus **+ Add widget** and the column controls.
+- **Larger phone icons.** A mobile-only plate (rounded square of glass, hairline, soft shadow,
+  blur, artwork `contain`ed at 78%) at `--m-icon: clamp(56px, 16vw, 64px)` on a phone, 72px on a
+  tablet, capped at its column's width. Still 4 phone columns; the gap drops from 12px to 8px
+  under 360px before an icon shrinks. Whole cell is the target. Desktop `.dicon` untouched.
+- **Weather, one implementation for both shells.** `lib/weather.ts` (Open-Meteo, keyless,
+  `fetch`, never rejects, 10s timeout, 30-minute per-place cache) + `os/WeatherWidget.tsx`
+  (lucide icons; loading = place + dash, failure = place + "Weather unavailable"; refresh on
+  mount then every 30 min; a failed refresh keeps the last good reading). Drawn through
+  `WidgetContent`, so the desktop and the phone share it. No geolocation, no key, no service
+  worker, no forecast.
+- **Schema:** `widget.type` gains `weather`; optional `latitude` (−90..90) / `longitude`
+  (−180..180), required for `weather` by the root `superRefine`. Studio → Widgets → Weather has
+  Title (place name) + Latitude + Longitude.
+- **Shared clock.** `WidgetContent` takes `variant: 'panel' | 'tile'`. The tile clock sets the
+  time large with AM/PM small and the date on two lines; same `useNow`, no second clock.
+- **Mobile defaults:** `widgets` absent → the first clock then the first weather widget, top.
+- **Rhythm and dock:** safe area → status bar → small gap → widgets → larger gap (32px, 40px on a
+  tablet) → icons → wallpaper → dock. Dock scaled up (76px rail, 68px items, 26px glyphs; 84 /
+  76 / 28 on a tablet), no badges. 320–430px with no horizontal overflow.
+
+**Intentional `portfolio.json` change (+20 lines, nothing else moved):**
+- `desktop.widgets` + `{ "id": "w-weather", "type": "weather", "title": "Dubai", "latitude":
+  25.2048, "longitude": 55.2708, "x": 76, "y": 57, "zone": "right" }` — below the reaction test in
+  the same column (clock 76,15 · reaction 76,36 · weather 76,57). Authored placements resolve in
+  array order, so appending it cannot move the existing two.
+- `settings.mobileHome` = `{ "widgets": [{ "widgetId": "w-clock" }, { "widgetId": "w-weather" }] }`
+  — `[CLOCK][WEATHER]` at the top of the phone, clock first.
+
+**Files changed:** `src/lib/weather.ts` (new), `src/components/os/WeatherWidget.tsx` (new),
+`src/components/os/DesktopWidget.tsx`, `src/components/os/os.css` (weather styles only),
+`src/components/mobile/MobileShell.tsx`, `src/components/mobile/mobile.css` (home part; sheets
+untouched), `src/lib/mobileHome.ts`, `src/types/content.ts`, `src/studio/panels/DesktopPanel.tsx`,
+`src/content/portfolio.json`, `scripts/check-ui.mjs`, `scripts/roundtrip.mjs`,
+`PROJECT_STATUS.md`, `ARCHITECTURE.md`, `CONTENT_GUIDE.md`.
+
+**Not touched:** `MobileSurface.tsx` (asserted identical to HEAD), sheets, project pages, Quick
+View, desktop windows / icons / dock, routing, media, `backup/portfolio.TRUTH.json`. No new
+dependencies.
+
+**Checks:** check:ui **47** updated (tile variant; Clock + Weather default; no span); new
+check:ui **48** — weather is a type and needs coordinates · one Weather renderer via
+`WidgetContent`, Open-Meteo called only from `lib/weather.ts` · no key · no geolocation ·
+`loadWeather` resolves `null` (never throws) on five stubbed failures, `parseWeather` rejects
+junk · 30–60 min refresh, cleared on unmount · square widgets · no span anywhere · content and
+default both Clock → Weather · two phone columns · 56–64px plates · every `.dicon` rule equals
+HEAD · desktop weather is a plain `DesktopWidget` clear of the others · `MobileSurface` equals
+HEAD · legacy content validates. check:content **7** also strips weather widgets and
+coordinates; **11** drops `span` and asserts an old `span` is stripped, not rejected; new **12**
+(weather needs an authored place; mobile home starts clock, weather).
+
+**Verified:** `npm run lint` clean · `npm run build` green (1890 modules) · `npm run
+check:content` **12/12** (byte-identical on no edit) · `npm run check:ui` **48/48**. **Not seen on
+screen, and no live Open-Meteo request was made** — the network path is tested with stubs only.
+
+**Next exact step:** human QA on a real phone and tablet.
+
+PHONE (320 / 375 / 390 / 430 wide):
+- no horizontal scroll at any width
+- Clock and Weather side by side at the top, clock first, both square
+- tile clock digits fit (12-hour locale: "12:45" + small PM)
+- Weather shows Dubai, a temperature, a condition and an icon within a few seconds
+- airplane mode + reload → "Dubai · Weather unavailable", same square, nothing else breaks
+- icon plates read as app icons on both wallpapers; labels do not collide
+- dock clears the home indicator
+
+TABLET:
+- widgets stay square, more per row, not huge
+- icons 72px, 6 columns
+
+DESKTOP:
+- Weather — Dubai sits under the reaction test, draggable, overlapping nothing
+- icons, windows and the other widgets exactly where they were
+
+STUDIO:
+- Mobile Home: no Size control; Position / ↑ ↓ / remove / + Add widget work
+- Widgets → Weather: Latitude / Longitude fields; clearing one shows the validation error
+- export JSON, reload, both preserved
+
+<!-- CHECKPOINT:END -->
+
+---
+
+## Previous checkpoint — Session 25
+
+Session 25 · 2026-09-29 · **Phones and tablets get a touch-first ASAAD.OS home screen, not a
+second Quick View.** Three modes now, each with one job: **Desktop** = the full computer OS ·
+**Mobile / tablet** = wallpaper, widgets, an icon grid and a floating dock, opening full-screen
+sheets · **Quick View** = the conventional recruiter portfolio at `#/quick`. One optional schema
+field. `portfolio.json` not migrated.
+
+**Root cause:** the old `MobileShell` rendered Quick View's sections (hero + Quick View CTA,
+featured project cards, text tiles, notes list, footer) with no wallpaper, widgets, artwork or
+dock. And `useIsCompact` was `max-width: 900px` only, so a tablet got the draggable desktop.
+
+**Completed:**
+- **`MobileShell.tsx` rewritten as the home screen only.** Fixed `Wallpaper` backdrop · status bar
+  (time, `profile.osName`, Search → the command palette, theme toggle when allowed) · widgets ·
+  icon grid · widgets after the apps · floating dock. No sheet state, no window store, no drag.
+- **Icons:** All Work first, then every folder in `orderedFolders` order, then `dockLinks` as
+  external icons. Artwork is `folder.icon`, else the icon of the desktop shortcut that targets that
+  folder (that is where the artwork actually lives today), drawn with `object-fit: contain`.
+  Monogram → glyph fallback as on the desktop. CSS grid; phone 4 columns, tablet (≥700px) 6.
+- **Opening:** a folder → `openFolder(id)`; All Work → `present({ app: 'projects', title: 'All work' })`
+  — the same `ProjectsApp` with no folder filter. Both go through `useOpenTarget`, which
+  `MobileSurface` turns into a sheet, so Back from a project returns to its folder.
+- **Dock:** `DOCK_APPS` minus Work (the grid's first icon already is Work) + a separator + **Quick
+  View** (`setView('quickview')`).
+- **Widgets are shared, not copied.** `DesktopWidget.tsx` now exports `WidgetContent` (and
+  `useNow`, `WIDGET_LABELS`); the desktop draws it inside its positioned, draggable wrapper, the
+  home screen inside a static tile. Desktop markup is unchanged. No weather API or fake data.
+- **`lib/mobileHome.ts` (new):** defaults, `mobileColumns`, `mobileWidgets`, `folderIcon`,
+  `iconSource` (the per-theme artwork rule, now also used by `DesktopIcon`), `mobileApps`.
+- **Schema:** optional `settings.mobileHome` `{ phoneColumns? 3–5, tabletColumns? 4–6,
+  widgets?: [{ widgetId, area?: 'top'|'afterApps', span?: 'half'|'full' }] }`. No defaults in the
+  schema. `superRefine` rejects an unknown or duplicated `widgetId`.
+- **Detection:** `useIsCompact` = `COMPACT_QUERY` = narrow (≤900px) **or** touch-first
+  (`hover: none` + `pointer: coarse`) up to 1366px. No user-agent sniffing.
+- **Studio → Desktop & Dock → Mobile Home** (new fold): phone / tablet columns, a widget list with
+  Position, Size, ↑ ↓, remove, **+ Add widget** (unselected desktop widgets only), reset.
+- **Layout:** `100dvh`, one scroll surface (the page), safe-area insets on all four sides, the dock
+  clears the home indicator, targets ≥44px, no hover-only actions, reduced motion respected. The
+  sheet bar also respects the top / side insets now.
+- **Checks:** check:ui **25** updated to the new handlers; new check:ui **47** (the §25 regression
+  list). check:content **10** (absent `mobileHome` stays absent) and **11** (a configured one
+  round-trips; unknown / duplicate `widgetId` rejected); check **7** strips `mobileHome` too.
+
+**Files changed:** `src/components/mobile/MobileShell.tsx`, `src/components/mobile/mobile.css`,
+`src/lib/mobileHome.ts` (new), `src/components/os/DesktopWidget.tsx`,
+`src/components/os/DesktopIcon.tsx`, `src/components/os/Dock.tsx` (`LINK_ICONS` exported),
+`src/hooks/useEnvironment.ts`, `src/types/content.ts`, `src/studio/panels/DesktopPanel.tsx`,
+`scripts/check-ui.mjs`, `scripts/roundtrip.mjs`, `PROJECT_STATUS.md`, `ARCHITECTURE.md`,
+`CONTENT_GUIDE.md`, `README.md`.
+
+**Not touched:** `src/App.tsx`, `src/components/mobile/MobileSurface.tsx`, Quick View, `Desktop.tsx`,
+project pages, `src/content/portfolio.json`, `backup/portfolio.TRUTH.json`. No new dependencies.
+
+**Verified:** `npm run lint` clean · `npm run build` green (1888 modules; `StudioApp` still its own
+chunk) · `npm run check:content` **11/11** (byte-identical on no edit) · `npm run check:ui` **47/47**.
+**Not seen on screen** — no browser was used.
+
+**Next exact step:** human QA on a real phone and tablet (or devtools device mode for layout only).
+
+PHONE PORTRAIT:
+- home screen fills viewport correctly
+- wallpaper is correct
+- status/top region respects safe area
+- widgets fit
+- 4-column default grid looks balanced
+- folder labels do not collide
+- dock clears the home indicator
+
+PHONE NAVIGATION:
+- open folder
+- open project inside folder
+- Back returns to folder
+- Back returns to home
+- open Quick View from its shortcut
+- return to OS
+
+TABLET PORTRAIT:
+- larger grid works
+- widgets use available width intelligently
+- app icons do not become comically large
+
+TABLET LANDSCAPE:
+- still uses touch OS shell when intended
+- no desktop draggable windows accidentally appear
+
+THEMES:
+- light
+- dark
+- correct wallpaper
+- correct folder icon variant
+
+STUDIO:
+- change phone columns
+- change tablet columns
+- add/remove mobile widget
+- reorder widgets
+- switch widget top/after-apps
+- switch half/full (removed in session 26 — every mobile widget is square)
+- export JSON
+- confirm reload preserves it
+
+DEEP LINK:
+- open #/project/<id> directly at phone width
+- project appears in MobileSurface rather than an invisible desktop window
+
+
+---
+
+## Previous checkpoint — Session 24
 
 Session 24 · 2026-09-27 · **Gallery images and website screenshots are folded, draggable rows in
 the Studio.** Studio UI only. No schema, content, export or public rendering changes.
@@ -59,8 +267,6 @@ thumbnails, desktop and ≤820px.
 - Add an image and check it opens. Duplicate one and check it lands after the source.
 - Delete down to one and check it becomes an Image again.
 - Repeat on a website's Screenshots.
-
-<!-- CHECKPOINT:END -->
 
 ---
 
@@ -1524,7 +1730,9 @@ Companion docs: [`README.md`](README.md) (run/build/deploy) ·
 
 ## 2. Health check
 
-Last verified **2026-09-24, end of session 15**.
+Last verified **2026-09-29, end of session 26** — lint clean · build green, 1890 modules ·
+`check:content` **12/12** · `check:ui` **48/48**. The table below is the session 15 detail and is
+kept for its history; the counts above supersede its numbers.
 
 | Check | Command | Status |
 | --- | --- | --- |
@@ -1619,8 +1827,13 @@ Instagram accepts `instagramUrl` **or** `url` and always falls back to the thumb
 ### Quick View (`src/components/quick-view/QuickView.tsx`)
 Recruiter mode: intro, selected work, experience, capabilities, about, contact, CV.
 
-### Mobile (`src/components/mobile/MobileShell.tsx`)
-No dragging. Apps as cards, projects as full-screen sheets.
+### Mobile / tablet (`src/components/mobile/`)
+`MobileShell.tsx` is the touch home screen and nothing else (session 25): wallpaper, status bar,
+square widgets two to a phone row (the desktop's, via the shared `WidgetContent`; Clock then
+Weather — Dubai by default), an icon grid of 56–64px plates — All Work, then every folder in
+folder order, with the desktop's artwork — and a floating dock with Quick View (session 26).
+`MobileSurface.tsx` owns the full-screen sheet stack. Chosen by `useIsCompact` (narrow, or a
+coarse-pointer screen up to 1366px). Columns and widgets: optional `settings.mobileHome`.
 
 ### Studio (`src/studio/`)
 `#/studio`. Edits a validated draft and **exports JSON** — it deliberately cannot publish
@@ -1691,6 +1904,11 @@ Priority order. Update the status column as these are done.
 | 49 | **Session 11 has not been seen on screen** | the portal, the gutters, the media titles and every typography default are verified by script and by reasoning, not by eye | ⬜ open — human QA needed (see the checkpoint) |
 | 50 | **`project.tile.span` has no effect on the Work grid** | masonry needs equal columns, so `sm`/`md`/`lg`/`xl` no longer make one card wider than another; the field is still in the schema, the content and the Studio | ⬜ open (session 15) — decide: give it a meaning again as a full-width breakout, or retire it from the Studio |
 | 51 | **The project-card masonry has not been seen on screen** | packing, the 700/1150 breakpoints and the estimated heights are verified by script and against the real content numbers, not by eye | ⬜ open — human QA: resize the Work window across both breakpoints, then open a folder |
+| 52 | **The mobile home screen was a second Quick View, and tablets got the desktop** | a phone showed hero / selected work / notes instead of an OS; an iPad got draggable windows | ✅ fixed (session 25) — `MobileShell` is a home screen (wallpaper, widgets, icon grid, dock); `useIsCompact` also matches coarse-pointer screens up to 1366px |
+| 53 | **Session 25 has not been seen on screen** | the home screen, safe areas, the tablet decision and the Studio Mobile Home fold are verified by script, not by eye or finger | ⬜ open — human QA on a real phone and tablet (see the checkpoint) |
+| 54 | Folder artwork lives on desktop shortcuts, not on folders | the home screen has to borrow it from the shortcut that targets each folder | ⬜ accepted — `folderIcon` falls back to it; set `folder.icon` to override |
+| 55 | **Session 26 has not been seen on screen, and Weather has never made a live request** | square tiles, plate sizes at 320–430px and the Open-Meteo call are verified by script and stubs, not by eye or on a network | ⬜ open — human QA on a real phone and tablet (see the checkpoint) |
+| 56 | Weather depends on a third-party service | if Open-Meteo is down, blocked or changes shape, the widget says "Weather unavailable" | ⬜ accepted — keyless and free; failure is contained to the one tile |
 
 ---
 
@@ -1698,6 +1916,14 @@ Priority order. Update the status column as these are done.
 
 - **Portfolio first, OS second.** If a change makes the OS more impressive but the work less
   visible, it is wrong.
+- **Three modes, three jobs** (session 25). Desktop = the full computer OS. Mobile / tablet = a
+  touch-first ASAAD.OS home screen. Quick View = the conventional recruiter portfolio. The mobile
+  home is **not** modelled on Quick View and must not grow its sections (selected work,
+  experience, capabilities, about, CV, contact) — Quick View is one tap away in the dock.
+  It is an ordered grid, never free-positioned; it is ASAAD.OS, not an iOS clone.
+- **Tablets are chosen by input, not by device name** (session 25). `useIsCompact` = narrow **or**
+  `(hover: none) and (pointer: coarse)` up to 1366px. No user-agent sniffing. A touchscreen laptop
+  with a mouse reports `hover: hover` and keeps the desktop.
 - **The Work grid is art-directed by data.** Tile shape comes from `project.tile.aspect`, not
   from a uniform card component. Do not make every project the same rectangle.
 - **Project cards are packed, never laid out in rows** (session 15). Columns are equal-width and
@@ -1754,7 +1980,15 @@ Priority order. Update the status column as these are done.
   icons on the right are jokes that open an alert — they are not, and will not become, real
   launchers.
 - **No Next.js, no backend, no analytics, no feature creep** (3D worlds, AI assistants, fake
-  terminals, weather widgets, music players, calendars, auth or CMS).
+  terminals, music players, calendars, auth or CMS). Weather widgets were on this list until
+  session 26, when one was requested explicitly — see below.
+- **One weather widget, current conditions only** (session 26; the second deliberate exception
+  after `reaction`). Open-Meteo via `fetch`: no key, no backend, no dependency. The place is
+  authored on the widget (`latitude` / `longitude`); the visitor's location is never requested.
+  Failure says "Weather unavailable" and never throws. No forecast, no hourly graph, no second
+  implementation — one `WeatherWidget` for both shells.
+- **Mobile widgets are squares** (session 26). No half / full / wide / long sizes and no span
+  control: two to a phone row, more per row on a tablet, ordered by the list, never dragged.
 - **One game, and only one** (session 6; this supersedes the blanket ban on games that stood
   in this section through session 5). The
   `reaction` widget — press start, wait for blue, press again, read the milliseconds — was

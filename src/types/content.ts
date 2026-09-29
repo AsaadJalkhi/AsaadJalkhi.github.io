@@ -703,11 +703,14 @@ export const DesktopItemSchema = z.object({
 export type DesktopItem = z.infer<typeof DesktopItemSchema>;
 
 /**
- * A small panel that lives on the desktop next to the icons. All self-contained:
- * no network, no API, nothing to break.
+ * A small panel that lives on the desktop next to the icons (and, when picked
+ * in `settings.mobileHome`, on the phone's home screen).
  *   `clock`    — time, day and date, with an optional place label.
  *   `note`     — a short personal card: what you're working on, a line you like.
  *   `reaction` — a reaction-time tester. Tap start, wait for the blue, tap it.
+ *   `weather`  — the current weather at `latitude` / `longitude`, with `title`
+ *                as the place name. Keyless (Open-Meteo); the place is authored
+ *                here, never the visitor's own location.
  *
  * `reaction` is the one deliberate exception to "no games" in PROJECT_STATUS §5,
  * requested explicitly. It is self-contained: no levels, no sound, no network,
@@ -715,10 +718,13 @@ export type DesktopItem = z.infer<typeof DesktopItemSchema>;
  */
 export const WidgetSchema = z.object({
   id: slug,
-  type: z.enum(['clock', 'note', 'reaction']),
+  type: z.enum(['clock', 'note', 'reaction', 'weather']),
   title: z.string().optional(),
   /** `note` body text. Unused by the other types. */
   body: z.string().optional(),
+  /** `weather` only — required there, checked in the root `superRefine`. */
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
   x: z.number().min(0).max(100).optional(),
   y: z.number().min(0).max(100).optional(),
   zone: ZoneSchema.default('any'),
@@ -889,6 +895,39 @@ export const TypographySettingsSchema = z.object({
 });
 export type TypographySettings = z.infer<typeof TypographySettingsSchema>;
 
+/**
+ * The phone / tablet home screen: how many icon columns, and which of the
+ * desktop's widgets appear on it.
+ *
+ * Nothing here is new content. A mobile widget is a *reference* to a widget
+ * already defined under `desktop.widgets` — the same clock, the same note — so
+ * there is one widget system, drawn twice. Folders and dock entries are not
+ * listed at all: the home screen reads them from `folders` and the dock data,
+ * in their existing order.
+ *
+ * Optional all the way down, with no defaults, for the same reason as
+ * `typography`: an untouched portfolio.json must export byte-identical. The
+ * fallbacks (4 columns on a phone, 6 on a tablet, the first clock and the first
+ * weather widget at the top) live in `lib/mobileHome.ts`, not in the schema.
+ *
+ * There is no size: every mobile widget is a square, two to a phone row.
+ */
+export const MobileHomeWidgetSchema = z.object({
+  /** An id from `desktop.widgets`. Checked in the root `superRefine`. */
+  widgetId: z.string().min(1),
+  /** Above the icon grid, or after it. */
+  area: z.enum(['top', 'afterApps']).optional(),
+});
+export type MobileHomeWidget = z.infer<typeof MobileHomeWidgetSchema>;
+
+export const MobileHomeSchema = z.object({
+  phoneColumns: z.number().int().min(3).max(5).optional(),
+  tabletColumns: z.number().int().min(4).max(6).optional(),
+  /** Absent: the default widget. `[]`: deliberately none. */
+  widgets: z.array(MobileHomeWidgetSchema).optional(),
+});
+export type MobileHome = z.infer<typeof MobileHomeSchema>;
+
 export const SettingsSchema = z.object({
   boot: z.object({
     enabled: z.boolean().default(true),
@@ -906,6 +945,8 @@ export const SettingsSchema = z.object({
    */
   typography: TypographySettingsSchema.optional(),
   customCursor: z.boolean().default(true),
+  /** Phone / tablet home screen. Absent means the built-in layout — see above. */
+  mobileHome: MobileHomeSchema.optional(),
   /*
    * There is deliberately no `showStudio` here any more.
    *
@@ -1001,6 +1042,41 @@ export const PortfolioSchema = z
           message: `Desktop item "${item.label}" points at a missing ${target.type}: "${target.value}"`,
         });
       }
+    });
+
+    // A weather widget needs a place; without one it can only say "unavailable".
+    data.desktop.widgets.forEach((widget, i) => {
+      if (widget.type !== 'weather') return;
+      for (const key of ['latitude', 'longitude'] as const) {
+        if (widget[key] === undefined) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['desktop', 'widgets', i, key],
+            message: `Weather widget "${widget.title ?? widget.id}" needs a ${key}`,
+          });
+        }
+      }
+    });
+
+    // Mobile widgets are references into desktop.widgets, never copies.
+    const widgetIds = new Set(data.desktop.widgets.map((w) => w.id));
+    const placed = new Set<string>();
+    data.settings.mobileHome?.widgets?.forEach((entry, i) => {
+      const path = ['settings', 'mobileHome', 'widgets', i, 'widgetId'];
+      if (!widgetIds.has(entry.widgetId)) {
+        ctx.addIssue({
+          code: 'custom',
+          path,
+          message: `Mobile home widget "${entry.widgetId}" does not exist. Known widgets: ${[...widgetIds].join(', ') || 'none'}`,
+        });
+      } else if (placed.has(entry.widgetId)) {
+        ctx.addIssue({
+          code: 'custom',
+          path,
+          message: `Widget "${entry.widgetId}" is on the mobile home screen twice`,
+        });
+      }
+      placed.add(entry.widgetId);
     });
   });
 

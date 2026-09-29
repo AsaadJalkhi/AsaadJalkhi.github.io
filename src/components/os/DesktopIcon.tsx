@@ -36,6 +36,7 @@ import type { DesktopItem } from '@/types/content';
 import { useIsTouch } from '@/hooks/useEnvironment';
 import { useResolvedTheme } from '@/hooks/useTheme';
 import type { LayoutPoint } from '@/hooks/useDesktopLayout';
+import { iconSource } from '@/lib/mobileHome';
 import { asset } from '@/lib/paths';
 import { cx } from '@/lib/utils';
 
@@ -76,11 +77,7 @@ export function DesktopIcon({
 
   // One file per theme, because a logo drawn in black vanishes on a dark
   // desktop. Either may be omitted, and the legacy single `image` covers both.
-  const icon = item.icon;
-  const source =
-    theme === 'dark'
-      ? (icon?.imageDark ?? icon?.image ?? icon?.imageLight)
-      : (icon?.imageLight ?? icon?.image ?? icon?.imageDark);
+  const source = iconSource(item.icon, theme);
 
   // The failure is remembered per path, not as a flag: a missing dark-mode file
   // must not condemn the light-mode one when the visitor switches back.

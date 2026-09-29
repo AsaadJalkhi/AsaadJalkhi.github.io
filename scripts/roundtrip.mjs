@@ -191,6 +191,13 @@ check('7. content without any of the new fields still validates', () => {
     delete media.presentation;
   }
   delete legacy.settings?.typography;
+  delete legacy.settings?.mobileHome;
+  // Weather arrived with its two coordinates; content from before it has neither.
+  legacy.desktop.widgets = legacy.desktop.widgets.filter((widget) => widget.type !== 'weather');
+  for (const widget of legacy.desktop.widgets) {
+    delete widget.latitude;
+    delete widget.longitude;
+  }
   const result = validatePortfolio(legacy);
   if (!result.ok) throw new Error(result.issues.map((i) => `${i.path}: ${i.message}`).join('; '));
 
@@ -251,6 +258,85 @@ check('9. an absent media presentation stays absent through a round trip', () =>
   const exported = count(JSON.parse(JSON.stringify(parsed)));
   if (exported !== authored) throw new Error(`${exported} media export presentation, ${authored} authored it`);
   return `${authored} authored, ${exported} exported`;
+});
+
+check('10. an absent settings.mobileHome stays absent through a round trip', () => {
+  const authored = 'mobileHome' in source.settings;
+  const exported = 'mobileHome' in JSON.parse(JSON.stringify(parsed)).settings;
+  if (exported !== authored) throw new Error(`mobileHome authored: ${authored}, exported: ${exported}`);
+  return authored ? 'authored and kept' : 'absent and still absent';
+});
+
+check('11. mobile home widgets must name a real desktop widget, once', () => {
+  const ids = source.desktop?.widgets?.map((w) => w.id) ?? [];
+  const valid = JSON.parse(JSON.stringify(source));
+  valid.settings.mobileHome = {
+    phoneColumns: 3,
+    tabletColumns: 5,
+    widgets: ids.slice(0, 2).map((widgetId, i) => ({ widgetId, area: i ? 'afterApps' : 'top' })),
+  };
+  const ok = validatePortfolio(valid);
+  if (!ok.ok) throw new Error(ok.issues.map((i) => `${i.path}: ${i.message}`).join('; '));
+  if (stable(ok.data.settings.mobileHome) !== stable(valid.settings.mobileHome)) {
+    throw new Error('a configured mobileHome did not survive validation unchanged');
+  }
+
+  const missing = JSON.parse(JSON.stringify(source));
+  missing.settings.mobileHome = { widgets: [{ widgetId: 'no-such-widget' }] };
+  const bad = validatePortfolio(missing);
+  if (bad.ok) throw new Error('a mobile widget pointing at nothing was accepted');
+  const issue = bad.issues.find((i) => i.path === 'settings.mobileHome.widgets.0.widgetId');
+  if (!issue) throw new Error(`reported at the wrong path: ${bad.issues.map((i) => i.path).join(', ')}`);
+
+  if (ids.length) {
+    const twice = JSON.parse(JSON.stringify(source));
+    twice.settings.mobileHome = { widgets: [{ widgetId: ids[0] }, { widgetId: ids[0] }] };
+    if (validatePortfolio(twice).ok) throw new Error('the same widget was accepted twice');
+  }
+
+  // Widgets used to carry a half / full `span`. There is no size now — every
+  // mobile widget is square — and an old draft that still has one is not an
+  // error: the key is dropped, the rest of the entry kept.
+  if (ids.length) {
+    const sized = JSON.parse(JSON.stringify(source));
+    sized.settings.mobileHome = { widgets: [{ widgetId: ids[0], span: 'half' }] };
+    const dropped = validatePortfolio(sized);
+    if (!dropped.ok) throw new Error('an old `span` on a mobile widget is now an error');
+    if (stable(dropped.data.settings.mobileHome) !== stable({ widgets: [{ widgetId: ids[0] }] })) {
+      throw new Error('an old `span` survived validation');
+    }
+  }
+  return issue.message;
+});
+
+check('12. a weather widget needs an authored place', () => {
+  const weather = source.desktop?.widgets?.filter((w) => w.type === 'weather') ?? [];
+  for (const w of weather) {
+    if (typeof w.latitude !== 'number' || typeof w.longitude !== 'number') {
+      throw new Error(`${w.id} has no coordinates`);
+    }
+  }
+
+  const unplaced = JSON.parse(JSON.stringify(source));
+  unplaced.desktop.widgets.push({ id: 'w-nowhere', type: 'weather', title: 'Nowhere', zone: 'any' });
+  const bad = validatePortfolio(unplaced);
+  if (bad.ok) throw new Error('a weather widget without coordinates was accepted');
+  const at = `desktop.widgets.${unplaced.desktop.widgets.length - 1}.latitude`;
+  const issue = bad.issues.find((i) => i.path === at);
+  if (!issue) throw new Error(`reported at the wrong path: ${bad.issues.map((i) => i.path).join(', ')}`);
+
+  const far = JSON.parse(JSON.stringify(source));
+  far.desktop.widgets.push({ id: 'w-far', type: 'weather', latitude: 120, longitude: 0, zone: 'any' });
+  if (validatePortfolio(far).ok) throw new Error('a latitude of 120 was accepted');
+
+  // The phone's top row, as authored: the clock first, then the weather.
+  const order = (source.settings.mobileHome?.widgets ?? []).map(
+    (entry) => source.desktop.widgets.find((w) => w.id === entry.widgetId)?.type,
+  );
+  if (source.settings.mobileHome && order.slice(0, 2).join(',') !== 'clock,weather') {
+    throw new Error(`mobile home starts ${order.join(',')}, expected clock,weather`);
+  }
+  return `${weather.map((w) => w.title ?? w.id).join(', ') || 'none'} authored; ${issue.message}`;
 });
 
 /* ---------------------------------------------------------------- report */
